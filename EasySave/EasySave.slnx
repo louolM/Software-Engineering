@@ -1,3 +1,6 @@
 <Solution>
+  <Project Path="EasyLog/EasyLog.csproj" />
   <Project Path="EasySave.ConsoleApp/EasySave.ConsoleApp.csproj" />
+  <Project Path="EasySave.Core/EasySave.Core.csproj" />
+  <Project Path="EasySave.Infrastructure/EasySave.Infrastructure.csproj" />
 </Solution>
