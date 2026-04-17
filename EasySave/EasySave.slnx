@@ -1,1 +1,3 @@
-<Solution />
+<Solution>
+  <Project Path="EasySave.ConsoleApp/EasySave.ConsoleApp.csproj" />
+</Solution>
