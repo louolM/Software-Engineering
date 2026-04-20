@@ -7,52 +7,52 @@
       "RelativeMoniker": "D:0:0:{56FCC93B-C2B0-496A-01D7-EA6269127FF6}|EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj|solutionrelative:easysave.consoleapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.core\\backupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|solutionrelative:easysave.core\\backupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{35CABCBD-1A6D-182F-7DF4-F14726F39B87}|EasyLog\\EasyLog.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easylog\\logger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{35CABCBD-1A6D-182F-7DF4-F14726F39B87}|EasyLog\\EasyLog.csproj|solutionrelative:easylog\\logger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{35CABCBD-1A6D-182F-7DF4-F14726F39B87}|EasyLog\\EasyLog.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easylog\\logentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{35CABCBD-1A6D-182F-7DF4-F14726F39B87}|EasyLog\\EasyLog.csproj|solutionrelative:easylog\\logentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B794FECB-108D-E167-9BEC-3DB14B4B3D49}|EasySave.Infrastructure\\EasySave.Infrastructure.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.infrastructure\\fileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B794FECB-108D-E167-9BEC-3DB14B4B3D49}|EasySave.Infrastructure\\EasySave.Infrastructure.csproj|solutionrelative:easysave.infrastructure\\fileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B794FECB-108D-E167-9BEC-3DB14B4B3D49}|EasySave.Infrastructure\\EasySave.Infrastructure.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.infrastructure\\jsonservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B794FECB-108D-E167-9BEC-3DB14B4B3D49}|EasySave.Infrastructure\\EasySave.Infrastructure.csproj|solutionrelative:easysave.infrastructure\\jsonservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B794FECB-108D-E167-9BEC-3DB14B4B3D49}|EasySave.Infrastructure\\EasySave.Infrastructure.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.infrastructure\\staterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B794FECB-108D-E167-9BEC-3DB14B4B3D49}|EasySave.Infrastructure\\EasySave.Infrastructure.csproj|solutionrelative:easysave.infrastructure\\staterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B794FECB-108D-E167-9BEC-3DB14B4B3D49}|EasySave.Infrastructure\\EasySave.Infrastructure.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.infrastructure\\configrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B794FECB-108D-E167-9BEC-3DB14B4B3D49}|EasySave.Infrastructure\\EasySave.Infrastructure.csproj|solutionrelative:easysave.infrastructure\\configrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.core\\easysave.core.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|solutionrelative:easysave.core\\easysave.core.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.core\\easysave.core.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
       "RelativeMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|solutionrelative:easysave.core\\easysave.core.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.core\\backupstate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|solutionrelative:easysave.core\\backupstate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{56FCC93B-C2B0-496A-01D7-EA6269127FF6}|EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.consoleapp\\easysave.consoleapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{56FCC93B-C2B0-496A-01D7-EA6269127FF6}|EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj|solutionrelative:easysave.consoleapp\\easysave.consoleapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.core\\backuptype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|solutionrelative:easysave.core\\backuptype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B794FECB-108D-E167-9BEC-3DB14B4B3D49}|EasySave.Infrastructure\\EasySave.Infrastructure.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.infrastructure\\fileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B794FECB-108D-E167-9BEC-3DB14B4B3D49}|EasySave.Infrastructure\\EasySave.Infrastructure.csproj|solutionrelative:easysave.infrastructure\\fileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{56FCC93B-C2B0-496A-01D7-EA6269127FF6}|EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.consoleapp\\translationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{56FCC93B-C2B0-496A-01D7-EA6269127FF6}|EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj|solutionrelative:easysave.consoleapp\\translationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.core\\backupjob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|solutionrelative:easysave.core\\backupjob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{56FCC93B-C2B0-496A-01D7-EA6269127FF6}|EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.consoleapp\\easysave.consoleapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{56FCC93B-C2B0-496A-01D7-EA6269127FF6}|EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj|solutionrelative:easysave.consoleapp\\easysave.consoleapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+      "AbsoluteMoniker": "D:0:0:{35CABCBD-1A6D-182F-7DF4-F14726F39B87}|EasyLog\\EasyLog.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easylog\\logentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35CABCBD-1A6D-182F-7DF4-F14726F39B87}|EasyLog\\EasyLog.csproj|solutionrelative:easylog\\logentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.core\\backupstate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|solutionrelative:easysave.core\\backupstate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B794FECB-108D-E167-9BEC-3DB14B4B3D49}|EasySave.Infrastructure\\EasySave.Infrastructure.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.infrastructure\\staterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B794FECB-108D-E167-9BEC-3DB14B4B3D49}|EasySave.Infrastructure\\EasySave.Infrastructure.csproj|solutionrelative:easysave.infrastructure\\staterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.core\\backupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|solutionrelative:easysave.core\\backupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.core\\istaterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|solutionrelative:easysave.core\\istaterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.core\\ifileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{59F0CD8E-C1E2-BC34-89E0-269EAF1BFF78}|EasySave.Core\\EasySave.Core.csproj|solutionrelative:easysave.core\\ifileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -62,58 +62,31 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "BackupService.cs",
-              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\BackupService.cs",
-              "RelativeDocumentMoniker": "EasySave.Core\\BackupService.cs",
-              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\BackupService.cs",
-              "RelativeToolTip": "EasySave.Core\\BackupService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-20T10:21:40.881Z",
+              "Title": "EasySave.Core",
+              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\EasySave.Core.csproj",
+              "RelativeDocumentMoniker": "EasySave.Core\\EasySave.Core.csproj",
+              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\EasySave.Core.csproj",
+              "RelativeToolTip": "EasySave.Core\\EasySave.Core.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-04-20T15:03:06.056Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "LogEntry.cs",
-              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasyLog\\LogEntry.cs",
-              "RelativeDocumentMoniker": "EasyLog\\LogEntry.cs",
-              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasyLog\\LogEntry.cs",
-              "RelativeToolTip": "EasyLog\\LogEntry.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAqAAAAAAAAAA==",
+              "DocumentIndex": 5,
+              "Title": "TranslationService.cs",
+              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.ConsoleApp\\TranslationService.cs",
+              "RelativeDocumentMoniker": "EasySave.ConsoleApp\\TranslationService.cs",
+              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.ConsoleApp\\TranslationService.cs",
+              "RelativeToolTip": "EasySave.ConsoleApp\\TranslationService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-20T10:18:34.494Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "StateRepository.cs",
-              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Infrastructure\\StateRepository.cs",
-              "RelativeDocumentMoniker": "EasySave.Infrastructure\\StateRepository.cs",
-              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Infrastructure\\StateRepository.cs",
-              "RelativeToolTip": "EasySave.Infrastructure\\StateRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-20T10:12:19.315Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "ConfigRepository.cs",
-              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Infrastructure\\ConfigRepository.cs",
-              "RelativeDocumentMoniker": "EasySave.Infrastructure\\ConfigRepository.cs",
-              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Infrastructure\\ConfigRepository.cs",
-              "RelativeToolTip": "EasySave.Infrastructure\\ConfigRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-20T10:11:43.243Z",
+              "WhenOpened": "2026-04-20T15:00:50.094Z",
               "EditorCaption": ""
             },
             {
@@ -124,23 +97,35 @@
               "RelativeDocumentMoniker": "EasySave.Infrastructure\\FileService.cs",
               "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Infrastructure\\FileService.cs",
               "RelativeToolTip": "EasySave.Infrastructure\\FileService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAcwBQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-20T10:11:15.638Z",
+              "WhenOpened": "2026-04-20T14:58:14.102Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "EasySave.Core.csproj",
-              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\EasySave.Core.csproj",
-              "RelativeDocumentMoniker": "EasySave.Core\\EasySave.Core.csproj",
-              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\EasySave.Core.csproj",
-              "RelativeToolTip": "EasySave.Core\\EasySave.Core.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-04-17T13:43:21.716Z",
+              "DocumentIndex": 6,
+              "Title": "BackupJob.cs",
+              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\BackupJob.cs",
+              "RelativeDocumentMoniker": "EasySave.Core\\BackupJob.cs",
+              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\BackupJob.cs",
+              "RelativeToolTip": "EasySave.Core\\BackupJob.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T14:48:09.822Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "IStateRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\IStateRepository.cs",
+              "RelativeDocumentMoniker": "EasySave.Core\\IStateRepository.cs",
+              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\IStateRepository.cs",
+              "RelativeToolTip": "EasySave.Core\\IStateRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T14:49:56.955Z"
             },
             {
               "$type": "Document",
@@ -150,14 +135,64 @@
               "RelativeDocumentMoniker": "EasySave.ConsoleApp\\Program.cs",
               "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.ConsoleApp\\Program.cs",
               "RelativeToolTip": "EasySave.ConsoleApp\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAXAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-17T13:34:54.166Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "EasySave.ConsoleApp.csproj",
+              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj",
+              "RelativeDocumentMoniker": "EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj",
+              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj",
+              "RelativeToolTip": "EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-04-20T14:40:29.408Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "EasySave.Core.csproj",
+              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\EasySave.Core.csproj",
+              "RelativeDocumentMoniker": "EasySave.Core\\EasySave.Core.csproj",
+              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\EasySave.Core.csproj",
+              "RelativeToolTip": "EasySave.Core\\EasySave.Core.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-04-20T14:39:33.968Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "BackupService.cs",
+              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\BackupService.cs",
+              "RelativeDocumentMoniker": "EasySave.Core\\BackupService.cs",
+              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\BackupService.cs",
+              "RelativeToolTip": "EasySave.Core\\BackupService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T14:50:13.525Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 9,
+              "Title": "StateRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Infrastructure\\StateRepository.cs",
+              "RelativeDocumentMoniker": "EasySave.Infrastructure\\StateRepository.cs",
+              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Infrastructure\\StateRepository.cs",
+              "RelativeToolTip": "EasySave.Infrastructure\\StateRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T14:53:52.145Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "BackupState.cs",
               "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\BackupState.cs",
               "RelativeDocumentMoniker": "EasySave.Core\\BackupState.cs",
@@ -165,73 +200,31 @@
               "RelativeToolTip": "EasySave.Core\\BackupState.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-20T10:08:28.437Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-20T14:55:56.51Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Logger.cs",
-              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasyLog\\Logger.cs",
-              "RelativeDocumentMoniker": "EasyLog\\Logger.cs",
-              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasyLog\\Logger.cs",
-              "RelativeToolTip": "EasyLog\\Logger.cs",
-              "ViewState": "AgIAABMAAAAAAAAAAAAQwBYAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 7,
+              "Title": "LogEntry.cs",
+              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasyLog\\LogEntry.cs",
+              "RelativeDocumentMoniker": "EasyLog\\LogEntry.cs",
+              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasyLog\\LogEntry.cs",
+              "RelativeToolTip": "EasyLog\\LogEntry.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-17T13:51:06.149Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "BackupType.cs",
-              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\BackupType.cs",
-              "RelativeDocumentMoniker": "EasySave.Core\\BackupType.cs",
-              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\BackupType.cs",
-              "RelativeToolTip": "EasySave.Core\\BackupType.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-20T10:06:31.315Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "JsonService.cs",
-              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Infrastructure\\JsonService.cs",
-              "RelativeDocumentMoniker": "EasySave.Infrastructure\\JsonService.cs",
-              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Infrastructure\\JsonService.cs",
-              "RelativeToolTip": "EasySave.Infrastructure\\JsonService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAtAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-17T13:43:10.196Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-20T14:56:21.612Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 12,
-              "Title": "EasySave.ConsoleApp.csproj",
-              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj",
-              "RelativeDocumentMoniker": "EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj",
-              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj",
-              "RelativeToolTip": "EasySave.ConsoleApp\\EasySave.ConsoleApp.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-04-17T13:41:24.639Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "BackupJob.cs",
-              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\BackupJob.cs",
-              "RelativeDocumentMoniker": "EasySave.Core\\BackupJob.cs",
-              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\BackupJob.cs",
-              "RelativeToolTip": "EasySave.Core\\BackupJob.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAABAAAAAAAAAA==",
+              "Title": "IFileService.cs",
+              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\IFileService.cs",
+              "RelativeDocumentMoniker": "EasySave.Core\\IFileService.cs",
+              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Core\\IFileService.cs",
+              "RelativeToolTip": "EasySave.Core\\IFileService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-17T13:41:04.485Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-20T14:49:15.099Z"
             }
           ]
         }

@@ -1,18 +1,30 @@
-﻿namespace EasySave.Infrastructure;
+﻿using EasySave.Core;
+using System.Text.Json;
+
+namespace EasySave.Infrastructure;
 
 public class ConfigRepository
 {
-    private readonly JsonService _jsonService = new();
-
     private const string ConfigPath = "config.json";
 
-    public List<T> Load<T>()
+    public List<BackupJob> Load()
     {
-        return _jsonService.Read<List<T>>(ConfigPath) ?? new List<T>();
+        if (!File.Exists(ConfigPath))
+            return new List<BackupJob>();
+
+        var json = File.ReadAllText(ConfigPath);
+        return JsonSerializer.Deserialize<List<BackupJob>>(json)
+               ?? new List<BackupJob>();
     }
 
-    public void Save<T>(List<T> jobs)
+    public void Save(List<BackupJob> jobs)
     {
-        _jsonService.Write(ConfigPath, jobs);
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
+
+        var json = JsonSerializer.Serialize(jobs, options);
+        File.WriteAllText(ConfigPath, json);
     }
 }
