@@ -1,6 +1,8 @@
-﻿namespace EasySave.Infrastructure;
+﻿using EasySave.Core;
 
-public class FileService
+namespace EasySave.Infrastructure;
+
+public class FileService : IFileService
 {
     public IEnumerable<string> GetAllFiles(string directory)
     {

@@ -1,12 +1,13 @@
-﻿namespace EasySave.Infrastructure;
+﻿using EasySave.Core;
 
-public class StateRepository
+namespace EasySave.Infrastructure;
+
+public class StateRepository : IStateRepository  // ← ajouter : IStateRepository
 {
     private readonly JsonService _jsonService = new();
-
     private const string StatePath = "state.json";
 
-    public void Save<T>(List<T> states)
+    public void Save(List<BackupState> states)  // ← typer explicitement BackupState
     {
         _jsonService.Write(StatePath, states);
     }

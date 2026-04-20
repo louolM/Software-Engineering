@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EasyLog\EasyLog.csproj" />
-    <ProjectReference Include="..\EasySave.Infrastructure\EasySave.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
