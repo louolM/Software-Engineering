@@ -1,6 +1,7 @@
 # Visual Studio
 .vs/
-
+obj/
+bin/
 
 # User files
 *.user
