@@ -12,12 +12,18 @@ public class ConfigRepository : IConfigRepository
 {
     private const string ConfigPath = "config.json";
 
+    // Loads all backup jobs from the configuration file.
+    //
+    // Returns an empty list (not null) when the file does not exist yet, so callers never have to handle a null return value.
     public List<BackupJob> Load()
     {
         if (!File.Exists(ConfigPath))
             return new List<BackupJob>();
 
         var json = File.ReadAllText(ConfigPath);
+        
+        // Deserializes the JSON array. The null-coalescing guard handles the
+        // unlikely case of an empty or whitespace-only file.
         return JsonSerializer.Deserialize<List<BackupJob>>(json)
                ?? new List<BackupJob>();
     }
