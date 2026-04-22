@@ -2,6 +2,11 @@
 
 namespace EasyLog;
 
+// Handles writing LogEntry records to daily JSON log files.
+//
+// Log files are stored in the "logs/" folder relative to the application's working directory.
+// One file is created per calendar day, named after the current date (e.g., "logs/2024-04-22.json").
+// Each file contains a JSON array of LogEntry objects, appended on every write.
 public class Logger
 {
     private readonly string _logDirectory = "logs";
