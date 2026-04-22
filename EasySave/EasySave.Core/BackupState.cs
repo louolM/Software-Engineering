@@ -11,4 +11,7 @@ public class BackupState
     public long RemainingSize { get; set; }
     public string? CurrentSourceFile { get; set; }
     public string? CurrentTargetFile { get; set; }
+
+    public double Progression => TotalFiles == 0 ? 0
+        : Math.Round((TotalFiles - RemainingFiles) / (double)TotalFiles * 100, 1);
 }

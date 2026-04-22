@@ -12,7 +12,7 @@ IStateRepository stateRepo = new StateRepository();
 IConfigRepository configRepo = new ConfigRepository();
 IBackupService backupSvc = new BackupService(fileService, new Logger(), stateRepo);
 
-Console.Write("FR / EN ? ");
+Console.Write("EN(default) / FR ? ");
 var lang = Console.ReadLine()?.Trim().ToUpper();
 var t = new TranslationService(lang);
 
