@@ -13,3 +13,33 @@ EasySave lets users define up to 5 backup jobs, each copying files from a source
 - **Bilingual UI**: French or English, selected at startup.
 - **CLI batch mode**: runs jobs non-interactively by passing a job ID / range / list as a command-line argument.
 
+## Architecture overview
+
+The solution follows a layered architecture with strict separation of concerns:
+
+```
+┌─────────────────────────────────────────┐
+│         EasySave.ConsoleApp             │  Entry point, UI (View + ViewModel)
+└────────────────┬────────────────────────┘
+                 │ uses
+┌────────────────▼────────────────────────┐
+│          EasySave.Services              │  Business logic (BackupService)
+│     EasySave.Services / Interfaces      │  Contracts (IBackupService, etc.)
+└────────────────┬────────────────────────┘
+                 │ uses
+┌────────────────▼────────────────────────┐
+│       EasySave.Infrastructure           │  File I/O, JSON persistence
+└────────────────┬────────────────────────┘
+                 │ uses
+┌────────────────▼────────────────────────┐
+│           EasySave.Core                 │  Domain models (BackupJob, BackupState, BackupType)
+└─────────────────────────────────────────┘
+                 +
+┌─────────────────────────────────────────┐
+│              EasyLog                    │  Standalone logging library
+└─────────────────────────────────────────┘
+:wq
+```
+
+Each layer depends only on the layer below it. Infrastructure classes are hidden behind interfaces (IFileService, IConfigRepository, IStateRepository) defined in the Services layer, making the core logic independently testable.
+
