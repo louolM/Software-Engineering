@@ -2,6 +2,10 @@
 
 namespace EasySave.Infrastructure;
 
+// Provides file-system operations required by the backup engine.
+//
+// Concrete implementation of IFileService
+// Abstracting file I/O behind the interface makes the backup logic testable:w without touching the real file system.
 public class FileService : IFileService
 {
     public IEnumerable<string> GetAllFiles(string directory)
