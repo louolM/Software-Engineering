@@ -7,6 +7,8 @@ using EasySave.Services;
 using EasySave.Services.Interfaces;
 
 // ── Composition Root ──────────────────────────────────────────────────────────
+// Each interface is paired with its concrete implementation so the rest of
+// the application never needs to instantiate infrastructure classes directly.
 IFileService fileService = new FileService();
 IStateRepository stateRepo = new StateRepository();
 IConfigRepository configRepo = new ConfigRepository();
@@ -16,9 +18,13 @@ Console.Write("FR / EN ? ");
 var lang = Console.ReadLine()?.Trim().ToUpper();
 var t = new TranslationService(lang);
 
+// The ViewModel holds application state (the job list) and exposes commands
+// (Create, Run, Delete) that the View and the CLI mode both call.
 var vm = new JobViewModel(configRepo, backupSvc);
 
 // ── Mode ligne de commande ────────────────────────────────────────────────────
+// The ViewModel holds application state (the job list) and exposes commands
+// (Create, Run, Delete) that the View and the CLI mode both call.
 if (args.Length > 0)
 {
     vm.RunJobs(ParseIds(args[0]));
@@ -26,9 +32,13 @@ if (args.Length > 0)
 }
 
 // ── Lancement de la View ──────────────────────────────────────────────────────
+// The ViewModel holds application state (the job list) and exposes commands
+// (Create, Run, Delete) that the View and the CLI mode both call.
 var view = new JobView(vm, t);
 view.Run();
 
+// The ViewModel holds application state (the job list) and exposes commands
+// (Create, Run, Delete) that the View and the CLI mode both call.
 static IEnumerable<int> ParseIds(string input)
 {
     if (input.Contains('-'))
