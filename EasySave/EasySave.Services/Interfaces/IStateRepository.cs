@@ -8,4 +8,5 @@ namespace EasySave.Services.Interfaces;
 public interface IStateRepository
 {
     void Save(List<BackupState> states);
+    // Typically contains a single entry, but a list is used to support potential future parallel-job scenarios.
 }
