@@ -243,3 +243,12 @@ One JSON file per calendar day. Each element records the outcome of a single fil
 | TransferTime | Copy duration in milliseconds. -1 indicates a failed copy. |
 | TargetPath | Empty string "" when the copy failed. |
 
+## Configuration reference
+
+| File | Location | Purpose |
+|---|---|---
+| `config.json` | Working directory | Stores all backup job definitions |
+| `state.json` | Working directory | Live progress of the most recent run |
+| `logs/YYYY-MM-DD.json` | `logs/` sub-directory | Immutable daily audit log |
+
+All three files are created automatically on first use, no manual setup is required.
