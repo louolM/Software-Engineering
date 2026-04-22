@@ -103,3 +103,50 @@ dotnet run
 
 You will be asked to choose a language (FR / `EN) and then the main menu appears.
 
+## Usage
+
+### Interactive mode
+
+Launch the application without arguments and select language to use the menu:
+
+```
+FR / EN (Default) ?  EN
+
+=== MENU ===
+1. Create a job
+2. View jobs
+3. Run a job
+4. Delete a job
+5. Quit
+Your choice:
+```
+
+#### Creating and deleting a job
+
+Choose option 1 and fill:
+
+| Field | Example                          |
+|-------------|----------------------------------|
+| Job name    | Documents backup                |
+| Source path | `C:\Users\Alice\Documents`       |
+| Target path | `D:\Backups\Documents`           |
+| Type        | 1 (Full) or 2 (Differential) |
+
+Up to 5 jobs can exist at the same time. Job names must be unique (case sensitive).  
+
+Note: Example directories are marked in Windows format but the program can run on Linux.
+
+#### Running a job
+
+Choose option 3. After the job list is displayed, enter one of the following:
+
+| Format | Meaning |
+|---|---|
+| `3` | Run job with ID 3 |
+| `1-3` | Run jobs 1, 2, and 3 (inclusive range) |
+| `1;3;5` | Run jobs 1, 3, and 5 (explicit list) |
+
+#### Deleting a job
+
+Choose option 4 and select the id of the job to delete.
+
