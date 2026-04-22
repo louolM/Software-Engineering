@@ -43,3 +43,39 @@ The solution follows a layered architecture with strict separation of concerns:
 
 Each layer depends only on the layer below it. Infrastructure classes are hidden behind interfaces (IFileService, IConfigRepository, IStateRepository) defined in the Services layer, making the core logic independently testable.
 
+## Project structure
+
+```
+EasySave/
+│
+├── EasyLog/                            # Logging library
+│   ├── LogEntry.cs                     # Data model for one log record
+│   └── Logger.cs                       # Appends entries to daily JSON log files
+│
+├── EasySave.Core/                      # Domain models (no dependencies)
+│   ├── BackupJob.cs                    # Backup job configuration (id, paths, type)
+│   ├── BackupState.cs                  # Live progress snapshot of a running job
+│   └── BackupType.cs                   # Enum: Full | Differential
+│
+├── EasySave.Services/                  # Business logic
+│   ├── BackupService.cs                # Executes a backup job end-to-end
+│   └── Interfaces/
+│       ├── IBackupService.cs
+│       ├── IConfigRepository.cs
+│       ├── IFileService.cs
+│       └── IStateRepository.cs
+│
+├── EasySave.Infrastructure/            # File-system and JSON persistence
+│   ├── ConfigRepository.cs             # Reads/writes config.json
+│   ├── StateRepository.cs              # Writes state.json after each file
+│   ├── FileService.cs                  # Wraps Directory / File operations
+│   └── JsonService.cs                  # Generic JSON read/write utility
+│
+└── EasySave.ConsoleApp/                # Entry point and UI
+    ├── Program.cs                      # Composition root + CLI argument parsing
+    ├── TranslationService.cs           # FR / EN string lookup
+    ├── ViewModels/
+    │   └── JobViewModel.cs             # App state + commands (Create, Run, Delete)
+    └── Views/
+        └── JobView.cs                  # Console menus, prompts, and output
+```
