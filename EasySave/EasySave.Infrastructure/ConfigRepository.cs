@@ -4,6 +4,10 @@ using System.Text.Json;
 
 namespace EasySave.Infrastructure;
 
+// Persists and retrieves the list of BackupJob objects using a local JSON file ("config.json").
+
+// concrete implementation of IConfigRepository
+// responsible for the serialization / deserialization of job configurations, and shields the rest of the application from file-system concerns.
 public class ConfigRepository : IConfigRepository
 {
     private const string ConfigPath = "config.json";
