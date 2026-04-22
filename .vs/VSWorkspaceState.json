@@ -1,7 +1,12 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\EasySave",
+    "\\EasySave\\EasyLog",
+    "\\EasySave\\EasySave.ConsoleApp",
+    "\\EasySave\\EasySave.Core",
+    "\\EasySave\\EasySave.Infrastructure"
   ],
-  "SelectedNode": "\\test",
+  "SelectedNode": "\\EasySave\\EasySave.Core\\IFileService.cs",
   "PreviewInSolutionExplorer": false
 }

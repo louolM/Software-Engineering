@@ -2,12 +2,15 @@
 using EasySave.ConsoleApp;
 using EasySave.ConsoleApp.ViewModels;
 using EasySave.ConsoleApp.Views;
-using EasySave.Core;
 using EasySave.Infrastructure;
+using EasySave.Services;
+using EasySave.Services.Interfaces;
 
-// ── Composition Root (Model + ViewModel + View) ──────────────────────────────
-var configRepo = new ConfigRepository();
-var backupSvc = new BackupService(new FileService(), new Logger(), new StateRepository());
+// ── Composition Root ──────────────────────────────────────────────────────────
+IFileService fileService = new FileService();
+IStateRepository stateRepo = new StateRepository();
+IConfigRepository configRepo = new ConfigRepository();
+IBackupService backupSvc = new BackupService(fileService, new Logger(), stateRepo);
 
 Console.Write("FR / EN ? ");
 var lang = Console.ReadLine()?.Trim().ToUpper();
@@ -15,18 +18,17 @@ var t = new TranslationService(lang);
 
 var vm = new JobViewModel(configRepo, backupSvc);
 
-// ── Mode ligne de commande (ex: dotnet run -- 1-3) ──────────────────────────
+// ── Mode ligne de commande ────────────────────────────────────────────────────
 if (args.Length > 0)
 {
     vm.RunJobs(ParseIds(args[0]));
     return;
 }
 
-// ── Lancement de la View ─────────────────────────────────────────────────────
+// ── Lancement de la View ──────────────────────────────────────────────────────
 var view = new JobView(vm, t);
 view.Run();
 
-// ── Helper ───────────────────────────────────────────────────────────────────
 static IEnumerable<int> ParseIds(string input)
 {
     if (input.Contains('-'))

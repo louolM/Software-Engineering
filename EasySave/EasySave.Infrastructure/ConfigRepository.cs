@@ -1,9 +1,10 @@
 ﻿using EasySave.Core;
+using EasySave.Services.Interfaces;
 using System.Text.Json;
 
 namespace EasySave.Infrastructure;
 
-public class ConfigRepository
+public class ConfigRepository : IConfigRepository
 {
     private const string ConfigPath = "config.json";
 
@@ -19,12 +20,7 @@ public class ConfigRepository
 
     public void Save(List<BackupJob> jobs)
     {
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true
-        };
-
-        var json = JsonSerializer.Serialize(jobs, options);
-        File.WriteAllText(ConfigPath, json);
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        File.WriteAllText(ConfigPath, JsonSerializer.Serialize(jobs, options));
     }
 }

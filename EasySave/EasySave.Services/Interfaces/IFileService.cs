@@ -1,4 +1,4 @@
-﻿namespace EasySave.Core;
+﻿namespace EasySave.Services.Interfaces;
 
 public interface IFileService
 {
