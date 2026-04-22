@@ -1,4 +1,6 @@
-﻿namespace EasySave.Core;
+﻿using EasySave.Core;
+
+namespace EasySave.Services.Interfaces;
 
 public interface IStateRepository
 {

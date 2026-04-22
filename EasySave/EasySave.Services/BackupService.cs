@@ -1,8 +1,10 @@
 ﻿using EasyLog;
+using EasySave.Core;
+using EasySave.Services.Interfaces;
 
-namespace EasySave.Core;
+namespace EasySave.Services;
 
-public class BackupService
+public class BackupService : IBackupService
 {
     private readonly IFileService _fileService;
     private readonly Logger _logger;
@@ -17,8 +19,7 @@ public class BackupService
 
     public void RunBackup(BackupJob job)
     {
-        var files = _fileService.GetAllFiles(job.SourcePath);
-
+        var files = _fileService.GetAllFiles(job.SourcePath!);
         var totalSize = files.Sum(f => new FileInfo(f).Length);
 
         var state = new BackupState
@@ -34,17 +35,14 @@ public class BackupService
 
         foreach (var file in files)
         {
-            var relativePath = Path.GetRelativePath(job.SourcePath, file);
-            var targetFile = Path.Combine(job.TargetPath, relativePath);
-
+            var relativePath = Path.GetRelativePath(job.SourcePath!, file);
+            var targetFile = Path.Combine(job.TargetPath!, relativePath);
             var fileSize = new FileInfo(file).Length;
 
-            // 🔥 DIFFERENTIAL
             if (job.Type == BackupType.Differential && File.Exists(targetFile))
             {
                 var sourceInfo = new FileInfo(file);
                 var targetInfo = new FileInfo(targetFile);
-
                 if (sourceInfo.LastWriteTime <= targetInfo.LastWriteTime)
                 {
                     state.RemainingFiles--;
@@ -60,9 +58,7 @@ public class BackupService
                 state.LastActionTime = DateTime.Now;
 
                 var start = DateTime.Now;
-
                 _fileService.CopyFile(file, targetFile);
-
                 var duration = (long)(DateTime.Now - start).TotalMilliseconds;
 
                 _logger.Write(new LogEntry
@@ -90,13 +86,11 @@ public class BackupService
 
             state.RemainingFiles--;
             state.RemainingSize -= fileSize;
-
             _stateRepo.Save(new List<BackupState> { state });
         }
 
         state.Status = "DONE";
         state.LastActionTime = DateTime.Now;
-
         _stateRepo.Save(new List<BackupState> { state });
     }
 }
