@@ -53,6 +53,19 @@ The solution follows a layered architecture with strict separation of concerns:
 
 Each layer depends only on the layer below it. Infrastructure classes are hidden behind interfaces (IFileService, IConfigRepository, IStateRepository) defined in the Services layer, making the core logic independently testable.
 
+### Diagrams
+The use case diagram shows the different functionalities of a system from the user’s perspective and how actors interact with it.
+![Diagram](Diagrams/Pictures/UseCase.jpg)
+
+The activity diagram represents the flow of actions and decisions within a process from start to finish.
+![Diagram](Diagrams/Pictures/Activity.jpg)
+
+The class diagram describes the structure of a system by showing its classes, attributes, methods, and relationships.
+![Diagram](Diagrams/Pictures/Class.svg)
+
+The sequence diagram illustrates how objects interact over time by showing the order of exchanged messages.
+![Diagram](Diagrams/Pictures/Sequence.svg)
+
 ## Project structure
 
 ```
