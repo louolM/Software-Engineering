@@ -4,9 +4,10 @@
     "\\EasySave",
     "\\EasySave\\EasyLog",
     "\\EasySave\\EasySave.ConsoleApp",
+    "\\EasySave\\EasySave.ConsoleApp\\ViewModels",
     "\\EasySave\\EasySave.Core",
     "\\EasySave\\EasySave.Infrastructure"
   ],
-  "SelectedNode": "\\EasySave\\EasySave.Core\\IFileService.cs",
+  "SelectedNode": "\\EasySave\\EasySave.ConsoleApp\\ViewModels\\JobViewModel.cs",
   "PreviewInSolutionExplorer": false
 }

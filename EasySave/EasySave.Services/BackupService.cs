@@ -19,7 +19,11 @@ public class BackupService : IBackupService
 
     public void RunBackup(BackupJob job)
     {
-        var files = _fileService.GetAllFiles(job.SourcePath!);
+        // ✅ Chemins locaux pour les opérations fichiers
+        var sourcePath = job.SourcePath!;
+        var targetPath = job.TargetPath!;
+
+        var files = _fileService.GetAllFiles(sourcePath);
         var totalSize = files.Sum(f => new FileInfo(f).Length);
 
         var state = new BackupState
@@ -33,12 +37,16 @@ public class BackupService : IBackupService
             RemainingSize = totalSize
         };
 
+        _stateRepo.Save(new List<BackupState> { state });
+
         foreach (var file in files)
         {
-            var relativePath = Path.GetRelativePath(job.SourcePath!, file);
-            var targetFile = Path.Combine(job.TargetPath!, relativePath);
+            // ✅ Chemin local pour la copie
+            var relativePath = Path.GetRelativePath(sourcePath, file);
+            var targetFile = Path.Combine(targetPath, relativePath);
             var fileSize = new FileInfo(file).Length;
 
+            // Differential : skip si fichier identique
             if (job.Type == BackupType.Differential && File.Exists(targetFile))
             {
                 var sourceInfo = new FileInfo(file);
@@ -47,37 +55,39 @@ public class BackupService : IBackupService
                 {
                     state.RemainingFiles--;
                     state.RemainingSize -= fileSize;
+                    _stateRepo.Save(new List<BackupState> { state });
                     continue;
                 }
             }
 
             try
             {
-                state.CurrentSourceFile = file;
-                state.CurrentTargetFile = targetFile;
+                // ✅ Format UNC uniquement pour l'affichage dans state.json et les logs
+                state.CurrentSourceFile = ToUNC(file);
+                state.CurrentTargetFile = ToUNC(targetFile);
                 state.LastActionTime = DateTime.Now;
 
                 var start = DateTime.Now;
-                _fileService.CopyFile(file, targetFile);
+                _fileService.CopyFile(file, targetFile); // ✅ chemins locaux
                 var duration = (long)(DateTime.Now - start).TotalMilliseconds;
 
                 _logger.Write(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     BackupName = job.Name,
-                    SourcePath = file,
-                    TargetPath = targetFile,
+                    SourcePath = ToUNC(file),       // ✅ UNC dans les logs
+                    TargetPath = ToUNC(targetFile),
                     FileSize = fileSize,
                     TransferTime = duration
                 });
             }
-            catch
+            catch (Exception ex)
             {
                 _logger.Write(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     BackupName = job.Name,
-                    SourcePath = file,
+                    SourcePath = ToUNC(file),
                     TargetPath = "",
                     FileSize = 0,
                     TransferTime = -1
@@ -89,8 +99,24 @@ public class BackupService : IBackupService
             _stateRepo.Save(new List<BackupState> { state });
         }
 
-        state.Status = "DONE";
+        // Statut final : INACTIVE
+        state.Status = "INACTIVE";
         state.LastActionTime = DateTime.Now;
+        state.CurrentSourceFile = null;
+        state.CurrentTargetFile = null;
         _stateRepo.Save(new List<BackupState> { state });
+    }
+
+    // Conversion chemin local → format UNC (pour logs et state uniquement)
+    private static string ToUNC(string path)
+    {
+        if (path.StartsWith(@"\\")) return path;
+        if (path.Length >= 2 && path[1] == ':')
+        {
+            var drive = path[0].ToString().ToUpper();
+            var rest = path[2..].Replace('/', '\\');
+            return $@"\\{Environment.MachineName}\{drive}${rest}";
+        }
+        return path;
     }
 }
