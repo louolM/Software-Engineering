@@ -101,7 +101,7 @@ cd EasySave.ConsoleApp
 dotnet run
 ```
 
-You will be asked to choose a language (FR / `EN) and then the main menu appears.
+You will be asked to choose a language (FR / EN) and then the main menu appears.
 
 ## Usage
 
@@ -142,9 +142,9 @@ Choose option 3. After the job list is displayed, enter one of the following:
 
 | Format | Meaning |
 |---|---|
-| `3` | Run job with ID 3 |
-| `1-3` | Run jobs 1, 2, and 3 (inclusive range) |
-| `1;3;5` | Run jobs 1, 3, and 5 (explicit list) |
+| 3 | Run job with ID 3 |
+| 1-3 | Run jobs 1, 2, and 3 (inclusive range) |
+| 1;3;5 | Run jobs 1, 3, and 5 (explicit list) |
 
 #### Deleting a job
 
@@ -166,3 +166,80 @@ dotnet run -- 1;4;5
 ```
 
 > Note: In batch mode the language selection prompt is skipped and no interactive menu is shown.
+
+## Output files
+
+All output files are written in the application's working directory (the folder from which the executable is run).
+
+### `config.json` : job configuration
+
+Persisted automatically whenever a job is created or deleted.
+
+```json
+[
+  {
+    "Id": 1,
+    "Name": "Documents backup",
+    "SourcePath": "C:\\Users\\Alice\\Documents",
+    "TargetPath": "D:\\Backups\\Documents",
+    "Type": 0
+  }
+]
+```
+
+Type values: 0 = Full, 1 = Differential.
+
+
+### `state.json` : live backup progress
+
+Overwritten after every file transfer during a run. Poll this file to monitor progress externally.
+
+```json
+[
+  {
+    "Name": "Documents backup",
+    "LastActionTime": "2024-04-22T14:32:10",
+    "Status": "ACTIVE",
+    "TotalFiles": 120,
+    "RemainingFiles": 47,
+    "TotalSize": 524288000,
+    "RemainingSize": 196608000,
+    "CurrentSourceFile": "C:\\Users\\Alice\\Documents\\report.docx",
+    "CurrentTargetFile": "D:\\Backups\\Documents\\report.docx"
+  }
+]
+```
+
+Status values: "ACTIVE" while running, "DONE" when finished.
+
+### `logs/YYYY-MM-DD.json` : daily transfer log
+
+One JSON file per calendar day. Each element records the outcome of a single file copy attempt.
+
+```json
+[
+  {
+    "Timestamp": "2024-04-22T14:32:10",
+    "BackupName": "Documents backup",
+    "SourcePath": "C:\\Users\\Alice\\Documents\\report.docx",
+    "TargetPath": "D:\\Backups\\Documents\\report.docx",
+    "FileSize": 204800,
+    "TransferTime": 37
+  },
+  {
+    "Timestamp": "2024-04-22T14:32:11",
+    "BackupName": "Documents backup",
+    "SourcePath": "C:\\Users\\Alice\\Documents\\corrupted.dat",
+    "TargetPath": "",
+    "FileSize": 0,
+    "TransferTime": -1
+  }
+]
+```
+
+| Field        | Description |
+|--------------|---|
+| FileSize     | Source file size in bytes. 0 indicates a failed copy. |
+| TransferTime | Copy duration in milliseconds. -1 indicates a failed copy. |
+| TargetPath | Empty string "" when the copy failed. |
+
