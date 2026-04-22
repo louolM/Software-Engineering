@@ -3,6 +3,16 @@
 A lightweight console backup tool written in C# / .NET 10.  
 EasySave lets users define up to 5 backup jobs, each copying files from a source directory to a target directory using either a Full or Differential strategy. Every run is logged to a daily JSON file and its live progress is written to a state file that external monitors can poll.
 
+## Table of contents
+
+1. [Features](#features)
+2. [Architecture overview](#architecture-overview)
+3. [Project structure](#project-structure)
+4. [Getting started](#getting-started)
+5. [Usage](#usage)
+6. [Output files](#output-files)
+7. [Configuration reference](#configuration-reference)
+
 ## Features
 
 - Create, list, run, and delete backup jobs via an interactive console menu.
