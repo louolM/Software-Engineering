@@ -134,7 +134,7 @@ Choose option 1 and fill:
 
 Up to 5 jobs can exist at the same time. Job names must be unique (case sensitive).  
 
-Note: Example directories are marked in Windows format but the program can run on Linux.
+> Note: Example directories are marked in Windows format but the program can run on Linux.
 
 #### Running a job
 
@@ -150,3 +150,19 @@ Choose option 3. After the job list is displayed, enter one of the following:
 
 Choose option 4 and select the id of the job to delete.
 
+### CLI batch mode
+
+Pass a job selector as a command-line argument to run jobs non-interactively and exit immediately. Useful for scheduled tasks.
+
+```bash
+# Run a single job
+dotnet run -- 2
+
+# Run a range of jobs
+dotnet run -- 1-3
+
+# Run a specific list of jobs
+dotnet run -- 1;4;5
+```
+
+> Note: In batch mode the language selection prompt is skipped and no interactive menu is shown.
