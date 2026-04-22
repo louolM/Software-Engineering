@@ -61,10 +61,10 @@ The activity diagram represents the flow of actions and decisions within a proce
 ![Diagram](Diagrams/Pictures/Activity.jpg)
 
 The class diagram describes the structure of a system by showing its classes, attributes, methods, and relationships.
-![Diagram](Diagrams/Pictures/Class.svg)
+![Diagram](Diagrams/Pictures/Class.png)
 
 The sequence diagram illustrates how objects interact over time by showing the order of exchanged messages.
-![Diagram](Diagrams/Pictures/Sequence.svg)
+![Diagram](Diagrams/Pictures/Sequence.png)
 
 ## Project structure
 
