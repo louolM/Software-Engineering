@@ -1,10 +1,10 @@
-﻿// Provides localised UI strings for the console application.
+﻿// Provides localized UI strings for the console application.
 //
 // All text displayed to the user (menu labels, prompts, error messages, etc.)
 // is stored in this service rather than being hard-coded in the View.
 // This makes it straightforward to add new languages without touching display logic.
 // 
-// Currently supported languages: French ("FR") and English (default).
+// Currently supported languages: French ("FR") and English (default, EN).
 // Language is selected once at application startup and cannot be changed at runtime.
 namespace EasySave.ConsoleApp;
 
