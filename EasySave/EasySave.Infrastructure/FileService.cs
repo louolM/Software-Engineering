@@ -14,6 +14,8 @@ public class FileService : IFileService
     public void CopyFile(string source, string target)
     {
         var dir = Path.GetDirectoryName(target) ?? "";
+        
+        // If any intermediate directories in the target path do not exist, they are created automatically before the copy takes place.
         if (!Directory.Exists(dir))
             Directory.CreateDirectory(dir);
         File.Copy(source, target, true);
