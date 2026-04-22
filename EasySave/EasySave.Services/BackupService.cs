@@ -4,6 +4,17 @@ using EasySave.Services.Interfaces;
 
 namespace EasySave.Services;
 
+// Core service that executes a backup job.
+//
+// This class is the concrete implementation of IBackupService.
+// It orchestrates the full backup workflow for a single BackupJob
+//
+// 1.  Enumerate all source files.
+// 2.  Initialize a BackupState progress snapshot.
+// 3.  For each file: optionally skip it (differential strategy), copy it, log the outcome, and update the live state.
+// 4.  Mark the job as "DONE" and write the final state.
+
+// Dependencies are injected through the constructor so they can be replaced with mocks in unit tests without touching the file system or log files.
 public class BackupService : IBackupService
 {
     private readonly IFileService _fileService;
