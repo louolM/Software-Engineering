@@ -79,3 +79,27 @@ EasySave/
     └── Views/
         └── JobView.cs                  # Console menus, prompts, and output
 ```
+
+## Getting started
+
+### Prerequisites
+
+| Requirement | Version |
+|---|---|
+| .NET SDK | 10.0 or later |
+
+### Build
+
+```bash
+dotnet build
+```
+
+### Run
+
+```bash
+cd EasySave.ConsoleApp
+dotnet run
+```
+
+You will be asked to choose a language (FR / `EN) and then the main menu appears.
+
