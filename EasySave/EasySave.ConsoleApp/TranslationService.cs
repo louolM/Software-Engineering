@@ -71,11 +71,7 @@ public class TranslationService
                 { "choice",         "Your choice: " },
                 { "invalidChoice",  "Invalid choice." },
 
-<<<<<<< Updated upstream
                 //Log
-=======
-                //Log 
->>>>>>> Stashed changes
                 { "logFormatPrompt", "Log format JSON / XML? " },
 
                 // Create

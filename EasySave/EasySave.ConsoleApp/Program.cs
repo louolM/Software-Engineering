@@ -6,29 +6,21 @@ using EasySave.Infrastructure;
 using EasySave.Services;
 using EasySave.Services.Interfaces;
 
-// ── Composition Root ──────────────────────────────────────────────────────────
-// Each interface is paired with its concrete implementation so the rest of
-// the application never needs to instantiate infrastructure classes directly.
-
 Console.Write("EN(default) / FR ? ");
 var lang = Console.ReadLine()?.Trim().ToUpper();
 var t = new TranslationService(lang);
 
-<<<<<<< Updated upstream
-// Après le choix de langue, avant la création du ViewModel :
 Console.Write("Log format JSON / XML ? ");
 var logFormat = Console.ReadLine()?.Trim().ToUpper() ?? "JSON";
 
-IFileService      fileService = new FileService();
-IStateRepository  stateRepo   = new StateRepository();
-IConfigRepository configRepo  = new ConfigRepository();
-IBackupService    backupSvc   = new BackupService(fileService, new Logger(logFormat), stateRepo);
+// ── Composition Root ──────────────────────────────────────────────────────────
+// Each interface is paired with its concrete implementation so the rest of
+// the application never needs to instantiate infrastructure classes directly.
+IFileService fileService = new FileService();
+IStateRepository stateRepo = new StateRepository();
+IConfigRepository configRepo = new ConfigRepository();
+IBackupService backupSvc = new BackupService(fileService, new Logger(logFormat), stateRepo);
 
-=======
-Console.Write("Log format JSON / XML ? ");
-var logFormat = Console.ReadLine()?.Trim().ToUpper() ?? "JSON";
-
->>>>>>> Stashed changes
 // The ViewModel holds application state (the job list) and exposes commands
 // (Create, Run, Delete) that the View and the CLI mode both call.
 var vm = new JobViewModel(configRepo, backupSvc);

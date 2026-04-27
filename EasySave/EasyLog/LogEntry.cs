@@ -12,11 +12,3 @@ public class LogEntry
     public long FileSize { get; set; }
     public long TransferTime { get; set; }
 }
-<<<<<<< Updated upstream
-
-// Represents a single entry written to the daily backup log.
-// Each time a file is copied (successfully or not), one LogEntry is created and appended to the JSON log file for the current day containing timestamp, directories infos, file info, transfer size .
-=======
-// Represents a single entry written to the daily backup log.
-// Each time a file is copied (successfully or not), one LogEntry is created and appended to the JSON log file for the current day containing timestamp, directories infos, file info, transfer size .
->>>>>>> Stashed changes
