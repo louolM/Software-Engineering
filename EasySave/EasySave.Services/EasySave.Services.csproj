@@ -8,4 +8,7 @@
     <ProjectReference Include="..\EasySave.Core\EasySave.Core.csproj" />
     <ProjectReference Include="..\EasyLog\EasyLog.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="obj\Debug\net10.0\" />
+  </ItemGroup>
 </Project>
