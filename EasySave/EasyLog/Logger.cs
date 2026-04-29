@@ -20,7 +20,7 @@ public class Logger
 
     public Logger(string format = "JSON")
     {
-        _format = format.ToUpper() == "XML" ? "XML" : "JSON (Default)";
+        _format = format.ToUpper() == "XML" ? "XML" : "JSON";
     }
 
     public void Write(LogEntry entry)
