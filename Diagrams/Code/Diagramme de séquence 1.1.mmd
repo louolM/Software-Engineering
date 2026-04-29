@@ -1,0 +1,89 @@
+sequenceDiagram
+  actor User
+  participant Program
+  participant JobView
+  participant JobViewModel
+  participant TranslationService
+  participant IConfigRepository
+  participant IBackupService
+  participant BackupService
+  participant IFileService
+  participant IStateRepository
+  participant Logger
+ 
+  User->>Program: Launch app
+  Program->>TranslationService: Choose language (FR/EN)
+  TranslationService-->>JobView: Translations loaded
+ 
+  Program->>JobView: Choose file format (XML/JSON)
+  JobView-->>IConfigRepository: Save format preference
+ 
+  loop Main Menu
+    JobView->>User: Display menu
+ 
+    alt Create a job
+      User->>JobView: Select "Create"
+      JobView->>User: Ask name, source, target, type
+      User->>JobView: Provide inputs
+      JobView->>JobViewModel: CreateJob(name, source, target, type)
+      JobViewModel->>IConfigRepository: Load()
+      IConfigRepository-->>JobViewModel: List<BackupJob>
+      JobViewModel->>IConfigRepository: Save(jobs)
+      JobViewModel-->>JobView: SetSuccess / SetError
+      JobView-->>User: Display message
+    end
+ 
+    alt View all jobs
+      User->>JobView: Select "View"
+      JobView->>JobViewModel: Refresh()
+      JobViewModel->>IConfigRepository: Load()
+      IConfigRepository-->>JobViewModel: List<BackupJob>
+      JobViewModel-->>JobView: Jobs list
+      JobView-->>User: Display jobs
+    end
+ 
+    alt Run a job
+      User->>JobView: Select "Run"
+      JobView->>User: Ask job ID(s)
+      User->>JobView: Provide ID(s)
+      JobView->>JobViewModel: RunJobs(ids)
+      JobViewModel->>IConfigRepository: Load()
+      IConfigRepository-->>JobViewModel: List<BackupJob>
+      loop For each selected BackupJob
+        JobViewModel->>IBackupService: RunBackup(job)
+        IBackupService->>IFileService: GetAllFiles(source)
+        IFileService-->>IBackupService: List of files
+        alt Full backup
+          loop For each file
+            IBackupService->>IFileService: CopyFile(source, target)
+            IFileService->>Logger: WriteLogEntry
+          end
+        else Differential backup
+          loop For each modified file
+            IBackupService->>IFileService: CopyFile(source, target)
+            IFileService->>Logger: WriteLogEntry
+          end
+        end
+        IBackupService->>IStateRepository: Save(List<BackupState>)
+      end
+      JobViewModel-->>JobView: SetSuccess / SetError
+      JobView-->>User: Display result
+    end
+ 
+    alt Delete a job
+      User->>JobView: Select "Delete"
+      JobView->>User: Ask job ID
+      User->>JobView: Provide ID
+      JobView->>JobViewModel: DeleteJob(id)
+      JobViewModel->>IConfigRepository: Load()
+      IConfigRepository-->>JobViewModel: List<BackupJob>
+      JobViewModel->>IConfigRepository: Save(updated jobs)
+      JobViewModel-->>JobView: SetSuccess / SetError
+      JobView-->>User: Display message
+    end
+ 
+    alt Leave
+      User->>JobView: Select "Exit"
+      JobView->>Program: End program
+    end
+  end
