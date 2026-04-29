@@ -3,15 +3,15 @@ using System.Xml.Serialization;
 
 namespace EasyLog;
 
-// Logger simple qui écrit des entrées de log dans des fichiers journaliers.
-// 
-// Fonctionnement global :
-// Les logs sont stockés dans un dossier "logs"
-// Un fichier est créé par jour (format : yyyy-MM-dd.json ou .xml)
-// À chaque écriture le fichier du jour est lu (s'il existe), la nouvelle entrée est ajoutée à la liste et Le fichier est réécrit avec toutes les entrées
-//  Le format de sortie peut être JSON ou XML (JSON par défaut)
+// Simple Logger that writes log entries in daily files
 
-// NB : mieux de tout réécrire plutôt que d'append, car avec les balises xml ou la sérialisation json ça risque de créer de pbs
+// Fonctionnement global :
+// Logs are stored in a "logs" folder
+// A file a day is created (format : yyyy-MM-dd.json ou .xml)
+// Each writing the current day file is read (if existing), new entry is appended to the list and the file is overwritten with all entries
+// Output format can be JSON or XML (default is JSON )
+
+// NB : It's better to rewrite all instead of apending bcause of file format constraints, because xml tags or json serialization would cause eventual issues
 
 public class Logger
 {
