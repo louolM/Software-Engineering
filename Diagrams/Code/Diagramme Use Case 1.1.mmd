@@ -1,0 +1,30 @@
+flowchart LR
+  User(["👤 User"])
+ 
+  subgraph System
+    IM["Run in interactive mode"]
+    RA["Run with argument(s)"]
+    CL["Choose language (FR/EN)"]
+    CF["Choose file format (XML/JSON)"]
+    CJ["Create a job"]
+    VA["View all jobs"]
+    RJ["Run a job"]
+    DJ["Delete a job"]
+    LM["Leave menu"]
+    JT["Choose a job type\n(full / differential)"]
+    SJ["Select a job"]
+  end
+ 
+  User --> IM
+  User --> RA
+  IM --> CL
+  RA --> RJ
+  CL --> CF
+  CF --> CJ
+  CF --> VA
+  CF --> RJ
+  CF --> DJ
+  CF --> LM
+  CJ -. "«include»" .-> JT
+  RJ -. "«extend»" .-> SJ
+  DJ -. "«include»" .-> SJ
