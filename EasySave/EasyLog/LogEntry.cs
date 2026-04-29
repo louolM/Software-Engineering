@@ -2,6 +2,9 @@
 
 namespace EasyLog;
 
+// Represents a single entry written to the daily backup log.
+// Each time a file is copied (successfully or not), one LogEntry is created and appended to the log file for the current day containing timestamp, directories infos, file info, transfer size .
+
 [XmlRoot("LogEntry")]
 public class LogEntry
 {
