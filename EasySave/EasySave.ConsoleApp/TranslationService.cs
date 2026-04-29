@@ -39,6 +39,8 @@ public class TranslationService
                 { "createOk",       "Job créé avec succès !" },
                 { "createMaxReached","Limite de 5 jobs atteinte. Supprimez un job avant d'en créer un nouveau." },
                 { "createNameExists","Un job avec ce nom existe déjà." },
+                { "createSourceIsFile", "Le chemin indique un fichier. Un répertoire est attendu"},
+                { "createSourceNotFound","Le répertoire n'existe pas."}, 
 
                 // Voir
                 { "noJobs",         "Aucun job disponible." },
@@ -84,6 +86,8 @@ public class TranslationService
                 { "createOk",       "Job created successfully!" },
                 { "createMaxReached","5 job limit reached. Delete a job before creating a new one." },
                 { "createNameExists","A job with this name already exists." },
+                { "createSourceIsFile", "Path leads to a file. Expected directory or folder"},
+                { "createSourceNotFound", "Directory does not exist"}, 
 
                 // View
                 { "noJobs",         "No jobs available." },
