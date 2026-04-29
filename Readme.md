@@ -284,5 +284,9 @@ The logging system supports two output formats:
 
 The format is defined when initializing the logger.
 
+> Note: Each log write rewrites the entire daily file instead of appending.  
+> It's better to rewrite everything instead of appending because of file format constraints, because xml tags or json serialization would cause eventual issues.
+> This design ensures valid JSON/XML structure at all times but may have performance implications for very large log files.
+
 
 All three files are created automatically on first use, no manual setup is required.
