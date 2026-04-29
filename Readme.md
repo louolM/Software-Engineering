@@ -235,9 +235,9 @@ Overwritten after every file transfer during a run. Poll this file to monitor pr
 
 Status values: "ACTIVE" while running, "DONE" when finished.
 
-### `logs/YYYY-MM-DD.json` : daily transfer log
+### `logs/YYYY-MM-DD.(json|xml)` : daily transfer log
 
-One JSON file per calendar day. Each element records the outcome of a single file copy attempt.
+One file per calendar day. Each element records the outcome of a single file copy attempt.
 
 ```json
 [
@@ -259,6 +259,25 @@ One JSON file per calendar day. Each element records the outcome of a single fil
   }
 ]
 ```
+```xml
+<LogEntry>
+    <Timestamp>2026-04-29T10:11:00.4262675+02:00</Timestamp>
+    <BackupName>tet</BackupName>
+    <SourcePath>/home/klimouun/CESI/A3/177013/Job</SourcePath>
+    <TargetPath>/home/klimouun/CESI/A3/727WYSI/Job</TargetPath>
+    <FileSize>1706</FileSize>
+    <TransferTime>0</TransferTime>
+  </LogEntry>
+  <LogEntry>
+    <Timestamp>2026-04-29T10:11:00.7053077+02:00</Timestamp>
+    <BackupName>tet</BackupName>
+    <SourcePath>/home/klimouun/CESI/A3/177013/Telegraphic_style.pdf</SourcePath>
+    <TargetPath>/home/klimouun/CESI/A3/727WYSI/Telegraphic_style.pdf</TargetPath>
+    <FileSize>457172</FileSize>
+    <TransferTime>22</TransferTime>
+  </LogEntry>
+```
+
 
 | Field        | Description |
 |--------------|---|
