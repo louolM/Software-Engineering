@@ -1,0 +1,14 @@
+[
+  {
+    "Name": "job3test",
+    "LastActionTime": "2026-04-29T11:05:30.2968195+02:00",
+    "Status": "INACTIVE",
+    "TotalFiles": 3,
+    "RemainingFiles": 0,
+    "TotalSize": 5429,
+    "RemainingSize": 0,
+    "CurrentSourceFile": null,
+    "CurrentTargetFile": null,
+    "Progression": 100
+  }
+]
