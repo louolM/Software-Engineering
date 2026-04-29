@@ -1,0 +1,102 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:EasySave.UI.ViewModels"
+             x:Class="EasySave.UI.Views.JobListView"
+             x:DataType="vm:JobListViewModel">
+
+	<Grid RowDefinitions="Auto,*,Auto,Auto" Margin="16">
+
+		<!-- Barre d'actions -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+			<Button Content="＋ New Job"      Command="{Binding ShowCreateFormCommand}"
+					Background="#a6e3a1" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
+			<Button Content="▶ Run Selected" Command="{Binding RunSelectedCommand}"
+					Background="#89b4fa" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
+			<Button Content="▶▶ Run All"     Command="{Binding RunAllCommand}"
+					Background="#74c7ec" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
+			<Button Content="🗑 Delete"       Command="{Binding DeleteSelectedCommand}"
+					Background="#f38ba8" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
+		</StackPanel>
+
+		<!-- Liste des jobs -->
+		<Border Grid.Row="1" Background="#181825" CornerRadius="6"
+				BorderBrush="#313244" BorderThickness="1">
+			<Grid RowDefinitions="Auto,*">
+				<Grid Grid.Row="0" ColumnDefinitions="50,180,110,*,*"
+					  Background="#313244" Margin="8,4">
+					<TextBlock Grid.Column="0" Text="ID"     Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="1" Text="Name"   Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="2" Text="Type"   Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="3" Text="Source" Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="4" Text="Target" Foreground="#a6adc8" FontWeight="Bold"/>
+				</Grid>
+				<ListBox Grid.Row="1"
+						 ItemsSource="{Binding Jobs}"
+						 SelectedItem="{Binding SelectedJob}"
+						 Background="Transparent">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<Grid ColumnDefinitions="50,180,110,*,*" Margin="8,4">
+								<TextBlock Grid.Column="0" Text="{Binding Id}"         Foreground="#cdd6f4"/>
+								<TextBlock Grid.Column="1" Text="{Binding Name}"       Foreground="#cdd6f4"/>
+								<TextBlock Grid.Column="2" Text="{Binding Type}"       Foreground="#cdd6f4"/>
+								<TextBlock Grid.Column="3" Text="{Binding SourcePath}" Foreground="#cdd6f4" TextTrimming="CharacterEllipsis"/>
+								<TextBlock Grid.Column="4" Text="{Binding TargetPath}" Foreground="#cdd6f4" TextTrimming="CharacterEllipsis"/>
+							</Grid>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+			</Grid>
+		</Border>
+
+		<!-- Formulaire création -->
+		<Border Grid.Row="2" IsVisible="{Binding IsFormVisible}"
+				Background="#313244" CornerRadius="8" Padding="16" Margin="0,12,0,0">
+			<StackPanel Spacing="6">
+				<TextBlock Text="{Binding FormTitle}" Foreground="#cdd6f4"
+						   FontSize="15" FontWeight="Bold" Margin="0,0,0,4"/>
+
+				<!-- Name -->
+				<TextBlock Text="Name" Foreground="#a6adc8"/>
+				<TextBox Text="{Binding FormName}" Background="#1e1e2e" Foreground="#cdd6f4"/>
+				<TextBlock Text="{Binding FormNameError}" Foreground="#f38ba8" FontSize="11"
+						   IsVisible="{Binding FormNameError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+				<!-- Source -->
+				<TextBlock Text="Source path" Foreground="#a6adc8" Margin="0,4,0,0"/>
+				<TextBox Text="{Binding FormSource}" Background="#1e1e2e" Foreground="#cdd6f4"
+						 PlaceholderText="C:\path\to\source"/>
+				<TextBlock Text="{Binding FormSourceError}" Foreground="#f38ba8" FontSize="11"
+						   IsVisible="{Binding FormSourceError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+				<!-- Target -->
+				<TextBlock Text="Target path" Foreground="#a6adc8" Margin="0,4,0,0"/>
+				<TextBox Text="{Binding FormTarget}" Background="#1e1e2e" Foreground="#cdd6f4"
+						 PlaceholderText="C:\path\to\target"/>
+				<TextBlock Text="{Binding FormTargetError}" Foreground="#f38ba8" FontSize="11"
+						   IsVisible="{Binding FormTargetError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+				<!-- Type -->
+				<StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
+					<TextBlock Text="Differential backup" Foreground="#a6adc8" VerticalAlignment="Center"/>
+					<CheckBox IsChecked="{Binding FormIsDifferential}" Foreground="#cdd6f4"/>
+				</StackPanel>
+
+				<!-- Boutons -->
+				<StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" Margin="0,8,0,0">
+					<Button Content="Cancel" Command="{Binding CancelFormCommand}"
+							Background="#45475a" Foreground="#cdd6f4" Padding="12,6" CornerRadius="6"/>
+					<Button Content="Save"   Command="{Binding SaveJobCommand}"
+							Background="#a6e3a1" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
+				</StackPanel>
+			</StackPanel>
+		</Border>
+
+		<!-- Message statut -->
+		<TextBlock Grid.Row="3"
+				   Text="{Binding StatusMessage}"
+				   Foreground="{Binding StatusIsError, Converter={x:Static BoolConverters.Not}, ConverterParameter=#a6e3a1}"
+				   Margin="0,8,0,0" FontSize="13"
+				   IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+	</Grid>
+</UserControl>

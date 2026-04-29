@@ -1,0 +1,90 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "EasySave.ConsoleApp/1.0.0": {
+        "dependencies": {
+          "EasySave.Infrastructure": "1.0.0",
+          "EasySave.Services": "1.0.0"
+        },
+        "runtime": {
+          "EasySave.ConsoleApp.dll": {}
+        }
+      },
+      "EasyLog/1.0.0": {
+        "runtime": {
+          "EasyLog.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "EasySave.Core/1.0.0": {
+        "dependencies": {
+          "EasyLog": "1.0.0"
+        },
+        "runtime": {
+          "EasySave.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "EasySave.Infrastructure/1.0.0": {
+        "dependencies": {
+          "EasySave.Core": "1.0.0",
+          "EasySave.Services": "1.0.0"
+        },
+        "runtime": {
+          "EasySave.Infrastructure.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "EasySave.Services/1.0.0": {
+        "dependencies": {
+          "EasyLog": "1.0.0",
+          "EasySave.Core": "1.0.0"
+        },
+        "runtime": {
+          "EasySave.Services.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "EasySave.ConsoleApp/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "EasyLog/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "EasySave.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "EasySave.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "EasySave.Services/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
