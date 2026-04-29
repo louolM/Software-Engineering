@@ -47,7 +47,7 @@ public class TranslationService
 
                 // Lancer
                 { "runPrompt",      "Entrez l'ID ou la plage à lancer (ex: 1 / 1-3 / 1;3) : " },
-                { "runDone",        "Backup terminé : " },
+                { "runDone",        "Backup terminée : " },
                 { "runNotFound",    "Job introuvable : " },
 
                 // Supprimer
