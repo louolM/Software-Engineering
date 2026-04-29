@@ -6,11 +6,11 @@ using EasySave.Infrastructure;
 using EasySave.Services;
 using EasySave.Services.Interfaces;
 
-Console.Write("EN(default) / FR ? ");
+Console.Write("EN (default) / FR ? ");
 var lang = Console.ReadLine()?.Trim().ToUpper();
 var t = new TranslationService(lang);
 
-Console.Write("Log format JSON / XML ? ");
+Console.Write("Log format JSON (Default) / XML ? ");
 var logFormat = Console.ReadLine()?.Trim().ToUpper() ?? "JSON";
 
 // ── Composition Root ──────────────────────────────────────────────────────────
