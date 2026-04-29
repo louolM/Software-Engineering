@@ -272,6 +272,17 @@ One JSON file per calendar day. Each element records the outcome of a single fil
 |---|---|---
 | `config.json` | Working directory | Stores all backup job definitions |
 | `state.json` | Working directory | Live progress of the most recent run |
-| `logs/YYYY-MM-DD.json` | `logs/` sub-directory | Immutable daily audit log |
+
+### Logging format
+
+The logging system supports two output formats:
+
+| Format | Description |
+|--------|-------------|
+| JSON (default) | Human-readable, easy to parse |
+| XML | Structured format suitable for legacy tools |
+
+The format is defined when initializing the logger.
+
 
 All three files are created automatically on first use, no manual setup is required.
