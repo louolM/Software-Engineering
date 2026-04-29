@@ -55,10 +55,10 @@ Each layer depends only on the layer below it. Infrastructure classes are hidden
 
 ### Diagrams
 The use case diagram shows the different functionalities of a system from the user’s perspective and how actors interact with it.
-![Diagram](Diagrams/Pictures/UseCase.jpg)
+![Diagram](Diagrams/Pictures/UseCase.png)
 
 The activity diagram represents the flow of actions and decisions within a process from start to finish.
-![Diagram](Diagrams/Pictures/Activity.jpg)
+![Diagram](Diagrams/Pictures/Activity.png)
 
 The class diagram describes the structure of a system by showing its classes, attributes, methods, and relationships.
 ![Diagram](Diagrams/Pictures/Class.png)
