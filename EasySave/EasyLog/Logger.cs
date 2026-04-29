@@ -21,6 +21,7 @@ public class Logger
     public Logger(string format = "JSON")
     {
         _format = format.ToUpper() == "XML" ? "XML" : "JSON";
+        Console.WriteLine($"\nYou selected {_format}");
     }
 
     public void Write(LogEntry entry)

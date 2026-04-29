@@ -16,6 +16,7 @@ public class TranslationService
     {
         if (language == "FR")
         {
+            Console.WriteLine($"\nYou selected french\n");           
             _translations = new Dictionary<string, string>
             {
                 { "menu",           "=== MENU ===" },
@@ -60,6 +61,7 @@ public class TranslationService
         }
         else
         {
+            Console.WriteLine($"\nYou selected english\n");           
             _translations = new Dictionary<string, string>
             {
                 { "menu",           "=== MENU ===" },
