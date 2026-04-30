@@ -81,6 +81,7 @@ public class TranslationService
 
         // Divers
         ["picker.title"] = "Select a folder",
+        ["jobs.openLogs"] = "Open Logs" 
     };
 
     // ── FRANÇAIS ─────────────────────────────────────────────────────────
@@ -143,5 +144,6 @@ public class TranslationService
 
         // Divers
         ["picker.title"] = "Sélectionner un dossier",
+        ["jobs.openLogs"] = "Ouvrir les logs" 
     };
 }

@@ -79,6 +79,7 @@ public partial class JobListViewModel : ViewModelBase
         BtnCancel = _t.T("form.cancel");
         BtnSave = _t.T("form.save");
         BtnBrowse = _t.T("form.browse");
+        BtnOpenLogs = _t.T("jobs.openLogs");
     }
 
     private void Refresh()
