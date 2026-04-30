@@ -8,7 +8,6 @@ EasySave 2.0 lets users define unlimited backup jobs, encrypt files via CryptoSo
 > `1.1` : Console, 5 jobs max, JSON **or XML** logs (user choice)  
 > `2.0` : **Graphical UI (Avalonia)**, unlimited jobs, CryptoSoft encryption, business software detection
 
----
 
 ## Table of contents
 
@@ -20,8 +19,6 @@ EasySave 2.0 lets users define unlimited backup jobs, encrypt files via CryptoSo
 6. [Usage](#usage)
 7. [Output files](#output-files)
 8. [Configuration reference](#configuration-reference)
-
----
 
 ## Features
 
@@ -37,7 +34,6 @@ EasySave 2.0 lets users define unlimited backup jobs, encrypt files via CryptoSo
 - **Log format choice** : JSON or XML, switchable from Settings.
 - **CLI batch mode** : run jobs non-interactively by passing a job ID / range / list as a command-line argument (identical to v1.0).
 
----
 
 ## Architecture overview
 
@@ -83,7 +79,6 @@ The solution follows a strict **layered MVVM architecture**:
 
 Each layer depends only on the layer below it. Infrastructure classes are hidden behind interfaces defined in the Services layer, making business logic independently testable and the UI swappable.
 
----
 
 ## Project structure
 
@@ -142,18 +137,18 @@ EasySave/
         └── JobView.cs
 ```
 
----
+### Diagrams
+The use case diagram shows the different functionalities of a system from the user’s perspective and how actors interact with it.
+![Diagram](Diagrams/Pictures/UseCase.png)
 
-## Diagrams
+The activity diagram represents the flow of actions and decisions within a process from start to finish.
+![Diagram](Diagrams/Pictures/Activity.png)
 
-### Activity diagram
+The class diagram describes the structure of a system by showing its classes, attributes, methods, and relationships.
+![Diagram](Diagrams/Pictures/Class.png)
 
-### Class diagram
-
-### Sequence diagram
-
-### UseCase diagram
-
+The sequence diagram illustrates how objects interact over time by showing the order of exchanged messages.
+![Diagram](Diagrams/Pictures/Sequence.png)
 
 ## Getting started
 
@@ -185,7 +180,6 @@ cd EasySave.ConsoleApp
 dotnet run
 ```
 
----
 
 ## Usage
 
@@ -244,7 +238,6 @@ dotnet run -- 1-3
 dotnet run -- 1;4;5
 ```
 
----
 
 ## Output files
 
@@ -325,7 +318,6 @@ Paths are stored in **UNC format** (`\\machine\drive$\...`).
 
 XML format follows the same structure when selected in Settings.
 
----
 
 ## Configuration reference
 
