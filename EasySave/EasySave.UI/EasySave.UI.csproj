@@ -12,6 +12,7 @@
     <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
     <Folder Include="obj\Debug\net10.0\Avalonia\" />
+    <Folder Include="Tools\CryptoSoft\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,5 +32,11 @@
     <ProjectReference Include="..\EasySave.Infrastructure\EasySave.Infrastructure.csproj" />
     <ProjectReference Include="..\EasySave.Services\EasySave.Services.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+  <None Include="Tools\CryptoSoft.exe">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
 
 </Project>

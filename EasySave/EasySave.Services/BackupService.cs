@@ -155,7 +155,7 @@ public class BackupService : IBackupService
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = "CryptoSoft.exe",
+                    FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "CryptoSoft.exe"),
                     Arguments = $"\"{filePath}\" \"{key}\"",
                     UseShellExecute = false,
                     CreateNoWindow = true,
