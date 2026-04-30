@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -231,4 +232,11 @@ public partial class JobListViewModel : ViewModelBase
 
     private void SetError(string msg) { StatusMessage = msg; StatusIsError = true; }
     private void SetSuccess(string msg) { StatusMessage = msg; StatusIsError = false; }
+    
+// Progress
+    [ObservableProperty] private double _progressPercent;
+    [ObservableProperty] private string _progressText = string.Empty;
+    [ObservableProperty] private string _currentTaskLabel = string.Empty;
+    [ObservableProperty] private bool _isRunning;
+    [ObservableProperty] private string _btnOpenLogs = string.Empty;
 }
