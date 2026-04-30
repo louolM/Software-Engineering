@@ -16,6 +16,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private readonly JobListViewModel _jobListVm;
     private readonly SettingsViewModel _settingsVm;
+    private TranslationService _t;
 
     public MainWindowViewModel()
     {
@@ -27,40 +28,31 @@ public partial class MainWindowViewModel : ViewModelBase
         var settings = settingsRepo.Load();
         IBackupService backupSvc = new BackupService(fileService, new Logger(settings.LogFormat), stateRepo);
 
-        _settingsVm = new SettingsViewModel(settingsRepo);
-        _jobListVm = new JobListViewModel(configRepo, backupSvc, settingsRepo);
+        _t = new TranslationService(settings.Language);
+        _settingsVm = new SettingsViewModel(settingsRepo, _t);
+        _jobListVm = new JobListViewModel(configRepo, backupSvc, settingsRepo, _t);
 
         _settingsVm.LanguageChanged += OnLanguageChanged;
 
         _currentView = _jobListVm;
-        ApplyLanguage(settings.Language);
+        ApplyLanguage();
     }
 
-    // Appelé depuis MainWindow.axaml.cs pour transmettre la fenêtre au JobListViewModel
-    public void SetWindow(Window window)
-    {
-        _jobListVm.ParentWindow = window;
-    }
+    public void SetWindow(Window window) => _jobListVm.ParentWindow = window;
 
     private void OnLanguageChanged(string lang)
     {
-        ApplyLanguage(lang);
-        _jobListVm.ApplyLanguage(lang);
-        _settingsVm.ApplyLanguage(lang);
+        // Recrée le service de traduction avec la nouvelle langue
+        _t = new TranslationService(lang);
+        _jobListVm.UpdateTranslations(_t);
+        _settingsVm.UpdateTranslations(_t);
+        ApplyLanguage();
     }
 
-    private void ApplyLanguage(string lang)
+    private void ApplyLanguage()
     {
-        if (lang == "FR")
-        {
-            NavJobs = "📋 Travaux";
-            NavSettings = "⚙ Paramètres";
-        }
-        else
-        {
-            NavJobs = "📋 Jobs";
-            NavSettings = "⚙ Settings";
-        }
+        NavJobs = _t.T("nav.jobs");
+        NavSettings = _t.T("nav.settings");
     }
 
     [RelayCommand] private void ShowJobs() => CurrentView = _jobListVm;
