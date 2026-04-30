@@ -30,9 +30,20 @@ public class Logger
         var fullPath = Path.Combine(_logDirectory, fileName);
         var options = new JsonSerializerOptions { WriteIndented = true };
 
-        List<LogEntry> logs = File.Exists(fullPath)
-            ? JsonSerializer.Deserialize<List<LogEntry>>(File.ReadAllText(fullPath)) ?? new()
-            : new();
+        List<LogEntry> logs = new();
+        if (File.Exists(fullPath))
+        {
+            try
+            {
+                logs = JsonSerializer.Deserialize<List<LogEntry>>(File.ReadAllText(fullPath)) ?? new();
+            }
+            catch (JsonException)
+            {
+                // File is corrupted — rename it for inspection and start fresh
+                File.Move(fullPath, fullPath.Replace(".json", $"_corrupted_{DateTime.Now:HHmmss}.json"));
+                logs = new();
+            }
+        }
 
         logs.Add(entry);
         File.WriteAllText(fullPath, JsonSerializer.Serialize(logs, options));
