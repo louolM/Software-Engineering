@@ -1,13 +1,14 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using EasySave.Core;
-using EasySave.Services.Interfaces;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Platform.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using EasySave.Core;
+using EasySave.Services.Interfaces;
 
 namespace EasySave.UI.ViewModels;
 
@@ -16,6 +17,9 @@ public partial class JobListViewModel : ViewModelBase
     private readonly IConfigRepository _configRepo;
     private readonly IBackupService _backupService;
     private readonly ISettingsRepository _settingsRepo;
+
+    // Référence à la fenêtre pour les dialogues
+    public Window? ParentWindow { get; set; }
 
     [ObservableProperty] private ObservableCollection<BackupJob> _jobs = new();
     [ObservableProperty] private BackupJob? _selectedJob;
@@ -35,6 +39,7 @@ public partial class JobListViewModel : ViewModelBase
     [ObservableProperty] private string _lblDiff = "Differential backup";
     [ObservableProperty] private string _btnCancel = "Cancel";
     [ObservableProperty] private string _btnSave = "Save";
+    [ObservableProperty] private string _btnBrowse = "Browse...";
 
     // Champs formulaire
     [ObservableProperty] private string _formName = string.Empty;
@@ -74,6 +79,7 @@ public partial class JobListViewModel : ViewModelBase
             LblDiff = "Sauvegarde différentielle";
             BtnCancel = "Annuler";
             BtnSave = "Sauvegarder";
+            BtnBrowse = "Parcourir...";
         }
         else
         {
@@ -88,6 +94,7 @@ public partial class JobListViewModel : ViewModelBase
             LblDiff = "Differential backup";
             BtnCancel = "Cancel";
             BtnSave = "Save";
+            BtnBrowse = "Browse...";
         }
     }
 
@@ -99,6 +106,36 @@ public partial class JobListViewModel : ViewModelBase
     }
 
     private static string CleanPath(string path) => path.Trim().Trim('"').Trim('\'').Trim();
+
+    // ── Ouvre l'explorateur pour choisir le dossier source ────────────────
+    [RelayCommand]
+    private async Task BrowseSource()
+    {
+        var path = await PickFolder();
+        if (path != null) FormSource = path;
+    }
+
+    // ── Ouvre l'explorateur pour choisir le dossier cible ────────────────
+    [RelayCommand]
+    private async Task BrowseTarget()
+    {
+        var path = await PickFolder();
+        if (path != null) FormTarget = path;
+    }
+
+    private async Task<string?> PickFolder()
+    {
+        if (ParentWindow == null) return null;
+
+        var result = await ParentWindow.StorageProvider.OpenFolderPickerAsync(
+            new FolderPickerOpenOptions
+            {
+                Title = _lang == "FR" ? "Sélectionner un dossier" : "Select a folder",
+                AllowMultiple = false
+            });
+
+        return result.Count > 0 ? result[0].Path.LocalPath : null;
+    }
 
     private bool ValidateForm()
     {
@@ -164,7 +201,13 @@ public partial class JobListViewModel : ViewModelBase
         if (_isEditing && SelectedJob != null)
         {
             var ex = jobs.FirstOrDefault(j => j.Id == SelectedJob.Id);
-            if (ex != null) { ex.Name = FormName; ex.SourcePath = src; ex.TargetPath = tgt; ex.Type = FormIsDifferential ? BackupType.Differential : BackupType.Full; }
+            if (ex != null)
+            {
+                ex.Name = FormName;
+                ex.SourcePath = src;
+                ex.TargetPath = tgt;
+                ex.Type = FormIsDifferential ? BackupType.Differential : BackupType.Full;
+            }
         }
         else
         {
@@ -174,11 +217,18 @@ public partial class JobListViewModel : ViewModelBase
 
         _configRepo.Save(jobs);
         IsFormVisible = false;
-        SetSuccess(_lang == "FR" ? (_isEditing ? "✔ Job modifié." : "✔ Job créé.") : (_isEditing ? "✔ Job updated." : "✔ Job created."));
+        SetSuccess(_lang == "FR"
+            ? (_isEditing ? "✔ Job modifié." : "✔ Job créé.")
+            : (_isEditing ? "✔ Job updated." : "✔ Job created."));
         Refresh();
     }
 
-    [RelayCommand] private void CancelForm() { IsFormVisible = false; FormNameError = FormSourceError = FormTargetError = string.Empty; }
+    [RelayCommand]
+    private void CancelForm()
+    {
+        IsFormVisible = false;
+        FormNameError = FormSourceError = FormTargetError = string.Empty;
+    }
 
     [RelayCommand]
     private async Task RunSelected()

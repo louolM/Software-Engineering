@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EasySave.Infrastructure;
 using EasySave.Services;
@@ -29,17 +30,23 @@ public partial class MainWindowViewModel : ViewModelBase
         _settingsVm = new SettingsViewModel(settingsRepo);
         _jobListVm = new JobListViewModel(configRepo, backupSvc, settingsRepo);
 
-        // Écoute les changements de langue depuis SettingsViewModel
         _settingsVm.LanguageChanged += OnLanguageChanged;
 
         _currentView = _jobListVm;
         ApplyLanguage(settings.Language);
     }
 
+    // Appelé depuis MainWindow.axaml.cs pour transmettre la fenêtre au JobListViewModel
+    public void SetWindow(Window window)
+    {
+        _jobListVm.ParentWindow = window;
+    }
+
     private void OnLanguageChanged(string lang)
     {
         ApplyLanguage(lang);
         _jobListVm.ApplyLanguage(lang);
+        _settingsVm.ApplyLanguage(lang);
     }
 
     private void ApplyLanguage(string lang)
