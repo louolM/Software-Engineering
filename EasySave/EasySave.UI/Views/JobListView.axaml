@@ -16,6 +16,9 @@
 					Background="#74c7ec" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
 			<Button Content="{Binding BtnDelete}"      Command="{Binding DeleteSelectedCommand}"
 					Background="#f38ba8" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
+			<Button Content="{Binding BtnOpenLogs}" Command="{Binding OpenLogsCommand}"
+			        Background="#45475a" Foreground="#cdd6f4"
+			        Padding="12,6" CornerRadius="6"/>
 		</StackPanel>
 
 		<!-- Liste des jobs -->
@@ -125,9 +128,5 @@
 			             Height="10" CornerRadius="5"
 			             Foreground="#89b4fa" Background="#313244"/>
 		</StackPanel>
-		<!-- In the Row 0 action bar StackPanel -->
-		<Button Content="{Binding BtnOpenLogs}" Command="{Binding OpenLogsCommand}"
-		        Background="#45475a" Foreground="#cdd6f4"
-		        Padding="12,6" CornerRadius="6"/>
 	</Grid>
 </UserControl>
