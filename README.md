@@ -4,9 +4,9 @@ A graphical backup tool built with **Avalonia UI** and **.NET 10**, following an
 EasySave 2.0 lets users define unlimited backup jobs, encrypt files via CryptoSoft, detect running business software before launching a backup, and log every transfer to a daily JSON or XML file.
 
 > **Version history**  
-> `1.0` — Console, 5 jobs max, JSON logs  
-> `1.1` — Console, 5 jobs max, JSON **or XML** logs (user choice)  
-> `2.0` — **Graphical UI (Avalonia)**, unlimited jobs, CryptoSoft encryption, business software detection
+> `1.0` : Console, 5 jobs max, JSON logs  
+> `1.1` : Console, 5 jobs max, JSON **or XML** logs (user choice)  
+> `2.0` : **Graphical UI (Avalonia)**, unlimited jobs, CryptoSoft encryption, business software detection
 
 ---
 
@@ -25,17 +25,17 @@ EasySave 2.0 lets users define unlimited backup jobs, encrypt files via CryptoSo
 
 ## Features
 
-- **Graphical interface** built with Avalonia — runs on Windows, Linux, and macOS.
-- **Unlimited backup jobs** — create, run, and delete as many jobs as needed.
-- **Full backup** — copies every file from source to target, overwriting existing files.
-- **Differential backup** — copies only files that are missing or modified since the last backup.
-- **CryptoSoft encryption** — files matching user-defined extensions are encrypted via XOR after each copy. Encryption time is recorded in the log.
-- **Business software detection** — if a defined process is running, backup jobs are blocked. In sequential mode, the current file transfer completes before stopping.
-- **Real-time state file** (`state.json`) — updated after every file transfer, including progression percentage.
-- **Daily log file** (`logs/YYYY-MM-DD.json` or `.xml`) — records every transfer with size, duration, and encryption time.
-- **Bilingual UI** — French and English, switchable at any time from Settings without restarting.
-- **Log format choice** — JSON or XML, switchable from Settings.
-- **CLI batch mode** — run jobs non-interactively by passing a job ID / range / list as a command-line argument (identical to v1.0).
+- **Graphical interface** built with Avalonia : runs on Windows, Linux, and macOS.
+- **Unlimited backup jobs** : create, run, and delete as many jobs as needed.
+- **Full backup** : copies every file from source to target, overwriting existing files.
+- **Differential backup** : copies only files that are missing or modified since the last backup.
+- **CryptoSoft encryption** : files matching user-defined extensions are encrypted via XOR after each copy. Encryption time is recorded in the log.
+- **Business software detection** : if a defined process is running, backup jobs are blocked. In sequential mode, the current file transfer completes before stopping.
+- **Real-time state file** (`state.json`) : updated after every file transfer, including progression percentage.
+- **Daily log file** (`logs/YYYY-MM-DD.json` or `.xml`) : records every transfer with size, duration, and encryption time.
+- **Bilingual UI** : French and English, switchable at any time from Settings without restarting.
+- **Log format choice** : JSON or XML, switchable from Settings.
+- **CLI batch mode** : run jobs non-interactively by passing a job ID / range / list as a command-line argument (identical to v1.0).
 
 ---
 
@@ -46,7 +46,7 @@ The solution follows a strict **layered MVVM architecture**:
 ```
 ┌──────────────────────────────────────────────┐
 │              EasySave.UI                     │  Avalonia graphical interface
-│   ViewModels: MainWindow, JobList, Settings  │  (MVVM — View + ViewModel)
+│   ViewModels: MainWindow, JobList, Settings  │  (MVVM : View + ViewModel)
 │   Views: MainWindow, JobListView, Settings   │
 │   TranslationService (centralized i18n)      │
 └───────────────────┬──────────────────────────┘
@@ -66,7 +66,7 @@ The solution follows a strict **layered MVVM architecture**:
 └───────────────────┬──────────────────────────┘
                     │ uses
 ┌───────────────────▼──────────────────────────┐
-│           EasySave.Core                      │  Domain models — no dependencies
+│           EasySave.Core                      │  Domain models : no dependencies
 │   BackupJob, BackupState, BackupType,        │
 │   AppSettings                                │
 └──────────────────────────────────────────────┘
@@ -77,7 +77,7 @@ The solution follows a strict **layered MVVM architecture**:
 └──────────────────────────────────────────────┘
               +
 ┌──────────────────────────────────────────────┐
-│            EasySave.ConsoleApp               │  Console interface (v1.1 — kept in parallel)
+│            EasySave.ConsoleApp               │  Console interface (v1.1 : kept in parallel)
 └──────────────────────────────────────────────┘
 ```
 
@@ -133,7 +133,7 @@ EasySave/
 │       ├── JobListView.axaml               # Job list + creation form
 │       └── SettingsView.axaml              # Settings panel
 │
-└── EasySave.ConsoleApp/                    # Console interface (v1.0 / v1.1 — kept in parallel)
+└── EasySave.ConsoleApp/                    # Console interface (v1.0 / v1.1 : kept in parallel)
     ├── Program.cs
     ├── TranslationService.cs
     ├── ViewModels/
@@ -376,14 +376,14 @@ sequenceDiagram
     SR-->>JLvm: AppSettings
 
     alt Process.GetProcessesByName(businessSoftware).Length > 0
-        JLvm-->>JLvm: SetError("blocked") — return
+        JLvm-->>JLvm: SetError("blocked") : return
     end
 
     JLvm->>BS: RunBackup(job, settings)
 
     BS-->>BS: IsBusinessSoftwareRunning()
     alt still active
-        BS->>LG: Write(LogEntry — job blocked)
+        BS->>LG: Write(LogEntry : job blocked)
         note right of BS: return
     end
 
@@ -413,9 +413,9 @@ sequenceDiagram
         end
 
         alt success
-            BS->>LG: Write(LogEntry — success, size, duration)
+            BS->>LG: Write(LogEntry : success, size, duration)
         else catch
-            BS->>LG: Write(LogEntry — TransferTime: -1)
+            BS->>LG: Write(LogEntry : TransferTime: -1)
         end
 
         BS->>SR: Save(state, remaining--)
@@ -424,7 +424,7 @@ sequenceDiagram
     BS->>SR: Save([BackupState INACTIVE])
     BS-->>JLvm: void
 
-    JLvm-->>JLvm: SetSuccessAutoHide(...) — Task.Delay(5s)
+    JLvm-->>JLvm: SetSuccessAutoHide(...) : Task.Delay(5s)
 ```
 
 ---
@@ -467,8 +467,8 @@ dotnet run
 
 Launch `EasySave.UI` to open the graphical interface. The navigation bar at the top gives access to two sections:
 
-**📋 Jobs** — manage and run backup jobs.  
-**⚙ Settings** — configure language, business software detection, CryptoSoft encryption, and log format.
+**📋 Jobs** : manage and run backup jobs.  
+**⚙ Settings** : configure language, business software detection, CryptoSoft encryption, and log format.
 
 #### Creating a job
 
@@ -497,7 +497,7 @@ Select a job and click **🗑 Delete**.
 
 | Setting | Description |
 |---|---|
-| Language | English (EN) or Français (FR) — applied immediately on save |
+| Language | English (EN) or Français (FR) : applied immediately on save |
 | Business Software | Process name to detect (e.g. `Calculator`). Blocks backups if running. |
 | Encrypted extensions | Space-separated list of extensions to encrypt (e.g. `.txt .docx .pdf`) |
 | Encryption Key | XOR key passed to CryptoSoft |
@@ -524,7 +524,7 @@ dotnet run -- 1;4;5
 
 All output files are written in the application's working directory.
 
-### `settings.json` — application settings
+### `settings.json` : application settings
 
 ```json
 {
@@ -536,7 +536,7 @@ All output files are written in the application's working directory.
 }
 ```
 
-### `config.json` — job definitions
+### `config.json` : job definitions
 
 ```json
 [
@@ -552,7 +552,7 @@ All output files are written in the application's working directory.
 
 Type values: `0` = Full, `1` = Differential.
 
-### `state.json` — live backup progress
+### `state.json` : live backup progress
 
 ```json
 [
@@ -574,7 +574,7 @@ Type values: `0` = Full, `1` = Differential.
 Status values: `"ACTIVE"` while running, `"INACTIVE"` when finished.  
 Paths are stored in **UNC format** (`\\machine\drive$\...`).
 
-### `logs/YYYY-MM-DD.json` — daily transfer log
+### `logs/YYYY-MM-DD.json` : daily transfer log
 
 ```json
 [
@@ -610,4 +610,4 @@ XML format follows the same structure when selected in Settings.
 | `state.json` | Working directory | Live progress of the most recent run |
 | `logs/YYYY-MM-DD.json` or `.xml` | `logs/` sub-directory | Immutable daily audit log |
 
-All files are created automatically on first use — no manual setup required.
+All files are created automatically on first use : no manual setup required.
