@@ -18,8 +18,7 @@ public class BackupService : IBackupService
         _stateRepo = stateRepo;
     }
 
-    public void RunBackup(BackupJob job, AppSettings settings)
-    {
+    public void RunBackup(BackupJob job, AppSettings settings, IProgress<double>? progress = null)    {
         // ── Vérification logiciel métier AVANT de démarrer ──────────────────
         if (IsBusinessSoftwareRunning(settings.BusinessSoftware))
         {
@@ -137,6 +136,7 @@ public class BackupService : IBackupService
             state.RemainingFiles--;
             state.RemainingSize -= fileSize;
             _stateRepo.Save(new List<BackupState> { state });
+            progress?.Report(state.Progression);
         }
 
         state.Status = "INACTIVE";
