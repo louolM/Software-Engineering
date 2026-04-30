@@ -1,0 +1,68 @@
+sequenceDiagram
+    participant App as App.axaml.cs
+    participant MWvm as MainWindowViewModel
+    participant JLvm as JobListViewModel
+    participant BS as BackupService
+    participant FS as FileService
+    participant SR as StateRepository
+    participant LG as Logger
+    participant CS as CryptoSoft
+
+    App->>MWvm: new MainWindowViewModel()
+    note right of MWvm: instanciate FileService, StateRepo,<br/>ConfigRepo, SettingsRepo,<br/>BackupService, Logger, JobListViewModel
+
+    note over JLvm: User clicks "Run All/Selected"
+
+    JLvm->>SR: settingsRepo.Load()
+    SR-->>JLvm: AppSettings
+
+    alt Process.GetProcessesByName(businessSoftware).Length > 0
+        JLvm-->>JLvm: SetError("blocked") — return
+    end
+
+    JLvm->>BS: RunBackup(job, settings)
+
+    BS-->>BS: IsBusinessSoftwareRunning() 
+    alt still active 
+        BS->>LG: Write(LogEntry — job blocked)
+        note right of BS: return
+    end
+
+    BS->>FS: GetAllFiles(sourcePath)
+    FS-->>BS: IEnumerable<string>
+
+    BS->>SR: Save([BackupState ACTIVE])
+
+    loop foreach file in files
+        BS-->>BS: IsBusinessSoftwareRunning?
+        alt active
+            BS->>LG: Write(LogEntry interruption)
+            note right of BS: break
+        end
+
+        opt Differential && LastWriteTime source ≤ target
+            BS->>SR: Save(state, remaining--)
+            note right of BS: continue
+        end
+
+        BS->>FS: CopyFile(source, target)
+        FS-->>BS: transferDuration (ms)
+
+        opt ext ∈ EncryptedExtensions
+            BS->>CS: RunCryptoSoft(targetFile, key)
+            CS-->>BS: ExitCode (>0 = ms, <0 = erreur)
+        end
+
+        alt success
+            BS->>LG: Write(LogEntry — success, size, duration)
+        else catch
+            BS->>LG: Write(LogEntry — TransferTime: -1)
+        end
+
+        BS->>SR: Save(state, remaining--)
+    end
+
+    BS->>SR: Save([BackupState INACTIVE])
+    BS-->>JLvm: void
+
+    JLvm-->>JLvm: SetSuccessAutoHide(...) — Task.Delay(5s)

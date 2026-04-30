@@ -1,0 +1,310 @@
+classDiagram
+    %% ──────────────────────────────
+    %% EasyLog
+    %% ──────────────────────────────
+    namespace EasyLog {
+        class LogEntry {
+            +DateTime Timestamp
+            +string BackupName
+            +string SourcePath
+            +string TargetPath
+            +long FileSize
+            +long TransferTime
+            +long EncryptionTime
+        }
+        class Logger {
+            -readonly string _logDirectory
+            -readonly string _format
+            +void Logger(string format)
+            +void Write(LogEntry entry)
+            -void WriteJson(LogEntry entry)
+            -void WriteXml(LogEntry entry)
+        }
+    }
+    %% ──────────────────────────────
+    %% EasySave.Core
+    %% ──────────────────────────────
+    namespace EasySave.Core {
+        class BackupJob {
+            +int Id
+            +string Name
+            +string SourcePath
+            +string TargetPath
+            +BackupType Type
+        }
+        class BackupState {
+            +string Name
+            +DateTime LastActionTime
+            +string Status
+            +int TotalFiles
+            +int RemainingFiles
+            +long TotalSize
+            +long RemainingSize
+            +string CurrentSourceFile
+            +string CurrentTargetFile
+            +double Progression
+        }
+        class BackupType {
+            <<enumeration>>
+            Full
+            Differential
+        }
+        class AppSettings{
+            +string BusinessSoftware
+            +List~string~ EncryptedExtensions
+            +string EncryptionKey
+            +string LogFormat
+            +string Language
+        }
+    }
+    %% ──────────────────────────────
+    %% EasySave.Services
+    %% ──────────────────────────────
+    namespace EasySave.Services {
+        class IBackupService {
+            <<interface>>
+            +void RunBackup(BackupJob job)
+        }
+        class IConfigRepository {
+            <<interface>>
+            +List~BackupJob~ Load()
+            +void Save(List~BackupJob~ jobs)
+        }
+        class IFileService {
+            <<interface>>
+            +IEnumerable~string~ GetAllFiles(string directory)
+            +void CopyFile(string source, string target)
+        }
+        class IStateRepository {
+            <<interface>>
+            +void Save(List~BackupState~ states)
+        }
+        class ISettingsRepository{
+	    <<interface>>
+            +AppSettings Load()
+            +void Save(AppSettings settings)
+        }
+        class BackupService {
+            -readonly IFileService _fileService
+            -readonly Logger _logger
+            -readonly IStateRepository _stateRepo
+            +void BackupService(IFileService fileService, Logger logger, IStateRepository stateRepo)
+            +void RunBackup(BackupJob job)
+            -string ToUNC(string path)
+            -static long RunCryptoSoft(string filePath, string key)
+            -static bool IsBusinessSoftwareRunning(string processName)
+        }
+    }
+    %% ──────────────────────────────
+    %% EasySave.Infrastructure
+    %% ──────────────────────────────
+    namespace EasySave.Infrastructure {
+        class FileService {
+            +IEnumerable~string~ GetAllFiles(string directory)
+            +void CopyFile(string source, string target)
+        }
+        class JsonService {
+            +void Write~T~(string path, object data)
+            +T Read~T~(string path)
+        }
+        class StateRepository {
+            -readonly JsonService _jsonService
+            -const string StatePath
+            +void Save(List~BackupState~ states)
+        }
+        class ConfigRepository {
+            -const string ConfigPath
+            +List~BackupJob~ Load()
+            +void Save(List~BackupJob~ jobs)
+        }
+        class SettingsRepository {
+            -const string SettingsPath
+            +AppSettings Load()
+            +void Save(AppSettings settings)
+        }
+    }
+    %% ──────────────────────────────
+    %% EasySave.ConsoleApp
+    %% ──────────────────────────────
+    namespace EasySave.ConsoleApp {
+        class Program {
+            +static void Main(string[] args)
+        }
+        class JobViewModel {
+            -readonly IConfigRepository _configRepo
+            -readonly IBackupService _backupService
+            -readonly ISettingsRepository _settingsRepo
+            +List~BackupJob~ Jobs
+            +string Message
+            +bool HasError
+            +JobViewModel(IConfigRepository configRepo, IBackupService backupService, ISettingsRepository settingsRepo)
+            +void Refresh()
+            +void CreateJob(string name, string source, string target, BackupType type)
+            +void RunJobs(IEnumerable~int~ ids)
+            +void DeleteJob(int id)
+            -void SetSuccess(string messageKey)
+            -void SetError(string messageKey)
+            -void ClearMessage()
+        }
+        class JobView {
+            -readonly JobViewModel _vm
+            -readonly TranslationService _t
+            +JobView(JobViewModel vm, TranslationService t)
+            +void Run()
+            -void ShowCreate()
+            -void ShowList()
+            -void ShowRun()
+            -void ShowDelete()
+            -void PrintMessage()
+            -static IEnumerable~int~ ParseIds(string input)
+        }
+        class TranslationService {
+            -readonly Dictionary~string,string~ _translations
+            +TranslationService(string lang)
+            +string T(string key)
+        }
+    }
+
+namespace EasySave.UI {
+    class Application{
+        +void Initialize()
+        +void OnFrameworkInitializationCompleted()
+    }
+    class Program_UI{
+        +static void Main(string[] args)
+        +static AppBuilder BuildAvaloniaApp()
+    }
+    class TranslationService_UI{
+        -readonly Dictionary~string, string~
+        +string Language
+        +TranslationService(string language)
+        +string T(string key)
+        -static Dictionary~string, string~ English()
+        -static Dictionary~string, string~ French()
+    }
+    class ViewLocator{
+        +Control? Build(object? data)
+        +bool Match(object? data)
+    }
+    class JobListViewModel{
+        -readonly IConfigRepository _configRepo
+        -readonly IBackupService _backupService
+        -readonly ISettingsRepository _settingsRepo
+        -TranslationService _t
+        +Window? ParentWindow
+        -bool _isEditing
+        +JobListViewModel(IConfigRepository configRepo, IBackupService backupService, ISettingsRepository settingsRepo, TranslationService t)
+        +void UpdateTranslations(TranslationService t)
+        -void Refresh()
+        -static string CleanPath(string path)
+        -async Task~string?~ PickFolder()
+        -bool ValidateForm()
+        -bool TryRun(BackupJob job, AppSettings settings)
+        -async Task SetSuccessAutoHide(string msg)
+        -void SetError(string msg)
+        -void SetSuccess(string msg)
+    }
+    class MainWindowViewModel{
+        -readonly JobListViewModel _jobListVm
+        -readonly SettingsViewModel _settingsVm
+        -TranslationService _t
+        +MainWindowViewModel() 
+        +void SetWindow(Window window)
+        -void OnLanguageChanged(string lang)
+        -void ApplyLanguage()
+    }
+    class SettingsViewModel{
+        -readonly ISettingsRepository _settingsRepo
+        -TranslationService _t
+        -CancellationTokenSource? _hideMsgCts
+        +event Action~string~
+        +SettingsViewModel(ISettingsRepository settingsRepo, TranslationService t)
+        +void UpdateTranslations(TranslationService t)
+        -void LoadSettings()
+        -bool Validate()
+    }
+    class ViewModelBase{   
+    }
+    class JobListView{
+        +JobListView()
+    }
+    class MainWindow{
+        +MainWindow()
+    }
+    class SettingsView{
+        +SettingsView()
+    }
+}
+
+    %% ──────────────────────────────
+    %% Relations
+    %% ──────────────────────────────
+
+    %% EasyLog internals
+    Logger ..> LogEntry : creates
+
+    %% BackupJob uses BackupType enum
+    BackupJob --> BackupType
+
+    %% Services: BackupService implements IBackupService and depends on abstractions
+    BackupService ..|> IBackupService
+    BackupService --> IFileService
+    BackupService --> IStateRepository
+    BackupService --> Logger
+    BackupService ..> BackupState : creates
+
+    %% Infrastructure implements Services interfaces
+    FileService ..|> IFileService
+    StateRepository ..|> IStateRepository
+    ConfigRepository ..|> IConfigRepository
+
+    %% Infrastructure internals
+    StateRepository --> JsonService
+    ConfigRepository --> JsonService
+    SettingsRepository ..|> ISettingsRepository
+
+    %% Program.cs composition root
+    Program ..> ConfigRepository
+    Program ..> FileService
+    Program ..> Logger
+    Program ..> StateRepository
+    Program ..> BackupService
+    Program ..> TranslationService
+    Program ..> JobViewModel
+    Program ..> JobView
+    
+    %% JobView dependencies (injected via constructor)
+    JobView --> JobViewModel
+    JobView --> TranslationService
+
+    %% JobViewModel depends on Service interfaces
+    JobViewModel --> IConfigRepository
+    JobViewModel --> IBackupService
+    JobViewModel --> ISettingsRepository
+    JobViewModel ..> BackupJob : exposes List
+
+    %% UI ViewModels héritent de ViewModelBase
+    MainWindowViewModel --|> ViewModelBase
+    JobListViewModel --|> ViewModelBase
+    SettingsViewModel --|> ViewModelBase
+
+    %% MainWindowViewModel compose les autres VMs
+    MainWindowViewModel --> JobListViewModel
+    MainWindowViewModel --> SettingsViewModel
+
+    %% JobListViewModel dépend des interfaces
+    JobListViewModel --> IConfigRepository
+    JobListViewModel --> IBackupService
+    JobListViewModel --> ISettingsRepository
+
+    %% SettingsViewModel dépend des interfaces
+    SettingsViewModel --> ISettingsRepository
+
+    %% Views liées à leurs ViewModels
+    MainWindow ..> MainWindowViewModel
+    JobListView ..> JobListViewModel
+    SettingsView ..> SettingsViewModel
+
+    %% Program_UI composition root
+    Program_UI ..> MainWindowViewModel
+    Program_UI ..> Application
