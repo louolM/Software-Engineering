@@ -189,14 +189,18 @@ public partial class JobListViewModel : ViewModelBase
             SetError(string.Format(_t.T("jobs.blocked"), settings.BusinessSoftware));
     }
 
+
     [RelayCommand]
     private async Task RunAll()
     {
         if (Jobs.Count == 0) { SetError(_t.T("jobs.noJobs")); return; }
         var settings = _settingsRepo.Load();
         int ran = 0, blocked = 0;
-        foreach (var job in Jobs) { if (TryRun(job, settings)) ran++; else blocked++; }
-
+        foreach (var job in Jobs)
+        {
+            if (await TryRunWithProgress(job, settings)) ran++;
+            else blocked++;
+        }
         if (blocked > 0) SetError(string.Format(_t.T("jobs.blockedMany"), blocked, ran));
         else await SetSuccessAutoHide(string.Format(_t.T("jobs.allDone"), ran));
     }
