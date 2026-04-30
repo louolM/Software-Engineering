@@ -211,6 +211,13 @@ public partial class JobListViewModel : ViewModelBase
         await SetSuccessAutoHide(string.Format(_t.T("jobs.deleted"), SelectedJob.Name));
         Refresh();
     }
+    [RelayCommand]
+    private void OpenLogs()
+    {
+        var logsPath = Path.Combine(AppContext.BaseDirectory, "logs");
+        Directory.CreateDirectory(logsPath); // ensures it exists
+        Process.Start(new ProcessStartInfo(logsPath) { UseShellExecute = true });
+    }
 
     private bool TryRun(BackupJob job, AppSettings settings)
     {
