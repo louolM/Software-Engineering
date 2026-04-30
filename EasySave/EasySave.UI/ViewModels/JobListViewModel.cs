@@ -183,7 +183,7 @@ public partial class JobListViewModel : ViewModelBase
     {
         if (SelectedJob == null) { SetError(_t.T("jobs.selectFirst")); return; }
         var settings = _settingsRepo.Load();
-        if (TryRun(SelectedJob, settings))
+        if (await TryRunWithProgress(SelectedJob, settings))
             await SetSuccessAutoHide(string.Format(_t.T("jobs.backupDone"), SelectedJob.Name));
         else
             SetError(string.Format(_t.T("jobs.blocked"), settings.BusinessSoftware));
