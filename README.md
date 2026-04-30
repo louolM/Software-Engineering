@@ -193,8 +193,8 @@ dotnet run
 
 Launch `EasySave.UI` to open the graphical interface. The navigation bar at the top gives access to two sections:
 
-**📋 Jobs** : manage and run backup jobs.  
-**⚙ Settings** : configure language, business software detection, CryptoSoft encryption, and log format.
+**Jobs** : manage and run backup jobs.  
+**Settings** : configure language, business software detection, CryptoSoft encryption, and log format.
 
 #### Creating a job
 
@@ -211,13 +211,13 @@ Click **Save** to confirm. The job appears immediately in the list.
 
 #### Running a job
 
-Select a job in the list and click **▶ Run Selected**, or click **▶▶ Run All** to run every job sequentially. A status message appears for 5 seconds after completion.
+Select a job in the list and click **Run Selected**, or click **Run All** to run every job sequentially. A status message appears for 5 seconds after completion.
 
 If a business software is running (configured in Settings), the job is blocked and an error message is displayed.
 
 #### Deleting a job
 
-Select a job and click **🗑 Delete**.
+Select a job and click **Delete**.
 
 #### Settings
 
