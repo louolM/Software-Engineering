@@ -219,14 +219,24 @@ public partial class JobListViewModel : ViewModelBase
         Process.Start(new ProcessStartInfo(logsPath) { UseShellExecute = true });
     }
 
-    private bool TryRun(BackupJob job, AppSettings settings)
+    private async Task<bool> TryRunWithProgress(BackupJob job, AppSettings settings)
     {
         if (!string.IsNullOrWhiteSpace(settings.BusinessSoftware))
         {
             var name = settings.BusinessSoftware.Replace(".exe", "", StringComparison.OrdinalIgnoreCase).Trim();
-            if (System.Diagnostics.Process.GetProcessesByName(name).Length > 0) return false;
+            if (Process.GetProcessesByName(name).Length > 0) return false;
         }
-        _backupService.RunBackup(job, settings);
+
+        IsRunning = true;
+        CurrentTaskLabel = $"Running: {job.Name}";
+        ProgressPercent = 0;
+        ProgressText = "0%";
+
+        await Task.Run(() => _backupService.RunBackup(job, settings));
+
+        ProgressPercent = 100;
+        ProgressText = "100%";
+        IsRunning = false;
         return true;
     }
 
