@@ -1,12 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using EasySave.Core;
-using EasySave.Services.Interfaces;
-using HarfBuzzSharp;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using EasySave.Core;
+using EasySave.Services.Interfaces;
 
 namespace EasySave.UI.ViewModels;
 
@@ -17,6 +16,7 @@ public partial class SettingsViewModel : ViewModelBase
     private CancellationTokenSource? _hideMsgCts;
 
     public event Action<string>? LanguageChanged;
+    public event Action? SettingsSaved;   // ← AJOUT : notifie que les settings ont changé
 
     [ObservableProperty] private string _businessSoftware = string.Empty;
     [ObservableProperty] private string _encryptionKey = string.Empty;
@@ -25,7 +25,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _languageFr = false;
     [ObservableProperty] private string _statusMessage = string.Empty;
 
-    // Libellés — tous alimentés depuis _t
+    // Libellés
     [ObservableProperty] private string _titleText = string.Empty;
     [ObservableProperty] private string _languageSectionTitle = string.Empty;
     [ObservableProperty] private string _businessSectionTitle = string.Empty;
@@ -36,7 +36,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string _logSectionTitle = string.Empty;
     [ObservableProperty] private string _saveButtonText = string.Empty;
 
-    // Erreurs de validation
+    // Erreurs
     [ObservableProperty] private string _encryptedExtensionsError = string.Empty;
     [ObservableProperty] private string _encryptionKeyError = string.Empty;
     [ObservableProperty] private string _businessSoftwareError = string.Empty;
@@ -112,7 +112,8 @@ public partial class SettingsViewModel : ViewModelBase
             Language = lang
         });
 
-        LanguageChanged?.Invoke(lang);
+        LanguageChanged?.Invoke(lang); // notifie le changement de langue
+        SettingsSaved?.Invoke();       // ← AJOUT : notifie que le format de log a peut-être changé
 
         StatusMessage = _t.T("settings.saved");
 
