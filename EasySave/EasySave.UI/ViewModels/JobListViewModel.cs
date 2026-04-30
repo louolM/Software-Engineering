@@ -237,11 +237,20 @@ public partial class JobListViewModel : ViewModelBase
         ProgressPercent = 0;
         ProgressText = "0%";
 
-        await Task.Run(() => _backupService.RunBackup(job, settings));
+        var progress = new Progress<double>(pct =>
+        {
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                ProgressPercent = pct;
+                ProgressText = $"{pct:F0}%";
+            });
+        });
+
+        await Task.Run(() => _backupService.RunBackup(job, settings, progress));  // ← pass progress
 
         ProgressPercent = 100;
         ProgressText = "100%";
-        IsRunning = false;
+        IsRunning = false;  // ← this must come LAST, after setting 100%
         return true;
     }
 

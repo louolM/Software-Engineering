@@ -124,11 +124,10 @@
 			<ProgressBar Value="{Binding ProgressPercent}" Minimum="0" Maximum="100"
 			             Height="10" CornerRadius="5"
 			             Foreground="#89b4fa" Background="#313244"/>
-			<Button Content="{Binding BtnOpenLogs}"
-			        Command="{Binding OpenLogsCommand}"
-			        HorizontalAlignment="Left"
-			        Background="#45475a" Foreground="#cdd6f4"
-			        Padding="10,5" CornerRadius="6" Margin="0,4,0,0"/>
 		</StackPanel>
+		<!-- In the Row 0 action bar StackPanel -->
+		<Button Content="{Binding BtnOpenLogs}" Command="{Binding OpenLogsCommand}"
+		        Background="#45475a" Foreground="#cdd6f4"
+		        Padding="12,6" CornerRadius="6"/>
 	</Grid>
 </UserControl>
