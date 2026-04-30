@@ -1,0 +1,88 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:EasySave.UI.ViewModels"
+             x:Class="EasySave.UI.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+	<ScrollViewer>
+		<StackPanel Margin="32" Spacing="16" MaxWidth="600">
+
+			<TextBlock Text="{Binding TitleText}" Foreground="#cdd6f4"
+					   FontSize="22" FontWeight="Bold" Margin="0,0,0,8"/>
+
+			<!-- Language -->
+			<Border Background="#313244" CornerRadius="8" Padding="16">
+				<StackPanel Spacing="8">
+					<TextBlock Text="{Binding LanguageSectionTitle}" Foreground="#cdd6f4" FontWeight="Bold" FontSize="14"/>
+					<StackPanel Orientation="Horizontal" Spacing="16">
+						<RadioButton Content="English (EN)"
+									 IsChecked="{Binding LanguageFr, Converter={x:Static BoolConverters.Not}}"
+									 Foreground="#cdd6f4"/>
+						<RadioButton Content="Français (FR)"
+									 IsChecked="{Binding LanguageFr}"
+									 Foreground="#cdd6f4"/>
+					</StackPanel>
+				</StackPanel>
+			</Border>
+
+			<!-- Business Software -->
+			<Border Background="#313244" CornerRadius="8" Padding="16">
+				<StackPanel Spacing="8">
+					<TextBlock Text="{Binding BusinessSectionTitle}" Foreground="#cdd6f4" FontWeight="Bold" FontSize="14"/>
+					<TextBlock Text="{Binding BusinessDescription}"  TextWrapping="Wrap" Foreground="#a6adc8" FontSize="12"/>
+					<TextBox Text="{Binding BusinessSoftware}"
+							 PlaceholderText="e.g. Calculator"
+							 Background="#1e1e2e" Foreground="#cdd6f4"/>
+					<TextBlock Text="{Binding BusinessSoftwareError}" Foreground="#f38ba8" FontSize="11"
+							   IsVisible="{Binding BusinessSoftwareError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+				</StackPanel>
+			</Border>
+
+			<!-- Encryption -->
+			<Border Background="#313244" CornerRadius="8" Padding="16">
+				<StackPanel Spacing="8">
+					<TextBlock Text="{Binding EncryptSectionTitle}" Foreground="#cdd6f4" FontWeight="Bold" FontSize="14"/>
+					<TextBlock Text="{Binding EncryptDescription}"  TextWrapping="Wrap" Foreground="#a6adc8" FontSize="12"/>
+					<TextBox Text="{Binding EncryptedExtensions}"
+							 PlaceholderText=".txt .docx .pdf"
+							 Background="#1e1e2e" Foreground="#cdd6f4"/>
+					<TextBlock Text="{Binding EncryptedExtensionsError}" Foreground="#f38ba8" FontSize="11"
+							   IsVisible="{Binding EncryptedExtensionsError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+					<TextBlock Text="{Binding EncryptKeyLabel}" Foreground="#a6adc8" FontSize="12" Margin="0,4,0,0"/>
+					<TextBox Text="{Binding EncryptionKey}"
+							 PlaceholderText="encryption key"
+							 Background="#1e1e2e" Foreground="#cdd6f4"/>
+					<TextBlock Text="{Binding EncryptionKeyError}" Foreground="#f38ba8" FontSize="11"
+							   IsVisible="{Binding EncryptionKeyError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+				</StackPanel>
+			</Border>
+
+			<!-- Log Format -->
+			<Border Background="#313244" CornerRadius="8" Padding="16">
+				<StackPanel Spacing="8">
+					<TextBlock Text="{Binding LogSectionTitle}" Foreground="#cdd6f4" FontWeight="Bold" FontSize="14"/>
+					<StackPanel Orientation="Horizontal" Spacing="16">
+						<RadioButton Content="JSON"
+									 IsChecked="{Binding LogFormatXml, Converter={x:Static BoolConverters.Not}}"
+									 Foreground="#cdd6f4"/>
+						<RadioButton Content="XML"
+									 IsChecked="{Binding LogFormatXml}"
+									 Foreground="#cdd6f4"/>
+					</StackPanel>
+				</StackPanel>
+			</Border>
+
+			<!-- Save -->
+			<Button Content="{Binding SaveButtonText}" Command="{Binding SaveCommand}"
+					Background="#a6e3a1" Foreground="#1e1e2e"
+					Padding="16,10" CornerRadius="6" HorizontalAlignment="Right"/>
+
+			<TextBlock Text="{Binding StatusMessage}"
+					   Foreground="#a6e3a1"
+					   FontSize="13"
+					   IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+		</StackPanel>
+	</ScrollViewer>
+</UserControl>
