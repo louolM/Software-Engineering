@@ -15,7 +15,7 @@ namespace EasySave.UI.ViewModels;
 public partial class JobListViewModel : ViewModelBase
 {
     private readonly IConfigRepository _configRepo;
-    private readonly IBackupService _backupService;
+    private IBackupService _backupService;
     private readonly ISettingsRepository _settingsRepo;
     private TranslationService _t;
 
@@ -27,7 +27,7 @@ public partial class JobListViewModel : ViewModelBase
     [ObservableProperty] private bool _statusIsError = false;
     [ObservableProperty] private bool _isFormVisible = false;
 
-    // Libellés — tous alimentés depuis _t
+    // Libellés
     [ObservableProperty] private string _btnNewJob = string.Empty;
     [ObservableProperty] private string _btnRunSelected = string.Empty;
     [ObservableProperty] private string _btnRunAll = string.Empty;
@@ -62,6 +62,10 @@ public partial class JobListViewModel : ViewModelBase
         UpdateTranslations(_t);
         Refresh();
     }
+
+    // ── Mise à jour du BackupService quand le format de log change ────────
+    public void UpdateBackupService(IBackupService backupService)
+        => _backupService = backupService;
 
     public void UpdateTranslations(TranslationService t)
     {
@@ -160,7 +164,12 @@ public partial class JobListViewModel : ViewModelBase
         if (_isEditing && SelectedJob != null)
         {
             var ex = jobs.FirstOrDefault(j => j.Id == SelectedJob.Id);
-            if (ex != null) { ex.Name = FormName; ex.SourcePath = src; ex.TargetPath = tgt; ex.Type = FormIsDifferential ? BackupType.Differential : BackupType.Full; }
+            if (ex != null)
+            {
+                ex.Name = FormName; ex.SourcePath = src;
+                ex.TargetPath = tgt;
+                ex.Type = FormIsDifferential ? BackupType.Differential : BackupType.Full;
+            }
         }
         else
         {
@@ -175,7 +184,11 @@ public partial class JobListViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void CancelForm() { IsFormVisible = false; FormNameError = FormSourceError = FormTargetError = string.Empty; }
+    private void CancelForm()
+    {
+        IsFormVisible = false;
+        FormNameError = FormSourceError = FormTargetError = string.Empty;
+    }
 
     [RelayCommand]
     private async Task RunSelected()
@@ -215,7 +228,8 @@ public partial class JobListViewModel : ViewModelBase
     {
         if (!string.IsNullOrWhiteSpace(settings.BusinessSoftware))
         {
-            var name = settings.BusinessSoftware.Replace(".exe", "", StringComparison.OrdinalIgnoreCase).Trim();
+            var name = settings.BusinessSoftware
+                .Replace(".exe", "", StringComparison.OrdinalIgnoreCase).Trim();
             if (System.Diagnostics.Process.GetProcessesByName(name).Length > 0) return false;
         }
         _backupService.RunBackup(job, settings);
@@ -224,7 +238,8 @@ public partial class JobListViewModel : ViewModelBase
 
     private async Task SetSuccessAutoHide(string msg)
     {
-        StatusIsError = false; StatusMessage = msg;
+        StatusIsError = false;
+        StatusMessage = msg;
         await Task.Delay(5000);
         StatusMessage = string.Empty;
     }
