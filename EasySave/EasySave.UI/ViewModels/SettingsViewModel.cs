@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -11,8 +12,8 @@ namespace EasySave.UI.ViewModels;
 public partial class SettingsViewModel : ViewModelBase
 {
     private readonly ISettingsRepository _settingsRepo;
+    private CancellationTokenSource? _hideMsgCts;
 
-    // Événement pour notifier MainWindowViewModel du changement de langue
     public event Action<string>? LanguageChanged;
 
     [ObservableProperty] private string _businessSoftware = string.Empty;
@@ -87,21 +88,6 @@ public partial class SettingsViewModel : ViewModelBase
     private bool Validate()
     {
         var valid = true;
-
-        // 🔹 Validation BusinessSoftware
-        if (string.IsNullOrWhiteSpace(BusinessSoftware))
-        {
-            BusinessSoftwareError = LanguageFr
-                ? "⚠ Nom du processus requis."
-                : "⚠ Process name is required.";
-            valid = false;
-        }
-        else
-        {
-            BusinessSoftwareError = string.Empty;
-        }
-
-        // 🔹 Validation extensions
         var exts = EncryptedExtensions.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var bad = exts.Where(e => !e.StartsWith('.')).ToList();
 
@@ -114,21 +100,19 @@ public partial class SettingsViewModel : ViewModelBase
         }
         else EncryptedExtensionsError = string.Empty;
 
-        // 🔹 Validation clé
         if (exts.Length > 0 && string.IsNullOrWhiteSpace(EncryptionKey))
         {
-            EncryptionKeyError = LanguageFr
-                ? "⚠ Clé requise."
-                : "⚠ Encryption key required.";
+            EncryptionKeyError = LanguageFr ? "⚠ Clé requise." : "⚠ Encryption key required.";
             valid = false;
         }
         else EncryptionKeyError = string.Empty;
 
+        BusinessSoftwareError = string.Empty;
         return valid;
     }
 
     [RelayCommand]
-    private async Task Save()
+    private void Save()  // ← void, pas async → bouton jamais bloqué
     {
         if (!Validate()) return;
 
@@ -139,24 +123,30 @@ public partial class SettingsViewModel : ViewModelBase
 
         var lang = LanguageFr ? "FR" : "EN";
 
-        var settings = new AppSettings
+        _settingsRepo.Save(new AppSettings
         {
             BusinessSoftware = BusinessSoftware.Trim(),
             EncryptionKey = EncryptionKey.Trim(),
             EncryptedExtensions = extensions,
             LogFormat = LogFormatXml ? "XML" : "JSON",
             Language = lang
-        };
+        });
 
-        _settingsRepo.Save(settings);
         ApplyLanguage(lang);
-        LanguageChanged?.Invoke(lang); // notifie MainWindowViewModel
+        LanguageChanged?.Invoke(lang);
 
         StatusIsError = false;
         StatusMessage = LanguageFr ? "✔ Paramètres sauvegardés." : "✔ Settings saved.";
 
-        // ✅ Disparaît après 5 secondes
-        await Task.Delay(5000);
-        StatusMessage = string.Empty;
+        // ── Lance le timer d'effacement en arrière-plan sans bloquer le bouton
+        _hideMsgCts?.Cancel();
+        _hideMsgCts = new CancellationTokenSource();
+        var token = _hideMsgCts.Token;
+
+        Task.Delay(5000, token).ContinueWith(_ =>
+        {
+            if (!token.IsCancellationRequested)
+                StatusMessage = string.Empty;
+        }, TaskScheduler.FromCurrentSynchronizationContext());
     }
 }
