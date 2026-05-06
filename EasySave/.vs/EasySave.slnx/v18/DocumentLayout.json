@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{F82E6B61-0C2D-4CF4-AFB1-AD9FF1D94580}|EasySave.UI\\EasySave.UI.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.ui\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F82E6B61-0C2D-4CF4-AFB1-AD9FF1D94580}|EasySave.UI\\EasySave.UI.csproj|solutionrelative:easysave.ui\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{F82E6B61-0C2D-4CF4-AFB1-AD9FF1D94580}|EasySave.UI\\EasySave.UI.csproj|c:\\users\\jules\\documents\\github\\software-engineering\\easysave\\easysave.ui\\viewmodels\\settingsviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F82E6B61-0C2D-4CF4-AFB1-AD9FF1D94580}|EasySave.UI\\EasySave.UI.csproj|solutionrelative:easysave.ui\\viewmodels\\settingsviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -50,11 +54,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.UI\\Program.cs",
+              "RelativeDocumentMoniker": "EasySave.UI\\Program.cs",
+              "ToolTip": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.UI\\Program.cs",
+              "RelativeToolTip": "EasySave.UI\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-06T09:31:33.229Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "BackupService.cs",
               "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.Services\\BackupService.cs",
               "RelativeDocumentMoniker": "EasySave.Services\\BackupService.cs",
@@ -62,12 +79,11 @@
               "RelativeToolTip": "EasySave.Services\\BackupService.cs",
               "ViewState": "AgIAAGcAAAAAAAAAAAAmwKYAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T07:39:28.486Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-30T07:39:28.486Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "SettingsViewModel.cs",
               "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.UI\\ViewModels\\SettingsViewModel.cs",
               "RelativeDocumentMoniker": "EasySave.UI\\ViewModels\\SettingsViewModel.cs",
@@ -80,7 +96,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "MainWindow.axaml.cs",
               "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.UI\\Views\\MainWindow.axaml.cs",
               "RelativeDocumentMoniker": "EasySave.UI\\Views\\MainWindow.axaml.cs",
@@ -92,7 +108,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "MainWindow.axaml",
               "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.UI\\Views\\MainWindow.axaml",
               "RelativeDocumentMoniker": "EasySave.UI\\Views\\MainWindow.axaml",
@@ -104,7 +120,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "MainWindowViewModel.cs",
               "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.UI\\ViewModels\\MainWindowViewModel.cs",
               "RelativeDocumentMoniker": "EasySave.UI\\ViewModels\\MainWindowViewModel.cs",
@@ -112,12 +128,11 @@
               "RelativeToolTip": "EasySave.UI\\ViewModels\\MainWindowViewModel.cs",
               "ViewState": "AgIAAB0AAAAAAAAAAAAowEgAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T07:00:59.819Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-30T07:00:59.819Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "JobListViewModel.cs",
               "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.UI\\ViewModels\\JobListViewModel.cs",
               "RelativeDocumentMoniker": "EasySave.UI\\ViewModels\\JobListViewModel.cs",
@@ -125,12 +140,11 @@
               "RelativeToolTip": "EasySave.UI\\ViewModels\\JobListViewModel.cs",
               "ViewState": "AgIAAM0AAAAAAAAAAAAowPgAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T07:01:18.091Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-30T07:01:18.091Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "TranslationService.cs",
               "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.UI\\TranslationService.cs",
               "RelativeDocumentMoniker": "EasySave.UI\\TranslationService.cs",
@@ -142,7 +156,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "EasySave.UI.csproj",
               "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.UI\\EasySave.UI.csproj",
               "RelativeDocumentMoniker": "EasySave.UI\\EasySave.UI.csproj",
@@ -154,7 +168,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "JobListView.axaml",
               "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.UI\\Views\\JobListView.axaml",
               "RelativeDocumentMoniker": "EasySave.UI\\Views\\JobListView.axaml",
@@ -166,7 +180,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "SettingsView.axaml",
               "DocumentMoniker": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\EasySave.UI\\Views\\SettingsView.axaml",
               "RelativeDocumentMoniker": "EasySave.UI\\Views\\SettingsView.axaml",
