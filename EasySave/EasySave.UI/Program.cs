@@ -15,10 +15,10 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        // ── Toujours travailler depuis le dossier de l'exe ────────────────
+        
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
-        // ── Mode ligne de commande ────────────────────────────────────────
+        // ── CLI Mode ────────────────────────────────────────
         if (args.Length > 0)
         {
             IFileService fileService = new FileService();
@@ -47,7 +47,7 @@ sealed class Program
             return;
         }
 
-        // ── Mode graphique ────────────────────────────────────────────────
+        // ── Graphic Mode ────────────────────────────────────────────────
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 

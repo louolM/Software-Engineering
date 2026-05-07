@@ -109,12 +109,19 @@
 			</StackPanel>
 		</Border>
 
-		<!-- Statut -->
-		<TextBlock Grid.Row="3" Text="{Binding StatusMessage}"
-		           Foreground="{Binding StatusIsError, Converter={x:Static BoolConverters.Not}, ConverterParameter=#a6e3a1}"
-		           Margin="0,8,0,0" FontSize="13"
-		           IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+		<!-- Message succès — vert -->
+		<TextBlock Grid.Row="3"
+           Text="{Binding StatusMessage}"
+           Foreground="#a6e3a1"
+           FontSize="13" Margin="0,8,0,0"
+           IsVisible="{Binding StatusIsError, Converter={x:Static BoolConverters.Not}}"/>
 
+		<!-- Message erreur — rouge -->
+		<TextBlock Grid.Row="3"
+           Text="{Binding StatusMessage}"
+           Foreground="#f38ba8"
+           FontSize="13" Margin="0,8,0,0"
+           IsVisible="{Binding StatusIsError}"/>
 		<!-- Progression -->
 		<StackPanel Grid.Row="4" Spacing="4" Margin="0,8,0,0"
 		            IsVisible="{Binding IsRunning}">
