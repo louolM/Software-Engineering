@@ -39,7 +39,7 @@ jobs:
 
       - name: Restore & Publish
         run: |
-          dotnet publish EasySave/EasySave.ConsoleApp/EasySave.ConsoleApp.csproj \
+          dotnet publish EasySave/EasySave/EasySave.ConsoleApp/EasySave.ConsoleApp.csproj \
             -c Release \
             -r ${{ matrix.runtime }} \
             --self-contained true \
