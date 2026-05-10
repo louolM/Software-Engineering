@@ -1,0 +1,65 @@
+%%{init: {"theme": "default"}}%%
+graph LR
+
+  User(["User"])
+  OS(["OS System\n(.exe process)"])
+
+  subgraph EasySave["EasySave"]
+
+    subgraph gestion["Job Management"]
+      UC1(["Create a job"])
+      UC2(["Edit a job"])
+      UC3(["Delete a job"])
+      UC4(["Validate paths"])
+      UC5(["Persist config.json"])
+    end
+
+    subgraph execution["Backup Execution"]
+      UC6(["Run a job"])
+      UC7(["Run all jobs"])
+      UC8(["Copy files"])
+      UC9(["Encrypt (CryptoSoft)"])
+      UC10(["Update state.json"])
+      UC11(["Log (JSON/XML)"])
+      UC12(["Block if software running"])
+    end
+
+    subgraph parametres["Settings"]
+      UC13(["Set language"])
+      UC14(["Set business software"])
+      UC15(["Set encryption"])
+      UC16(["Set log format"])
+      UC17(["Persist settings.json"])
+    end
+
+  end
+
+  User --- UC1
+  User --- UC2
+  User --- UC3
+  User --- UC6
+  User --- UC7
+  User --- UC13
+  User --- UC14
+  User --- UC15
+  User --- UC16
+
+  OS --- UC12
+  OS --- UC9
+
+  UC1 -. «include» .-> UC4
+  UC1 -. «include» .-> UC5
+  UC2 -. «include» .-> UC4
+  UC2 -. «include» .-> UC5
+  UC3 -. «include» .-> UC5
+  UC7 -. «include» .-> UC6
+  UC6 -. «include» .-> UC8
+  UC6 -. «include» .-> UC10
+  UC6 -. «include» .-> UC11
+  UC13 -. «include» .-> UC17
+  UC14 -. «include» .-> UC17
+  UC15 -. «include» .-> UC17
+  UC16 -. «include» .-> UC17
+
+  UC8 -. «extend» .-> UC9
+  UC6 -. «extend» .-> UC12

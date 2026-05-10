@@ -1,20 +1,10 @@
 ﻿using EasyLog;
 using EasySave.Core;
 using EasySave.Services.Interfaces;
+using System.Diagnostics;
 
 namespace EasySave.Services;
 
-// Core service that executes a backup job.
-//
-// This class is the concrete implementation of IBackupService.
-// It orchestrates the full backup workflow for a single BackupJob
-//
-// 1.  Enumerate all source files.
-// 2.  Initialize a BackupState progress snapshot.
-// 3.  For each file: optionally skip it (differential strategy), copy it, log the outcome, and update the live state.
-// 4.  Mark the job as "DONE" and write the final state.
-
-// Dependencies are injected through the constructor so they can be replaced with mocks in unit tests without touching the file system or log files.
 public class BackupService : IBackupService
 {
     private readonly IFileService _fileService;
@@ -28,9 +18,23 @@ public class BackupService : IBackupService
         _stateRepo = stateRepo;
     }
 
-    public void RunBackup(BackupJob job)
-    {
-        // ✅ Chemins locaux pour les opérations fichiers
+    public void RunBackup(BackupJob job, AppSettings settings, IProgress<double>? progress = null)    {
+        // ── Vérification logiciel métier AVANT de démarrer ──────────────────
+        if (IsBusinessSoftwareRunning(settings.BusinessSoftware))
+        {
+            _logger.Write(new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                BackupName = job.Name,
+                SourcePath = "",
+                TargetPath = "",
+                FileSize = 0,
+                TransferTime = 0,
+                EncryptionTime = 0
+            });
+            return; // On ne démarre pas le job
+        }
+
         var sourcePath = job.SourcePath!;
         var targetPath = job.TargetPath!;
 
@@ -52,7 +56,23 @@ public class BackupService : IBackupService
 
         foreach (var file in files)
         {
-            // ✅ Chemin local pour la copie
+            // ── Vérification logiciel métier PENDANT le backup ────────────────
+            // On finit le fichier en cours puis on s'arrête
+            if (IsBusinessSoftwareRunning(settings.BusinessSoftware))
+            {
+                _logger.Write(new LogEntry
+                {
+                    Timestamp = DateTime.Now,
+                    BackupName = job.Name,
+                    SourcePath = ToUNC(file),
+                    TargetPath = "",
+                    FileSize = 0,
+                    TransferTime = 0,
+                    EncryptionTime = 0
+                });
+                break; // Arrêt après le fichier actuel
+            }
+
             var relativePath = Path.GetRelativePath(sourcePath, file);
             var targetFile = Path.Combine(targetPath, relativePath);
             var fileSize = new FileInfo(file).Length;
@@ -73,26 +93,33 @@ public class BackupService : IBackupService
 
             try
             {
-                // ✅ Format UNC uniquement pour l'affichage dans state.json et les logs
                 state.CurrentSourceFile = ToUNC(file);
                 state.CurrentTargetFile = ToUNC(targetFile);
                 state.LastActionTime = DateTime.Now;
 
+                // ── Copie ──────────────────────────────────────────────────
                 var start = DateTime.Now;
-                _fileService.CopyFile(file, targetFile); // ✅ chemins locaux
-                var duration = (long)(DateTime.Now - start).TotalMilliseconds;
+                _fileService.CopyFile(file, targetFile);
+                var transferDuration = (long)(DateTime.Now - start).TotalMilliseconds;
+
+                // ── Chiffrement CryptoSoft ─────────────────────────────────
+                long encryptionTime = 0;
+                var ext = Path.GetExtension(file).ToLower();
+                if (settings.EncryptedExtensions.Contains(ext))
+                    encryptionTime = RunCryptoSoft(targetFile, settings.EncryptionKey);
 
                 _logger.Write(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     BackupName = job.Name,
-                    SourcePath = ToUNC(file),       // ✅ UNC dans les logs
+                    SourcePath = ToUNC(file),
                     TargetPath = ToUNC(targetFile),
                     FileSize = fileSize,
-                    TransferTime = duration
+                    TransferTime = transferDuration,
+                    EncryptionTime = encryptionTime
                 });
             }
-            catch (Exception ex)
+            catch
             {
                 _logger.Write(new LogEntry
                 {
@@ -101,16 +128,17 @@ public class BackupService : IBackupService
                     SourcePath = ToUNC(file),
                     TargetPath = "",
                     FileSize = 0,
-                    TransferTime = -1
+                    TransferTime = -1,
+                    EncryptionTime = 0
                 });
             }
 
             state.RemainingFiles--;
             state.RemainingSize -= fileSize;
             _stateRepo.Save(new List<BackupState> { state });
+            progress?.Report(state.Progression);
         }
 
-        // Statut final : INACTIVE
         state.Status = "INACTIVE";
         state.LastActionTime = DateTime.Now;
         state.CurrentSourceFile = null;
@@ -118,7 +146,41 @@ public class BackupService : IBackupService
         _stateRepo.Save(new List<BackupState> { state });
     }
 
-    // Conversion chemin local → format UNC (pour logs et state uniquement)
+    // ── Appel CryptoSoft externe ───────────────────────────────────────────
+    private static long RunCryptoSoft(string filePath, string key)
+    {
+        try
+        {
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "CryptoSoft.exe"),
+                    Arguments = $"\"{filePath}\" \"{key}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true
+                }
+            };
+
+            process.Start();
+            process.WaitForExit();
+            return process.ExitCode; // >0 = ms, <0 = erreur
+        }
+        catch
+        {
+            return -99; // CryptoSoft introuvable ou crash
+        }
+    }
+
+    // ── Détection logiciel métier ──────────────────────────────────────────
+    private static bool IsBusinessSoftwareRunning(string processName)
+    {
+        if (string.IsNullOrWhiteSpace(processName)) return false;
+        var name = processName.Replace(".exe", "", StringComparison.OrdinalIgnoreCase);
+        return Process.GetProcessesByName(name).Length > 0;
+    }
+
     private static string ToUNC(string path)
     {
         if (path.StartsWith(@"\\")) return path;

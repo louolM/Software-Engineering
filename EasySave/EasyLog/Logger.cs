@@ -3,16 +3,6 @@ using System.Xml.Serialization;
 
 namespace EasyLog;
 
-// Simple Logger that writes log entries in daily files
-
-// Fonctionnement global :
-// Logs are stored in a "logs" folder
-// A file a day is created (format : yyyy-MM-dd.json ou .xml)
-// Each writing the current day file is read (if existing), new entry is appended to the list and the file is overwritten with all entries
-// Output format can be JSON or XML (default is JSON )
-
-// NB : It's better to rewrite all instead of apending bcause of file format constraints, because xml tags or json serialization would cause eventual issues
-
 public class Logger
 {
     private readonly string _logDirectory = "logs";
@@ -21,7 +11,6 @@ public class Logger
     public Logger(string format = "JSON")
     {
         _format = format.ToUpper() == "XML" ? "XML" : "JSON";
-        Console.WriteLine($"\nYou selected {_format}");
     }
 
     public void Write(LogEntry entry)
@@ -41,9 +30,20 @@ public class Logger
         var fullPath = Path.Combine(_logDirectory, fileName);
         var options = new JsonSerializerOptions { WriteIndented = true };
 
-        List<LogEntry> logs = File.Exists(fullPath)
-            ? JsonSerializer.Deserialize<List<LogEntry>>(File.ReadAllText(fullPath)) ?? new()
-            : new();
+        List<LogEntry> logs = new();
+        if (File.Exists(fullPath))
+        {
+            try
+            {
+                logs = JsonSerializer.Deserialize<List<LogEntry>>(File.ReadAllText(fullPath)) ?? new();
+            }
+            catch (JsonException)
+            {
+                // File is corrupted — rename it for inspection and start fresh
+                File.Move(fullPath, fullPath.Replace(".json", $"_corrupted_{DateTime.Now:HHmmss}.json"));
+                logs = new();
+            }
+        }
 
         logs.Add(entry);
         File.WriteAllText(fullPath, JsonSerializer.Serialize(logs, options));

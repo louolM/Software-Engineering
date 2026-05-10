@@ -6,28 +6,23 @@ using EasySave.Infrastructure;
 using EasySave.Services;
 using EasySave.Services.Interfaces;
 
-Console.Write("EN (default) / FR ? ");
+Console.Write("EN(default) / FR ? ");
 var lang = Console.ReadLine()?.Trim().ToUpper();
 var t = new TranslationService(lang);
 
-Console.Write("Log format JSON (Default) / XML ? ");
+Console.Write("Log format JSON / XML ? ");
 var logFormat = Console.ReadLine()?.Trim().ToUpper() ?? "JSON";
 
 // ── Composition Root ──────────────────────────────────────────────────────────
-// Each interface is paired with its concrete implementation so the rest of
-// the application never needs to instantiate infrastructure classes directly.
 IFileService fileService = new FileService();
 IStateRepository stateRepo = new StateRepository();
 IConfigRepository configRepo = new ConfigRepository();
+ISettingsRepository settingsRepo = new SettingsRepository();  // ← AJOUT
 IBackupService backupSvc = new BackupService(fileService, new Logger(logFormat), stateRepo);
 
-// The ViewModel holds application state (the job list) and exposes commands
-// (Create, Run, Delete) that the View and the CLI mode both call.
-var vm = new JobViewModel(configRepo, backupSvc);
+var vm = new JobViewModel(configRepo, backupSvc, settingsRepo);  // ← MODIFIÉ
 
 // ── Mode ligne de commande ────────────────────────────────────────────────────
-// The ViewModel holds application state (the job list) and exposes commands
-// (Create, Run, Delete) that the View and the CLI mode both call.
 if (args.Length > 0)
 {
     vm.RunJobs(ParseIds(args[0]));
@@ -35,13 +30,9 @@ if (args.Length > 0)
 }
 
 // ── Lancement de la View ──────────────────────────────────────────────────────
-// The ViewModel holds application state (the job list) and exposes commands
-// (Create, Run, Delete) that the View and the CLI mode both call.
 var view = new JobView(vm, t);
 view.Run();
 
-// The ViewModel holds application state (the job list) and exposes commands
-// (Create, Run, Delete) that the View and the CLI mode both call.
 static IEnumerable<int> ParseIds(string input)
 {
     if (input.Contains('-'))

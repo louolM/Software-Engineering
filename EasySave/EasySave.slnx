@@ -4,4 +4,5 @@
   <Project Path="EasySave.Core/EasySave.Core.csproj" />
   <Project Path="EasySave.Infrastructure/EasySave.Infrastructure.csproj" />
   <Project Path="EasySave.Services/EasySave.Services.csproj" Id="d8b83814-2571-44d7-bfca-6e8eed02198e" />
+  <Project Path="EasySave.UI/EasySave.UI.csproj" Id="f82e6b61-0c2d-4cf4-afb1-ad9ff1d94580" />
 </Solution>

@@ -8,15 +8,17 @@ public class JobViewModel
 {
     private readonly IConfigRepository _configRepo;
     private readonly IBackupService _backupService;
+    private readonly ISettingsRepository _settingsRepo;  // ← AJOUT
 
     public List<BackupJob> Jobs { get; private set; } = new();
     public string Message { get; private set; } = string.Empty;
     public bool HasError { get; private set; }
 
-    public JobViewModel(IConfigRepository configRepo, IBackupService backupService)
+    public JobViewModel(IConfigRepository configRepo, IBackupService backupService, ISettingsRepository settingsRepo)  // ← MODIFIÉ
     {
         _configRepo = configRepo;
         _backupService = backupService;
+        _settingsRepo = settingsRepo;  // ← AJOUT
         Refresh();
     }
 
@@ -33,18 +35,6 @@ public class JobViewModel
         if (Jobs.Count >= 5) { SetError("createMaxReached"); return; }
         if (Jobs.Any(j => j.Name!.Equals(name, StringComparison.OrdinalIgnoreCase)))
         { SetError("createNameExists"); return; }
-        if (File.Exists(source))
-        {
-            SetError("createSourceIsFile");
-            return;
-        }
-
-        if (!Directory.Exists(source))
-        {
-            SetError("createSourceNotFound");
-            return;
-        }
-
 
         var newId = Jobs.Count == 0 ? 1 : Jobs.Max(j => j.Id) + 1;
 
@@ -56,12 +46,13 @@ public class JobViewModel
     public void RunJobs(IEnumerable<int> ids)
     {
         Refresh();
+        var settings = _settingsRepo.Load();  // ← AJOUT
         var results = new List<string>();
 
         foreach (var id in ids)
         {
             var job = Jobs.FirstOrDefault(j => j.Id == id);
-            if (job != null) { _backupService.RunBackup(job); results.Add($"runDone:{job.Name}"); }
+            if (job != null) { _backupService.RunBackup(job, settings); results.Add($"runDone:{job.Name}"); }  // ← MODIFIÉ
             else { results.Add($"runNotFound:{id}"); }
         }
 
