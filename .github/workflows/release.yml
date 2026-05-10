@@ -63,7 +63,7 @@ jobs:
 
       - name: Publish
         run: |
-          dotnet publish EasySave/EasySave.GUI/EasySave.GUI.csproj \
+          dotnet publish EasySave/EasySave.UI/EasySave.UI.csproj \
             -c Release \
             -r ${{ matrix.runtime }} \
             --self-contained true \
