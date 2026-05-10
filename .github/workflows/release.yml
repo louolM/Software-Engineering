@@ -22,17 +22,14 @@ jobs:
           - os: windows-latest
             runtime: win-x64
             artifact_name: EasySave-Windows-x64
-            binary: EasySave.exe              # update to your v2 .csproj output name
             renamed: EasySave-Windows-x64.exe
           - os: ubuntu-latest
             runtime: linux-x64
             artifact_name: EasySave-Linux-x64
-            binary: EasySave                  # update to your v2 .csproj output name
             renamed: EasySave-Linux-x64
           - os: macos-latest
             runtime: osx-x64
             artifact_name: EasySave-macOS-x64
-            binary: EasySave                  # update to your v2 .csproj output name
             renamed: EasySave-macOS-x64
 
     runs-on: ${{ matrix.os }}
@@ -67,7 +64,7 @@ jobs:
 
       - name: Publish
         run: |
-          dotnet publish EasySave/EasySave.UI/EasySave.UI.csproj \
+          dotnet publish EasySave/EasySave.GUI/EasySave.GUI.csproj \
             -c Release \
             -r ${{ matrix.runtime }} \
             --self-contained true \
@@ -78,8 +75,22 @@ jobs:
             -o ./publish
         shell: bash
 
+      - name: List publish output
+        run: ls -la ./publish/
+        shell: bash
+
       - name: Rename executable
-        run: mv ./publish/${{ matrix.binary }} ./publish/${{ matrix.renamed }}
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            src=$(find ./publish -maxdepth 1 -name "*.exe" | head -n 1)
+          else
+            src=$(find ./publish -maxdepth 1 -type f \
+              ! -name "*.pdb" ! -name "*.xml" \
+              ! -name "*.dylib" ! -name "*.so" ! -name "*.a" \
+              | head -n 1)
+          fi
+          echo "Renaming: $src -> ./publish/${{ matrix.renamed }}"
+          mv "$src" ./publish/${{ matrix.renamed }}
         shell: bash
 
       - name: Upload artifact
