@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to build (ex: v1.0.0)'
+        description: 'Tag to build (ex: v2.0.0)'
         required: true
         type: string
 
@@ -22,13 +22,18 @@ jobs:
           - os: windows-latest
             runtime: win-x64
             artifact_name: EasySave-Windows-x64
-            binary: EasySave.ConsoleApp.exe
+            binary: EasySave.exe              # update to your v2 .csproj output name
             renamed: EasySave-Windows-x64.exe
           - os: ubuntu-latest
             runtime: linux-x64
             artifact_name: EasySave-Linux-x64
-            binary: EasySave.ConsoleApp
+            binary: EasySave                  # update to your v2 .csproj output name
             renamed: EasySave-Linux-x64
+          - os: macos-latest
+            runtime: osx-x64
+            artifact_name: EasySave-macOS-x64
+            binary: EasySave                  # update to your v2 .csproj output name
+            renamed: EasySave-macOS-x64
 
     runs-on: ${{ matrix.os }}
 
@@ -41,18 +46,34 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      # Avalonia on Linux needs native GUI and Skia libraries at build time
+      - name: Install Linux GUI dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libx11-dev \
+            libxext-dev \
+            libxrender-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev
+
       - name: Restore dependencies
         run: dotnet restore EasySave/EasySave.slnx -r ${{ matrix.runtime }}
 
       - name: Publish
         run: |
-          dotnet publish EasySave/EasySave.ConsoleApp/EasySave.ConsoleApp.csproj \
+          dotnet publish EasySave/EasySave.GUI/EasySave.GUI.csproj \
             -c Release \
             -r ${{ matrix.runtime }} \
             --self-contained true \
             -p:PublishSingleFile=true \
-            -p:IncludeAllContentForSelfExtract=true \
-            -p:DebugType=embedded \
+            -p:DebugType=None \
+            -p:DebugSymbols=false \
             --no-restore \
             -o ./publish
         shell: bash
@@ -88,3 +109,4 @@ jobs:
           files: |
             ./artifacts/EasySave-Windows-x64/EasySave-Windows-x64.exe
             ./artifacts/EasySave-Linux-x64/EasySave-Linux-x64
+            ./artifacts/EasySave-macOS-x64/EasySave-macOS-x64
