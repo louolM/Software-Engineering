@@ -6,17 +6,20 @@ using EasySave.Infrastructure;
 using EasySave.Services;
 using EasySave.Services.Interfaces;
 
+Console.Write("EN (default) / FR ? ");
+var lang = Console.ReadLine()?.Trim().ToUpper();
+var t = new TranslationService(lang);
+
+Console.Write("Log format JSON (Default) / XML ? ");
+var logFormat = Console.ReadLine()?.Trim().ToUpper() ?? "JSON";
+
 // ── Composition Root ──────────────────────────────────────────────────────────
 // Each interface is paired with its concrete implementation so the rest of
 // the application never needs to instantiate infrastructure classes directly.
 IFileService fileService = new FileService();
 IStateRepository stateRepo = new StateRepository();
 IConfigRepository configRepo = new ConfigRepository();
-IBackupService backupSvc = new BackupService(fileService, new Logger(), stateRepo);
-
-Console.Write("EN(default) / FR ? ");
-var lang = Console.ReadLine()?.Trim().ToUpper();
-var t = new TranslationService(lang);
+IBackupService backupSvc = new BackupService(fileService, new Logger(logFormat), stateRepo);
 
 // The ViewModel holds application state (the job list) and exposes commands
 // (Create, Run, Delete) that the View and the CLI mode both call.

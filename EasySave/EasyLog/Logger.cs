@@ -1,44 +1,73 @@
 ﻿using System.Text.Json;
+using System.Xml.Serialization;
 
 namespace EasyLog;
 
-// Handles writing LogEntry records to daily JSON log files.
-//
-// Log files are stored in the "logs/" folder relative to the application's working directory.
-// One file is created per calendar day, named after the current date (e.g., "logs/2024-04-22.json").
-// Each file contains a JSON array of LogEntry objects, appended on every write.
+// Simple Logger that writes log entries in daily files
+
+// Fonctionnement global :
+// Logs are stored in a "logs" folder
+// A file a day is created (format : yyyy-MM-dd.json ou .xml)
+// Each writing the current day file is read (if existing), new entry is appended to the list and the file is overwritten with all entries
+// Output format can be JSON or XML (default is JSON )
+
+// NB : It's better to rewrite all instead of apending bcause of file format constraints, because xml tags or json serialization would cause eventual issues
+
 public class Logger
 {
     private readonly string _logDirectory = "logs";
+    private readonly string _format; // "JSON" ou "XML"
+
+    public Logger(string format = "JSON")
+    {
+        _format = format.ToUpper() == "XML" ? "XML" : "JSON";
+        Console.WriteLine($"\nYou selected {_format}");
+    }
 
     public void Write(LogEntry entry)
     {
         if (!Directory.Exists(_logDirectory))
             Directory.CreateDirectory(_logDirectory);
 
+        if (_format == "XML")
+            WriteXml(entry);
+        else
+            WriteJson(entry);
+    }
+
+    private void WriteJson(LogEntry entry)
+    {
         var fileName = $"{DateTime.Now:yyyy-MM-dd}.json";
         var fullPath = Path.Combine(_logDirectory, fileName);
+        var options = new JsonSerializerOptions { WriteIndented = true };
 
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true
-        };
+        List<LogEntry> logs = File.Exists(fullPath)
+            ? JsonSerializer.Deserialize<List<LogEntry>>(File.ReadAllText(fullPath)) ?? new()
+            : new();
 
-        List<LogEntry> logs;
+        logs.Add(entry);
+        File.WriteAllText(fullPath, JsonSerializer.Serialize(logs, options));
+    }
+
+    private void WriteXml(LogEntry entry)
+    {
+        var fileName = $"{DateTime.Now:yyyy-MM-dd}.xml";
+        var fullPath = Path.Combine(_logDirectory, fileName);
+
+        var serializer = new XmlSerializer(typeof(List<LogEntry>),
+                             new XmlRootAttribute("Logs"));
+
+        List<LogEntry> logs = new();
 
         if (File.Exists(fullPath))
         {
-            var existingJson = File.ReadAllText(fullPath);
-            logs = JsonSerializer.Deserialize<List<LogEntry>>(existingJson) ?? new List<LogEntry>();
-        }
-        else
-        {
-            logs = new List<LogEntry>();
+            using var readStream = File.OpenRead(fullPath);
+            logs = (List<LogEntry>?)serializer.Deserialize(readStream) ?? new();
         }
 
         logs.Add(entry);
 
-        var json = JsonSerializer.Serialize(logs, options);
-        File.WriteAllText(fullPath, json);
+        using var writeStream = File.Create(fullPath);
+        serializer.Serialize(writeStream, logs);
     }
 }

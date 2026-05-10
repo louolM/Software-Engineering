@@ -55,10 +55,10 @@ Each layer depends only on the layer below it. Infrastructure classes are hidden
 
 ### Diagrams
 The use case diagram shows the different functionalities of a system from the user’s perspective and how actors interact with it.
-![Diagram](Diagrams/Pictures/UseCase.jpg)
+![Diagram](Diagrams/Pictures/UseCase.png)
 
 The activity diagram represents the flow of actions and decisions within a process from start to finish.
-![Diagram](Diagrams/Pictures/Activity.jpg)
+![Diagram](Diagrams/Pictures/Activity.png)
 
 The class diagram describes the structure of a system by showing its classes, attributes, methods, and relationships.
 ![Diagram](Diagrams/Pictures/Class.png)
@@ -235,9 +235,9 @@ Overwritten after every file transfer during a run. Poll this file to monitor pr
 
 Status values: "ACTIVE" while running, "DONE" when finished.
 
-### `logs/YYYY-MM-DD.json` : daily transfer log
+### `logs/YYYY-MM-DD.(json|xml)` : daily transfer log
 
-One JSON file per calendar day. Each element records the outcome of a single file copy attempt.
+One file per calendar day. Each element records the outcome of a single file copy attempt.
 
 ```json
 [
@@ -259,6 +259,25 @@ One JSON file per calendar day. Each element records the outcome of a single fil
   }
 ]
 ```
+```xml
+<LogEntry>
+    <Timestamp>2026-04-29T10:11:00.4262675+02:00</Timestamp>
+    <BackupName>tet</BackupName>
+    <SourcePath>/home/klimouun/CESI/A3/177013/Job</SourcePath>
+    <TargetPath>/home/klimouun/CESI/A3/727WYSI/Job</TargetPath>
+    <FileSize>1706</FileSize>
+    <TransferTime>0</TransferTime>
+  </LogEntry>
+  <LogEntry>
+    <Timestamp>2026-04-29T10:11:00.7053077+02:00</Timestamp>
+    <BackupName>tet</BackupName>
+    <SourcePath>/home/klimouun/CESI/A3/177013/Telegraphic_style.pdf</SourcePath>
+    <TargetPath>/home/klimouun/CESI/A3/727WYSI/Telegraphic_style.pdf</TargetPath>
+    <FileSize>457172</FileSize>
+    <TransferTime>22</TransferTime>
+  </LogEntry>
+```
+
 
 | Field        | Description |
 |--------------|---|
@@ -272,6 +291,21 @@ One JSON file per calendar day. Each element records the outcome of a single fil
 |---|---|---
 | `config.json` | Working directory | Stores all backup job definitions |
 | `state.json` | Working directory | Live progress of the most recent run |
-| `logs/YYYY-MM-DD.json` | `logs/` sub-directory | Immutable daily audit log |
+
+### Logging format
+
+The logging system supports two output formats:
+
+| Format | Description |
+|--------|-------------|
+| JSON (default) | Human-readable, easy to parse |
+| XML | Structured format suitable for legacy tools |
+
+The format is defined when initializing the logger.
+
+> Note: Each log write rewrites the entire daily file instead of appending.  
+> It's better to rewrite everything instead of appending because of file format constraints, because xml tags or json serialization would cause eventual issues.
+> This design ensures valid JSON/XML structure at all times but may have performance implications for very large log files.
+
 
 All three files are created automatically on first use, no manual setup is required.

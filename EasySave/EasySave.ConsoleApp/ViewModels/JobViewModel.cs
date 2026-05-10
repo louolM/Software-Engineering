@@ -33,6 +33,18 @@ public class JobViewModel
         if (Jobs.Count >= 5) { SetError("createMaxReached"); return; }
         if (Jobs.Any(j => j.Name!.Equals(name, StringComparison.OrdinalIgnoreCase)))
         { SetError("createNameExists"); return; }
+        if (File.Exists(source))
+        {
+            SetError("createSourceIsFile");
+            return;
+        }
+
+        if (!Directory.Exists(source))
+        {
+            SetError("createSourceNotFound");
+            return;
+        }
+
 
         var newId = Jobs.Count == 0 ? 1 : Jobs.Max(j => j.Id) + 1;
 

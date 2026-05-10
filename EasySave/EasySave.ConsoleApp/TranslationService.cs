@@ -16,6 +16,7 @@ public class TranslationService
     {
         if (language == "FR")
         {
+            Console.WriteLine($"\nYou selected french\n");           
             _translations = new Dictionary<string, string>
             {
                 { "menu",           "=== MENU ===" },
@@ -27,6 +28,9 @@ public class TranslationService
                 { "choice",         "Votre choix : " },
                 { "invalidChoice",  "Choix invalide." },
 
+                //Log
+                { "logFormatPrompt", "Format des logs JSON / XML ? " },
+
                 // Créer
                 { "createName",     "Nom du job : " },
                 { "createSource",   "Chemin source : " },
@@ -35,6 +39,8 @@ public class TranslationService
                 { "createOk",       "Job créé avec succès !" },
                 { "createMaxReached","Limite de 5 jobs atteinte. Supprimez un job avant d'en créer un nouveau." },
                 { "createNameExists","Un job avec ce nom existe déjà." },
+                { "createSourceIsFile", "Le chemin indique un fichier. Un répertoire est attendu"},
+                { "createSourceNotFound","Le répertoire n'existe pas."}, 
 
                 // Voir
                 { "noJobs",         "Aucun job disponible." },
@@ -43,7 +49,7 @@ public class TranslationService
 
                 // Lancer
                 { "runPrompt",      "Entrez l'ID ou la plage à lancer (ex: 1 / 1-3 / 1;3) : " },
-                { "runDone",        "Backup terminé : " },
+                { "runDone",        "Backup terminée : " },
                 { "runNotFound",    "Job introuvable : " },
 
                 // Supprimer
@@ -57,6 +63,7 @@ public class TranslationService
         }
         else
         {
+            Console.WriteLine($"\nYou selected english\n");           
             _translations = new Dictionary<string, string>
             {
                 { "menu",           "=== MENU ===" },
@@ -68,6 +75,9 @@ public class TranslationService
                 { "choice",         "Your choice: " },
                 { "invalidChoice",  "Invalid choice." },
 
+                //Log
+                { "logFormatPrompt", "Log format JSON / XML? " },
+
                 // Create
                 { "createName",     "Job name: " },
                 { "createSource",   "Source path: " },
@@ -76,6 +86,8 @@ public class TranslationService
                 { "createOk",       "Job created successfully!" },
                 { "createMaxReached","5 job limit reached. Delete a job before creating a new one." },
                 { "createNameExists","A job with this name already exists." },
+                { "createSourceIsFile", "Path leads to a file. Expected directory or folder"},
+                { "createSourceNotFound", "Directory does not exist"}, 
 
                 // View
                 { "noJobs",         "No jobs available." },

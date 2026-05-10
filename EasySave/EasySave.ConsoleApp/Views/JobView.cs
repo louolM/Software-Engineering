@@ -105,6 +105,8 @@ public class JobView
             var value = segments.Length > 1 ? segments[1] : string.Empty;
 
             Console.WriteLine(_t.T(key) + value);
+            Console.WriteLine($"\nInfo: Logs are available at {Path.Combine(AppContext.BaseDirectory, "logs/")}");
+
         }
     }
 
