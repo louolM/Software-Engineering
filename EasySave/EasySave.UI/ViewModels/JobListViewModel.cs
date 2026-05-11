@@ -260,7 +260,8 @@ public partial class JobListViewModel : ViewModelBase
             });
         });
 
-        await Task.Run(() => _backupService.RunBackup(job, settings, progress));  // ← pass progress
+        var controller = new JobController();
+        await _backupService.RunBackupAsync(job, settings, controller, progress);
 
         ProgressPercent = 100;
         ProgressText = "100%";

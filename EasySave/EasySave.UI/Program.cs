@@ -1,28 +1,27 @@
 ﻿using Avalonia;
+using EasySave.Core;
+using EasySave.Infrastructure;
+using EasySave.Services;
+using EasySave.Services.Interfaces;
+using EasyLog;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace EasySave.UI;
 
 sealed class Program
 {
-    // Initialization code. Don't use any Avalonia, third-party APIs or any
-    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-    // yet and stuff might break.
     [STAThread]
-<<<<<<< Updated upstream
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
-=======
     public static void Main(string[] args)
     {
-        
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
-        
-        // ── CLI Mode ────────────────────────────────────────
+
+        // ── Mode ligne de commande ────────────────────────────────────────
         if (args.Length > 0)
         {
             Console.WriteLine($"Argument reçu: '{args[0]}'");
-
             var ids = ParseIds(args[0]).ToList();
             Console.WriteLine($"IDs parsés: {string.Join(", ", ids)}");
 
@@ -35,13 +34,14 @@ sealed class Program
             var backupSvc = new BackupService(fileService, new Logger(settings.LogFormat), stateRepo);
             var jobs = configRepo.Load();
 
-            foreach (var id in ParseIds(args[0]))
+            foreach (var id in ids)
             {
                 var job = jobs.FirstOrDefault(j => j.Id == id);
                 if (job != null)
                 {
                     Console.WriteLine($"Running job: {job.Name}");
-                    backupSvc.RunBackup(job, settings);
+                    var controller = new JobController();
+                    backupSvc.RunBackupAsync(job, settings, controller).GetAwaiter().GetResult();
                     Console.WriteLine($"Done: {job.Name}");
                 }
                 else
@@ -52,12 +52,10 @@ sealed class Program
             return;
         }
 
-        // ── Graphic Mode ────────────────────────────────────────────────
+        // ── Mode graphique ────────────────────────────────────────────────
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
->>>>>>> Stashed changes
 
-    // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
@@ -66,4 +64,23 @@ sealed class Program
 #endif
             .WithInterFont()
             .LogToTrace();
+
+    private static IEnumerable<int> ParseIds(string input)
+    {
+        if (input.Contains('-'))
+        {
+            var parts = input.Split('-');
+            if (int.TryParse(parts[0], out var s) && int.TryParse(parts[1], out var e))
+                for (int i = s; i <= e; i++) yield return i;
+        }
+        else if (input.Contains(';'))
+        {
+            foreach (var p in input.Split(';'))
+                if (int.TryParse(p.Trim(), out var id)) yield return id;
+        }
+        else
+        {
+            if (int.TryParse(input, out var id)) yield return id;
+        }
+    }
 }
