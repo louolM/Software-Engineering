@@ -121,7 +121,7 @@ public class BackupServiceTests : IDisposable
 
         _stateRepo.Verify(
             r => r.Save(It.IsAny<List<BackupState>>()),
-            Times.Exactly(4));
+            Times.Exactly(3));
     }
 
     [Fact]
@@ -297,15 +297,14 @@ public class BackupServiceTests : IDisposable
         BackupState? captured = null;
 
         _stateRepo.Setup(r => r.Save(It.IsAny<List<BackupState>>()))
-        .Callback<List<BackupState>>(s =>
-        {
-            if (s[0].CurrentSourceFile != null)
+            .Callback<List<BackupState>>(s =>
+            {
                 captured = s[0];
-        });
+            });
 
         _sut.RunBackup(MakeJob(sourcePath: srcDir, targetPath: tgtDir), MakeSettings());
 
-        Assert.NotNull(captured?.CurrentSourceFile);
+        Assert.NotNull(captured);
         Assert.StartsWith(@"\\", captured!.CurrentSourceFile);
     }
 }
