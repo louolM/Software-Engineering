@@ -10,23 +10,24 @@ public class BackupService : IBackupService
     private readonly IFileService _fileService;
     private readonly Logger _logger;
     private readonly IStateRepository _stateRepo;
+    private readonly DockerLogService? _dockerLog;
 
-    // ── Mutex statique partagé entre tous les jobs ────────────────────────
-    // Empêche deux fichiers > MaxParallelFileSize d'être copiés en même temps
     private static readonly SemaphoreSlim _largeCopySlot = new(1, 1);
-
-    // ── Mutex pour CryptoSoft single-instance ─────────────────────────────
     private static readonly SemaphoreSlim _cryptoSlot = new(1, 1);
 
-    public BackupService(IFileService fileService, Logger logger, IStateRepository stateRepo)
+    public BackupService(IFileService fileService, Logger logger,
+                         IStateRepository stateRepo,
+                         DockerLogService? dockerLog = null)
     {
         _fileService = fileService;
         _logger = logger;
         _stateRepo = stateRepo;
+        _dockerLog = dockerLog;
     }
 
     public async Task RunBackupAsync(BackupJob job, AppSettings settings,
-                                     JobController controller, IProgress<double>? progress = null)
+                                     JobController controller,
+                                     IProgress<double>? progress = null)
     {
         var sourcePath = job.SourcePath!;
         var targetPath = job.TargetPath!;
@@ -47,28 +48,18 @@ public class BackupService : IBackupService
 
         _stateRepo.Save(new List<BackupState> { state });
 
-        // ── Tri : fichiers prioritaires d'abord ───────────────────────────
         var priorityExts = settings.PriorityExtensions
             .Select(e => e.ToLower()).ToHashSet();
 
         var orderedFiles = priorityExts.Count > 0
-            ? allFiles
-                .OrderByDescending(f => priorityExts.Contains(
-                    Path.GetExtension(f).ToLower()))
-                .ToList()
+            ? allFiles.OrderByDescending(f =>
+                priorityExts.Contains(Path.GetExtension(f).ToLower())).ToList()
             : allFiles;
 
         foreach (var file in orderedFiles)
         {
-            // ── Pause / Stop ──────────────────────────────────────────────
-            try
-            {
-                controller.WaitIfPaused();
-            }
-            catch (OperationCanceledException)
-            {
-                break; // job stoppé
-            }
+            try { controller.WaitIfPaused(); }
+            catch (OperationCanceledException) { break; }
 
             if (controller.IsStopped) break;
 
@@ -77,33 +68,7 @@ public class BackupService : IBackupService
             var fileSize = new FileInfo(file).Length;
             var ext = Path.GetExtension(file).ToLower();
 
-            // ── Priorité : bloquer les fichiers non-prioritaires ──────────
-            // si des fichiers prioritaires sont encore en attente
-            if (priorityExts.Count > 0 && !priorityExts.Contains(ext))
-            {
-                // Vérifier s'il reste des fichiers prioritaires non copiés
-                var remaining = orderedFiles
-                    .SkipWhile(f => f != file)
-                    .Skip(1)
-                    .Any(f => priorityExts.Contains(
-                        Path.GetExtension(f).ToLower()));
-
-                // Si des prioritaires sont encore dans la liste avant ce fichier
-                var hasPriorityBefore = orderedFiles
-                    .TakeWhile(f => f != file)
-                    .Any(f => priorityExts.Contains(
-                        Path.GetExtension(f).ToLower()) &&
-                        !File.Exists(Path.Combine(targetPath,
-                            Path.GetRelativePath(sourcePath, f))));
-
-                if (hasPriorityBefore)
-                {
-                    // Reporte ce fichier à la fin
-                    continue;
-                }
-            }
-
-            // ── Differential : skip si fichier identique ──────────────────
+            // Differential
             if (job.Type == BackupType.Differential && File.Exists(targetFile))
             {
                 var srcInfo = new FileInfo(file);
@@ -124,42 +89,28 @@ public class BackupService : IBackupService
                 state.CurrentTargetFile = ToUNC(targetFile);
                 state.LastActionTime = DateTime.Now;
 
-                // ── Limite taille parallèle ───────────────────────────────
-                var maxSize = settings.MaxParallelFileSize * 1024; // KB → bytes
+                var maxSize = settings.MaxParallelFileSize * 1024;
                 bool isLarge = maxSize > 0 && fileSize > maxSize;
 
                 if (isLarge) await _largeCopySlot.WaitAsync(controller.Token);
-
                 long transferDuration;
                 try
                 {
                     var start = DateTime.Now;
-                    await Task.Run(() => _fileService.CopyFile(file, targetFile),
-                                   controller.Token);
+                    await Task.Run(() => _fileService.CopyFile(file, targetFile), controller.Token);
                     transferDuration = (long)(DateTime.Now - start).TotalMilliseconds;
                 }
-                finally
-                {
-                    if (isLarge) _largeCopySlot.Release();
-                }
+                finally { if (isLarge) _largeCopySlot.Release(); }
 
-                // ── CryptoSoft single-instance ────────────────────────────
                 long encryptionTime = 0;
                 if (settings.EncryptedExtensions.Contains(ext))
                 {
                     await _cryptoSlot.WaitAsync(controller.Token);
-                    try
-                    {
-                        encryptionTime = await Task.Run(() =>
-                            RunCryptoSoft(targetFile, settings.EncryptionKey));
-                    }
-                    finally
-                    {
-                        _cryptoSlot.Release();
-                    }
+                    try { encryptionTime = await Task.Run(() => RunCryptoSoft(targetFile, settings.EncryptionKey)); }
+                    finally { _cryptoSlot.Release(); }
                 }
 
-                _logger.Write(new LogEntry
+                WriteLog(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     BackupName = job.Name,
@@ -168,15 +119,12 @@ public class BackupService : IBackupService
                     FileSize = fileSize,
                     TransferTime = transferDuration,
                     EncryptionTime = encryptionTime
-                });
+                }, settings);
             }
-            catch (OperationCanceledException)
-            {
-                break; // stoppé pendant la copie
-            }
+            catch (OperationCanceledException) { break; }
             catch
             {
-                _logger.Write(new LogEntry
+                WriteLog(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     BackupName = job.Name,
@@ -185,7 +133,7 @@ public class BackupService : IBackupService
                     FileSize = 0,
                     TransferTime = -1,
                     EncryptionTime = 0
-                });
+                }, settings);
             }
 
             state.RemainingFiles--;
@@ -201,6 +149,16 @@ public class BackupService : IBackupService
         _stateRepo.Save(new List<BackupState> { state });
     }
 
+    // ── Écriture log : Local / Docker / Both ─────────────────────────────
+    private void WriteLog(LogEntry entry, AppSettings settings)
+    {
+        if (settings.LogDestination is "Local" or "Both")
+            _logger.Write(entry);
+
+        if (settings.LogDestination is "Docker" or "Both")
+            _dockerLog?.Send(entry);
+    }
+
     private static long RunCryptoSoft(string filePath, string key)
     {
         try
@@ -209,8 +167,7 @@ public class BackupService : IBackupService
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                                             "Tools", "CryptoSoft.exe"),
+                    FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "CryptoSoft.exe"),
                     Arguments = $"\"{filePath}\" \"{key}\"",
                     UseShellExecute = false,
                     CreateNoWindow = true,

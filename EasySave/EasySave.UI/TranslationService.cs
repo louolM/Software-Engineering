@@ -81,7 +81,14 @@ public class TranslationService
 
         // Divers
         ["picker.title"] = "Select a folder",
-        ["jobs.openLogs"] = "Open Logs" 
+        ["jobs.openLogs"] = "Open Logs",
+
+        ["settings.priority.title"] = "Priority File Extensions",
+        ["settings.priority.desc"] = "These extensions are processed before all others. (e.g. .pdf .docx)",
+        ["settings.maxSize.label"] = "Max parallel file size (KB) — 0 = no limit",
+        ["settings.logDest.title"] = "Log Destination",
+        ["err.maxSizeInvalid"] = "⚠ Must be a positive number.",
+        ["err.dockerUrlRequired"] = "⚠ Docker URL is required when Docker logging is enabled.",
     };
 
     // ── FRANÇAIS ─────────────────────────────────────────────────────────
@@ -144,6 +151,13 @@ public class TranslationService
 
         // Divers
         ["picker.title"] = "Sélectionner un dossier",
-        ["jobs.openLogs"] = "Ouvrir les logs" 
+        ["jobs.openLogs"] = "Ouvrir les logs",
+
+        ["settings.priority.title"] = "Extensions prioritaires",
+        ["settings.priority.desc"] = "Ces extensions sont traitées en priorité. (ex: .pdf .docx)",
+        ["settings.maxSize.label"] = "Taille max fichier parallèle (KB) — 0 = pas de limite",
+        ["settings.logDest.title"] = "Destination des logs",
+        ["err.maxSizeInvalid"] = "⚠ Doit être un nombre positif.",
+        ["err.dockerUrlRequired"] = "⚠ L'URL Docker est requise si la journalisation Docker est activée.",
     };
 }
