@@ -252,7 +252,7 @@ public partial class JobListViewModel : ViewModelBase
         var tasks = Jobs.Select(job => StartJob(job, settings)).ToList();
         await Task.WhenAll(tasks);
         StopWatcher();
-        await SetSuccessAutoHide(string.Format(_t.T("jobs.allDone"), Jobs.Count));
+        ShowSuccessAutoHide(string.Format(_t.T("jobs.allDone"), Jobs.Count));
     }
 
     private static bool IsBusinessSoftwareActive(string processName)
@@ -294,16 +294,9 @@ public partial class JobListViewModel : ViewModelBase
         prog.Status = controller.IsStopped ? "STOPPED" : "DONE";
 
         if (!controller.IsStopped)
-            await SetSuccessAutoHide(string.Format(_t.T("jobs.backupDone"), job.Name));
+            ShowSuccessAutoHide(string.Format(_t.T("jobs.backupDone"), job.Name));
 
-        // ← PATCH 3 : reset progress après 5 secondes
-        await Task.Delay(5000);
-        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-        {
-            prog.Percent = 0;
-            prog.ProgressText = "0%";
-            prog.Status = "IDLE";
-        });
+        _ = ResetProgressAfterDelay(prog);
     }
 
     // ── Watcher ───────────────────────────────────────────────────────────
@@ -395,7 +388,7 @@ public partial class JobListViewModel : ViewModelBase
         var jobs = _configRepo.Load();
         jobs.RemoveAll(j => j.Id == SelectedJob.Id);
         _configRepo.Save(jobs);
-        await SetSuccessAutoHide(string.Format(_t.T("jobs.deleted"), SelectedJob.Name));
+        ShowSuccessAutoHide(string.Format(_t.T("jobs.deleted"), SelectedJob.Name));
         Refresh();
     }
 
@@ -418,4 +411,25 @@ public partial class JobListViewModel : ViewModelBase
 
     private void SetError(string msg) { StatusMessage = msg; StatusIsError = true; }
     private void SetSuccess(string msg) { StatusMessage = msg; StatusIsError = false; }
+    private async Task ResetProgressAfterDelay(JobProgressItem prog)
+    {
+        await Task.Delay(5000);
+
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            prog.Percent = 0;
+            prog.ProgressText = "0%";
+            prog.Status = "IDLE";
+        });
+    }
+
+    private async void ShowSuccessAutoHide(string msg)
+    {
+        StatusIsError = false;
+        StatusMessage = msg;
+
+        await Task.Delay(5000);
+
+        StatusMessage = string.Empty;
+    }
 }
