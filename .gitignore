@@ -5,3 +5,10 @@
 /.vs
 **/obj/
 **/bin/
+EasySave/.vs/ProjectEvaluation/easysave.projects.v10.bin
+*.bin
+/EasySave/.vs
+*.json
+*.json
+/EasySave/LogServer/central-logs
+EasySave/LogServer/central-logs/2026-05-11.json

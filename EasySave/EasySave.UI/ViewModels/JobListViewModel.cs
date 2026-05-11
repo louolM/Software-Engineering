@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EasySave.Core;
+using EasySave.Services;
 using EasySave.Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EasySave.UI.ViewModels;
 
@@ -23,7 +25,9 @@ public partial class JobListViewModel : ViewModelBase
     public Window? ParentWindow { get; set; }
 
     [ObservableProperty] private ObservableCollection<BackupJob> _jobs = new();
+    [ObservableProperty] private ObservableCollection<JobProgressItem> _jobProgress = new();
     [ObservableProperty] private BackupJob? _selectedJob;
+    [ObservableProperty] private JobProgressItem? _selectedProgressItem;
     [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty] private bool _statusIsError = false;
     [ObservableProperty] private bool _isFormVisible = false;
@@ -33,6 +37,9 @@ public partial class JobListViewModel : ViewModelBase
     [ObservableProperty] private string _btnRunSelected = string.Empty;
     [ObservableProperty] private string _btnRunAll = string.Empty;
     [ObservableProperty] private string _btnDelete = string.Empty;
+    [ObservableProperty] private string _btnPauseAll = string.Empty;  // ← AJOUT
+    [ObservableProperty] private string _btnResumeAll = string.Empty;  // ← AJOUT
+    [ObservableProperty] private string _btnStopAll = string.Empty;  // ← AJOUT
     [ObservableProperty] private string _formTitle = string.Empty;
     [ObservableProperty] private string _lblName = string.Empty;
     [ObservableProperty] private string _lblSource = string.Empty;
@@ -41,6 +48,7 @@ public partial class JobListViewModel : ViewModelBase
     [ObservableProperty] private string _btnCancel = string.Empty;
     [ObservableProperty] private string _btnSave = string.Empty;
     [ObservableProperty] private string _btnBrowse = string.Empty;
+    [ObservableProperty] private string _btnOpenLogs = string.Empty;
 
     // Champs formulaire
     [ObservableProperty] private string _formName = string.Empty;
@@ -52,6 +60,8 @@ public partial class JobListViewModel : ViewModelBase
     [ObservableProperty] private string _formTargetError = string.Empty;
 
     private bool _isEditing = false;
+    private readonly Dictionary<int, JobController> _controllers = new();
+    private BusinessSoftwareWatcher? _watcher;
 
     public JobListViewModel(IConfigRepository configRepo, IBackupService backupService,
                             ISettingsRepository settingsRepo, TranslationService t)
@@ -64,7 +74,12 @@ public partial class JobListViewModel : ViewModelBase
         Refresh();
     }
 
-    // ── Mise à jour du BackupService quand le format de log change ────────
+    partial void OnSelectedProgressItemChanged(JobProgressItem? value)
+    {
+        if (value == null) { SelectedJob = null; return; }
+        SelectedJob = Jobs.FirstOrDefault(j => j.Id == value.JobId);
+    }
+
     public void UpdateBackupService(IBackupService backupService)
         => _backupService = backupService;
 
@@ -75,6 +90,9 @@ public partial class JobListViewModel : ViewModelBase
         BtnRunSelected = _t.T("jobs.runSelected");
         BtnRunAll = _t.T("jobs.runAll");
         BtnDelete = _t.T("jobs.delete");
+        BtnPauseAll = _t.T("jobs.pauseAll");   // ← AJOUT
+        BtnResumeAll = _t.T("jobs.resumeAll");  // ← AJOUT
+        BtnStopAll = _t.T("jobs.stopAll");    // ← AJOUT
         FormTitle = _t.T(_isEditing ? "form.title.edit" : "form.title.create");
         LblName = _t.T("form.name");
         LblSource = _t.T("form.source");
@@ -89,12 +107,18 @@ public partial class JobListViewModel : ViewModelBase
     private void Refresh()
     {
         Jobs = new ObservableCollection<BackupJob>(_configRepo.Load());
+        JobProgress = new ObservableCollection<JobProgressItem>(
+            Jobs.Select(j => new JobProgressItem(j.Id, j.Name ?? "")));
         StatusMessage = string.Empty;
         StatusIsError = false;
     }
 
+    private JobProgressItem? GetProgress(int jobId)
+        => JobProgress.FirstOrDefault(p => p.JobId == jobId);
+
     private static string CleanPath(string path) => path.Trim().Trim('"').Trim('\'').Trim();
 
+    // ── Browse ────────────────────────────────────────────────────────────
     [RelayCommand]
     private async Task BrowseSource()
     {
@@ -117,6 +141,7 @@ public partial class JobListViewModel : ViewModelBase
         return result.Count > 0 ? result[0].Path.LocalPath : null;
     }
 
+    // ── Formulaire ────────────────────────────────────────────────────────
     private bool ValidateForm()
     {
         var valid = true;
@@ -155,7 +180,6 @@ public partial class JobListViewModel : ViewModelBase
     private void SaveJob()
     {
         if (!ValidateForm()) return;
-
         var src = CleanPath(FormSource);
         var tgt = CleanPath(FormTarget);
         var jobs = _configRepo.Load();
@@ -192,33 +216,178 @@ public partial class JobListViewModel : ViewModelBase
         FormNameError = FormSourceError = FormTargetError = string.Empty;
     }
 
+    // ── Run ───────────────────────────────────────────────────────────────
     [RelayCommand]
     private async Task RunSelected()
     {
         if (SelectedJob == null) { SetError(_t.T("jobs.selectFirst")); return; }
         var settings = _settingsRepo.Load();
-        if (await TryRunWithProgress(SelectedJob, settings))
-            await SetSuccessAutoHide(string.Format(_t.T("jobs.backupDone"), SelectedJob.Name));
-        else
-            SetError(string.Format(_t.T("jobs.blocked"), settings.BusinessSoftware));
-    }
 
+        // ← PATCH 1 : vérifier business software AVANT de démarrer
+        if (IsBusinessSoftwareActive(settings.BusinessSoftware))
+        {
+            SetError(string.Format(_t.T("jobs.blockedBusiness"), settings.BusinessSoftware));
+            return;
+        }
+
+        StartWatcher(settings);
+        await StartJob(SelectedJob, settings);
+        StopWatcher();
+    }
 
     [RelayCommand]
     private async Task RunAll()
     {
         if (Jobs.Count == 0) { SetError(_t.T("jobs.noJobs")); return; }
         var settings = _settingsRepo.Load();
-        int ran = 0, blocked = 0;
-        foreach (var job in Jobs)
+
+        // ← PATCH 1 : vérifier business software AVANT de démarrer
+        if (IsBusinessSoftwareActive(settings.BusinessSoftware))
         {
-            if (await TryRunWithProgress(job, settings)) ran++;
-            else blocked++;
+            SetError(string.Format(_t.T("jobs.blockedBusiness"), settings.BusinessSoftware));
+            return;
         }
-        if (blocked > 0) SetError(string.Format(_t.T("jobs.blockedMany"), blocked, ran));
-        else await SetSuccessAutoHide(string.Format(_t.T("jobs.allDone"), ran));
+
+        StartWatcher(settings);
+        var tasks = Jobs.Select(job => StartJob(job, settings)).ToList();
+        await Task.WhenAll(tasks);
+        StopWatcher();
+        await SetSuccessAutoHide(string.Format(_t.T("jobs.allDone"), Jobs.Count));
     }
 
+    private static bool IsBusinessSoftwareActive(string processName)
+    {
+        if (string.IsNullOrWhiteSpace(processName)) return false;
+        var name = processName.Replace(".exe", "", StringComparison.OrdinalIgnoreCase).Trim();
+        return Process.GetProcessesByName(name).Length > 0;
+    }
+
+    private async Task StartJob(BackupJob job, AppSettings settings)
+    {
+        var prog = GetProgress(job.Id);
+        if (prog == null) return;
+
+        if (!_controllers.TryGetValue(job.Id, out var controller))
+        {
+            controller = new JobController();
+            _controllers[job.Id] = controller;
+        }
+        else controller.Reset();
+
+        prog.Status = "ACTIVE";
+        prog.Percent = 0;
+        prog.ProgressText = "0%";
+
+        var progress = new Progress<double>(pct =>
+        {
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                prog.Percent = pct;
+                prog.ProgressText = $"{pct:F0}%";
+            });
+        });
+
+        await Task.Run(() => _backupService.RunBackupAsync(job, settings, controller, progress));
+
+        prog.Percent = controller.IsStopped ? prog.Percent : 100;
+        prog.ProgressText = controller.IsStopped ? _t.T("jobs.stopped") : "100%";
+        prog.Status = controller.IsStopped ? "STOPPED" : "DONE";
+
+        if (!controller.IsStopped)
+            await SetSuccessAutoHide(string.Format(_t.T("jobs.backupDone"), job.Name));
+
+        // ← PATCH 3 : reset progress après 5 secondes
+        await Task.Delay(5000);
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            prog.Percent = 0;
+            prog.ProgressText = "0%";
+            prog.Status = "IDLE";
+        });
+    }
+
+    // ── Watcher ───────────────────────────────────────────────────────────
+    private void StartWatcher(AppSettings settings)
+    {
+        if (string.IsNullOrWhiteSpace(settings.BusinessSoftware)) return;
+        _watcher = new BusinessSoftwareWatcher(
+            settings.BusinessSoftware, _controllers.Values.ToList());
+        _watcher.Start();
+    }
+
+    private void StopWatcher() { _watcher?.Stop(); _watcher = null; }
+
+    // ── Pause / Resume / Stop par job ─────────────────────────────────────
+    [RelayCommand]
+    private void PauseJob(int jobId)
+    {
+        if (_controllers.TryGetValue(jobId, out var ctrl) && !ctrl.IsPaused)
+        {
+            ctrl.Pause();
+            var p = GetProgress(jobId);
+            if (p != null) p.Status = "PAUSED";
+        }
+    }
+
+    [RelayCommand]
+    private void ResumeJob(int jobId)
+    {
+        if (_controllers.TryGetValue(jobId, out var ctrl) && ctrl.IsPaused)
+        {
+            ctrl.Resume();
+            var p = GetProgress(jobId);
+            if (p != null) p.Status = "ACTIVE";
+        }
+    }
+
+    [RelayCommand]
+    private void StopJob(int jobId)
+    {
+        if (_controllers.TryGetValue(jobId, out var ctrl))
+        {
+            ctrl.Stop();
+            var p = GetProgress(jobId);
+            if (p != null) p.Status = "STOPPED";
+        }
+    }
+
+    // ── Pause / Resume / Stop — TOUS ─────────────────────────────────────
+    [RelayCommand]
+    private void PauseAll()
+    {
+        foreach (var (id, ctrl) in _controllers)
+            if (!ctrl.IsPaused && !ctrl.IsStopped)
+            {
+                ctrl.Pause();
+                var p = GetProgress(id);
+                if (p != null) p.Status = "PAUSED";
+            }
+    }
+
+    [RelayCommand]
+    private void ResumeAll()
+    {
+        foreach (var (id, ctrl) in _controllers)
+            if (ctrl.IsPaused)
+            {
+                ctrl.Resume();
+                var p = GetProgress(id);
+                if (p != null) p.Status = "ACTIVE";
+            }
+    }
+
+    [RelayCommand]
+    private void StopAll()
+    {
+        foreach (var (id, ctrl) in _controllers)
+        {
+            ctrl.Stop();
+            var p = GetProgress(id);
+            if (p != null) p.Status = "STOPPED";
+        }
+    }
+
+    // ── Delete ────────────────────────────────────────────────────────────
     [RelayCommand]
     private async Task DeleteSelected()
     {
@@ -229,45 +398,16 @@ public partial class JobListViewModel : ViewModelBase
         await SetSuccessAutoHide(string.Format(_t.T("jobs.deleted"), SelectedJob.Name));
         Refresh();
     }
+
     [RelayCommand]
     private void OpenLogs()
     {
         var logsPath = Path.Combine(AppContext.BaseDirectory, "logs");
-        Directory.CreateDirectory(logsPath); // ensures it exists
+        Directory.CreateDirectory(logsPath);
         Process.Start(new ProcessStartInfo(logsPath) { UseShellExecute = true });
     }
 
-    private async Task<bool> TryRunWithProgress(BackupJob job, AppSettings settings)
-    {
-        if (!string.IsNullOrWhiteSpace(settings.BusinessSoftware))
-        {
-            var name = settings.BusinessSoftware
-                .Replace(".exe", "", StringComparison.OrdinalIgnoreCase).Trim();
-            if (System.Diagnostics.Process.GetProcessesByName(name).Length > 0) return false;
-        }
-
-        IsRunning = true;
-        CurrentTaskLabel = $"Running: {job.Name}";
-        ProgressPercent = 0;
-        ProgressText = "0%";
-
-        var progress = new Progress<double>(pct =>
-        {
-            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-            {
-                ProgressPercent = pct;
-                ProgressText = $"{pct:F0}%";
-            });
-        });
-
-        await Task.Run(() => _backupService.RunBackup(job, settings, progress));  // ← pass progress
-
-        ProgressPercent = 100;
-        ProgressText = "100%";
-        IsRunning = false;  // ← this must come LAST, after setting 100%
-        return true;
-    }
-
+    // ── Helpers ───────────────────────────────────────────────────────────
     private async Task SetSuccessAutoHide(string msg)
     {
         StatusIsError = false;
@@ -278,11 +418,4 @@ public partial class JobListViewModel : ViewModelBase
 
     private void SetError(string msg) { StatusMessage = msg; StatusIsError = true; }
     private void SetSuccess(string msg) { StatusMessage = msg; StatusIsError = false; }
-    
-// Progress
-    [ObservableProperty] private double _progressPercent;
-    [ObservableProperty] private string _progressText = string.Empty;
-    [ObservableProperty] private string _currentTaskLabel = string.Empty;
-    [ObservableProperty] private bool _isRunning;
-    [ObservableProperty] private string _btnOpenLogs = string.Empty;
 }

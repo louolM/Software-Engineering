@@ -6,10 +6,13 @@ namespace EasyLog;
 public class Logger
 {
     private readonly string _logDirectory;
-    private readonly string _format; // "JSON" or "XML"
- 
-    public Logger(string format = "JSON") : this(format, "logs") { }
-    public Logger(string format, string logDirectory)
+    private readonly string _format;
+
+    // ── Verrou statique partagé entre tous les threads ────────────────────
+    // Empêche les corruptions quand plusieurs jobs écrivent en parallèle
+    private static readonly SemaphoreSlim _writeLock = new(1, 1);
+
+    public Logger(string format = "JSON", string logDirectory = "logs")
     {
         _format = format.ToUpper() == "XML" ? "XML" : "JSON";
         _logDirectory = logDirectory;
@@ -20,10 +23,18 @@ public class Logger
         if (!Directory.Exists(_logDirectory))
             Directory.CreateDirectory(_logDirectory);
 
-        if (_format == "XML")
-            WriteXml(entry);
-        else
-            WriteJson(entry);
+        _writeLock.Wait();
+        try
+        {
+            if (_format == "XML")
+                WriteXml(entry);
+            else
+                WriteJson(entry);
+        }
+        finally
+        {
+            _writeLock.Release();
+        }
     }
 
     private void WriteJson(LogEntry entry)
@@ -37,12 +48,14 @@ public class Logger
         {
             try
             {
-                logs = JsonSerializer.Deserialize<List<LogEntry>>(File.ReadAllText(fullPath)) ?? new();
+                logs = JsonSerializer.Deserialize<List<LogEntry>>(
+                    File.ReadAllText(fullPath)) ?? new();
             }
             catch (JsonException)
             {
-                // File is corrupted — rename it for inspection and start fresh
-                File.Move(fullPath, fullPath.Replace(".json", $"_corrupted_{DateTime.Now:HHmmss}.json"));
+                File.Move(fullPath,
+                    fullPath.Replace(".json",
+                        $"_corrupted_{DateTime.Now:HHmmss}.json"));
                 logs = new();
             }
         }
@@ -59,7 +72,6 @@ public class Logger
                              new XmlRootAttribute("Logs"));
 
         List<LogEntry> logs = new();
-
         if (File.Exists(fullPath))
         {
             using var readStream = File.OpenRead(fullPath);
@@ -67,7 +79,6 @@ public class Logger
         }
 
         logs.Add(entry);
-
         using var writeStream = File.Create(fullPath);
         serializer.Serialize(writeStream, logs);
     }

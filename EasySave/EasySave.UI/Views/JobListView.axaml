@@ -6,7 +6,7 @@
 
 	<Grid RowDefinitions="Auto,*,Auto,Auto,Auto" Margin="16">
 
-		<!-- Barre d'actions -->
+		<!-- Barre d'actions globales -->
 		<StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
 			<Button Content="{Binding BtnNewJob}"      Command="{Binding ShowCreateFormCommand}"
 					Background="#a6e3a1" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
@@ -16,35 +16,77 @@
 					Background="#74c7ec" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
 			<Button Content="{Binding BtnDelete}"      Command="{Binding DeleteSelectedCommand}"
 					Background="#f38ba8" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
-			<Button Content="{Binding BtnOpenLogs}" Command="{Binding OpenLogsCommand}"
-			        Background="#45475a" Foreground="#cdd6f4"
-			        Padding="12,6" CornerRadius="6"/>
+			<Button Content="{Binding BtnOpenLogs}"    Command="{Binding OpenLogsCommand}"
+					Background="#45475a" Foreground="#cdd6f4" Padding="12,6" CornerRadius="6"/>
+			<!-- Contrôles globaux Pause / Resume / Stop -->
+			<Button Content="{Binding BtnPauseAll}"  Command="{Binding PauseAllCommand}"
+        			Background="#f9e2af" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
+			<Button Content="{Binding BtnResumeAll}" Command="{Binding ResumeAllCommand}"
+					Background="#a6e3a1" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
+			<Button Content="{Binding BtnStopAll}"   Command="{Binding StopAllCommand}"
+					Background="#f38ba8" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
 		</StackPanel>
 
-		<!-- Liste des jobs -->
+		<!-- Liste des jobs + progression en temps réel -->
 		<Border Grid.Row="1" Background="#181825" CornerRadius="6"
 				BorderBrush="#313244" BorderThickness="1">
 			<Grid RowDefinitions="Auto,*">
-				<Grid Grid.Row="0" ColumnDefinitions="50,180,110,*,*"
+
+				<!-- En-tête -->
+				<Grid Grid.Row="0" ColumnDefinitions="50,160,100,*,*,90,90,80"
 					  Background="#313244" Margin="8,4">
-					<TextBlock Grid.Column="0" Text="ID"     Foreground="#a6adc8" FontWeight="Bold"/>
-					<TextBlock Grid.Column="1" Text="Name"   Foreground="#a6adc8" FontWeight="Bold"/>
-					<TextBlock Grid.Column="2" Text="Type"   Foreground="#a6adc8" FontWeight="Bold"/>
-					<TextBlock Grid.Column="3" Text="Source" Foreground="#a6adc8" FontWeight="Bold"/>
-					<TextBlock Grid.Column="4" Text="Target" Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="0" Text="ID"       Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="1" Text="Name"     Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="2" Text="Type"     Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="3" Text="Source"   Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="4" Text="Target"   Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="5" Text="Progress" Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="6" Text="Status"   Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="7" Text="Controls" Foreground="#a6adc8" FontWeight="Bold"/>
 				</Grid>
+
+				<!-- Lignes avec progression par job -->
 				<ListBox Grid.Row="1"
-						 ItemsSource="{Binding Jobs}"
-						 SelectedItem="{Binding SelectedJob}"
+						 ItemsSource="{Binding JobProgress}"
+						 SelectedItem="{Binding SelectedProgressItem}"
 						 Background="Transparent">
 					<ListBox.ItemTemplate>
-						<DataTemplate>
-							<Grid ColumnDefinitions="50,180,110,*,*" Margin="8,4">
-								<TextBlock Grid.Column="0" Text="{Binding Id}"         Foreground="#cdd6f4"/>
-								<TextBlock Grid.Column="1" Text="{Binding Name}"       Foreground="#cdd6f4"/>
-								<TextBlock Grid.Column="2" Text="{Binding Type}"       Foreground="#cdd6f4"/>
-								<TextBlock Grid.Column="3" Text="{Binding SourcePath}" Foreground="#cdd6f4" TextTrimming="CharacterEllipsis"/>
-								<TextBlock Grid.Column="4" Text="{Binding TargetPath}" Foreground="#cdd6f4" TextTrimming="CharacterEllipsis"/>
+						<DataTemplate x:DataType="vm:JobProgressItem">
+							<Grid ColumnDefinitions="50,160,100,*,*,90,90,80" Margin="8,6">
+
+								<TextBlock Grid.Column="0" Text="{Binding JobId}"   Foreground="#cdd6f4" VerticalAlignment="Center"/>
+								<TextBlock Grid.Column="1" Text="{Binding JobName}" Foreground="#cdd6f4" VerticalAlignment="Center"/>
+
+								<!-- Barre de progression -->
+								<StackPanel Grid.Column="5" VerticalAlignment="Center" Spacing="2">
+									<ProgressBar Value="{Binding Percent}" Minimum="0" Maximum="100"
+												 Height="8" CornerRadius="4"
+												 Foreground="#89b4fa" Background="#313244"/>
+									<TextBlock Text="{Binding ProgressText}" Foreground="#cdd6f4"
+											   FontSize="10" HorizontalAlignment="Center"/>
+								</StackPanel>
+
+								<!-- Statut -->
+								<TextBlock Grid.Column="6" Text="{Binding Status}"
+										   Foreground="#a6adc8" FontSize="11"
+										   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+								<!-- Boutons Pause / Resume / Stop individuels -->
+								<StackPanel Grid.Column="7" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+									<Button Content="⏸" FontSize="10" Padding="4,2" CornerRadius="4"
+											Background="#f9e2af" Foreground="#1e1e2e"
+											Command="{Binding $parent[ListBox].((vm:JobListViewModel)DataContext).PauseJobCommand}"
+											CommandParameter="{Binding JobId}"/>
+									<Button Content="▶" FontSize="10" Padding="4,2" CornerRadius="4"
+											Background="#a6e3a1" Foreground="#1e1e2e"
+											Command="{Binding $parent[ListBox].((vm:JobListViewModel)DataContext).ResumeJobCommand}"
+											CommandParameter="{Binding JobId}"/>
+									<Button Content="⏹" FontSize="10" Padding="4,2" CornerRadius="4"
+											Background="#f38ba8" Foreground="#1e1e2e"
+											Command="{Binding $parent[ListBox].((vm:JobListViewModel)DataContext).StopJobCommand}"
+											CommandParameter="{Binding JobId}"/>
+								</StackPanel>
+
 							</Grid>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
@@ -59,13 +101,11 @@
 				<TextBlock Text="{Binding FormTitle}" Foreground="#cdd6f4"
 						   FontSize="15" FontWeight="Bold" Margin="0,0,0,4"/>
 
-				<!-- Name -->
 				<TextBlock Text="{Binding LblName}" Foreground="#a6adc8"/>
 				<TextBox Text="{Binding FormName}" Background="#1e1e2e" Foreground="#cdd6f4"/>
 				<TextBlock Text="{Binding FormNameError}" Foreground="#f38ba8" FontSize="11"
 						   IsVisible="{Binding FormNameError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 
-				<!-- Source -->
 				<TextBlock Text="{Binding LblSource}" Foreground="#a6adc8" Margin="0,4,0,0"/>
 				<Grid ColumnDefinitions="*,Auto">
 					<TextBox Grid.Column="0" Text="{Binding FormSource}"
@@ -79,7 +119,6 @@
 				<TextBlock Text="{Binding FormSourceError}" Foreground="#f38ba8" FontSize="11"
 						   IsVisible="{Binding FormSourceError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 
-				<!-- Target -->
 				<TextBlock Text="{Binding LblTarget}" Foreground="#a6adc8" Margin="0,4,0,0"/>
 				<Grid ColumnDefinitions="*,Auto">
 					<TextBox Grid.Column="0" Text="{Binding FormTarget}"
@@ -93,13 +132,11 @@
 				<TextBlock Text="{Binding FormTargetError}" Foreground="#f38ba8" FontSize="11"
 						   IsVisible="{Binding FormTargetError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 
-				<!-- Type -->
 				<StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
 					<TextBlock Text="{Binding LblDiff}" Foreground="#a6adc8" VerticalAlignment="Center"/>
 					<CheckBox IsChecked="{Binding FormIsDifferential}" Foreground="#cdd6f4"/>
 				</StackPanel>
 
-				<!-- Boutons -->
 				<StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" Margin="0,8,0,0">
 					<Button Content="{Binding BtnCancel}" Command="{Binding CancelFormCommand}"
 							Background="#45475a" Foreground="#cdd6f4" Padding="12,6" CornerRadius="6"/>
@@ -109,24 +146,15 @@
 			</StackPanel>
 		</Border>
 
-		<!-- Statut -->
+		<!-- Message statut succès -->
 		<TextBlock Grid.Row="3" Text="{Binding StatusMessage}"
-		           Foreground="{Binding StatusIsError, Converter={x:Static BoolConverters.Not}, ConverterParameter=#a6e3a1}"
-		           Margin="0,8,0,0" FontSize="13"
-		           IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+				   Foreground="#a6e3a1" FontSize="13" Margin="0,8,0,0"
+				   IsVisible="{Binding StatusIsError, Converter={x:Static BoolConverters.Not}}"/>
 
-		<!-- Progression -->
-		<StackPanel Grid.Row="4" Spacing="4" Margin="0,8,0,0"
-		            IsVisible="{Binding IsRunning}">
-			<Grid ColumnDefinitions="*,Auto">
-				<TextBlock Grid.Column="0" Text="{Binding CurrentTaskLabel}"
-				           Foreground="#a6adc8" FontSize="12" TextTrimming="CharacterEllipsis"/>
-				<TextBlock Grid.Column="1" Text="{Binding ProgressText}"
-				           Foreground="#cdd6f4" FontSize="12" Margin="8,0,0,0"/>
-			</Grid>
-			<ProgressBar Value="{Binding ProgressPercent}" Minimum="0" Maximum="100"
-			             Height="10" CornerRadius="5"
-			             Foreground="#89b4fa" Background="#313244"/>
-		</StackPanel>
+		<!-- Message statut erreur -->
+		<TextBlock Grid.Row="3" Text="{Binding StatusMessage}"
+				   Foreground="#f38ba8" FontSize="13" Margin="0,8,0,0"
+				   IsVisible="{Binding StatusIsError}"/>
+
 	</Grid>
 </UserControl>

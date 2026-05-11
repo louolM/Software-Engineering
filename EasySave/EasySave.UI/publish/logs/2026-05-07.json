@@ -1,0 +1,47 @@
+[
+  {
+    "Timestamp": "2026-05-07T11:49:52.6717812+02:00",
+    "BackupName": "Job1test",
+    "SourcePath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource\\jsp.txt",
+    "TargetPath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget\\jsp.txt",
+    "FileSize": 8,
+    "TransferTime": 1,
+    "EncryptionTime": 22
+  },
+  {
+    "Timestamp": "2026-05-07T11:49:52.7983812+02:00",
+    "BackupName": "job1testdecrypt",
+    "SourcePath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget\\jsp.txt",
+    "TargetPath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource\\jsp.txt",
+    "FileSize": 8,
+    "TransferTime": 1,
+    "EncryptionTime": 15
+  },
+  {
+    "Timestamp": "2026-05-07T12:19:52.0148093+02:00",
+    "BackupName": "Job1test",
+    "SourcePath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource\\jsp.txt",
+    "TargetPath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget\\jsp.txt",
+    "FileSize": 8,
+    "TransferTime": 1,
+    "EncryptionTime": 13
+  },
+  {
+    "Timestamp": "2026-05-07T12:20:25.2790935+02:00",
+    "BackupName": "Job1test",
+    "SourcePath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource\\jsp.txt",
+    "TargetPath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget\\jsp.txt",
+    "FileSize": 8,
+    "TransferTime": 1,
+    "EncryptionTime": 7
+  },
+  {
+    "Timestamp": "2026-05-07T12:20:25.3882354+02:00",
+    "BackupName": "job1testdecrypt",
+    "SourcePath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget\\jsp.txt",
+    "TargetPath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource\\jsp.txt",
+    "FileSize": 8,
+    "TransferTime": 0,
+    "EncryptionTime": 7
+  }
+]

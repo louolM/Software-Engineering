@@ -5,7 +5,7 @@
              x:DataType="vm:SettingsViewModel">
 
 	<ScrollViewer>
-		<StackPanel Margin="32" Spacing="16" MaxWidth="600">
+		<StackPanel Margin="32" Spacing="16" MaxWidth="620">
 
 			<TextBlock Text="{Binding TitleText}" Foreground="#cdd6f4"
 					   FontSize="22" FontWeight="Bold" Margin="0,0,0,8"/>
@@ -35,6 +35,24 @@
 							 Background="#1e1e2e" Foreground="#cdd6f4"/>
 					<TextBlock Text="{Binding BusinessSoftwareError}" Foreground="#f38ba8" FontSize="11"
 							   IsVisible="{Binding BusinessSoftwareError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+				</StackPanel>
+			</Border>
+
+			<!-- Priority Extensions (v3.0) -->
+			<Border Background="#313244" CornerRadius="8" Padding="16">
+				<StackPanel Spacing="8">
+					<TextBlock Text="{Binding PrioritySectionTitle}" Foreground="#cdd6f4" FontWeight="Bold" FontSize="14"/>
+					<TextBlock Text="{Binding PriorityDescription}"  TextWrapping="Wrap" Foreground="#a6adc8" FontSize="12"/>
+					<TextBox Text="{Binding PriorityExtensions}"
+							 PlaceholderText=".pdf .docx"
+							 Background="#1e1e2e" Foreground="#cdd6f4"/>
+
+					<TextBlock Text="{Binding MaxSizeLabel}" Foreground="#a6adc8" FontSize="12" Margin="0,6,0,0"/>
+					<TextBox Text="{Binding MaxParallelFileSize}"
+							 PlaceholderText="1024"
+							 Background="#1e1e2e" Foreground="#cdd6f4"/>
+					<TextBlock Text="{Binding MaxSizeError}" Foreground="#f38ba8" FontSize="11"
+							   IsVisible="{Binding MaxSizeError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 				</StackPanel>
 			</Border>
 
@@ -73,14 +91,30 @@
 				</StackPanel>
 			</Border>
 
+			<!-- Log Destination (v3.0) -->
+			<Border Background="#313244" CornerRadius="8" Padding="16">
+				<StackPanel Spacing="8">
+					<TextBlock Text="{Binding LogDestSectionTitle}" Foreground="#cdd6f4" FontWeight="Bold" FontSize="14"/>
+					<CheckBox Content="{Binding LogLocalText}" IsChecked="{Binding LogToLocal}" Foreground="#cdd6f4"/>
+					<CheckBox Content="{Binding LogDockerText}" IsChecked="{Binding LogToDocker}" Foreground="#cdd6f4"/>
+
+					<TextBlock Text="{Binding DockerUrlLabel}" Foreground="#a6adc8" FontSize="12" Margin="0,4,0,0"
+           					IsVisible="{Binding LogToDocker}"/>
+					<TextBox Text="{Binding DockerLogUrl}"
+							 PlaceholderText="http://localhost:5000/logs"
+							 Background="#1e1e2e" Foreground="#cdd6f4"
+							 IsVisible="{Binding LogToDocker}"/>
+					<TextBlock Text="{Binding DockerUrlError}" Foreground="#f38ba8" FontSize="11"
+							   IsVisible="{Binding DockerUrlError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+				</StackPanel>
+			</Border>
+
 			<!-- Save -->
 			<Button Content="{Binding SaveButtonText}" Command="{Binding SaveCommand}"
 					Background="#a6e3a1" Foreground="#1e1e2e"
 					Padding="16,10" CornerRadius="6" HorizontalAlignment="Right"/>
 
-			<TextBlock Text="{Binding StatusMessage}"
-					   Foreground="#a6e3a1"
-					   FontSize="13"
+			<TextBlock Text="{Binding StatusMessage}" Foreground="#a6e3a1" FontSize="13"
 					   IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 
 		</StackPanel>

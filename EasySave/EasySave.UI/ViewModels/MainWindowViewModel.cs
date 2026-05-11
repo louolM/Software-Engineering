@@ -29,7 +29,7 @@ public partial class MainWindowViewModel : ViewModelBase
         IConfigRepository configRepo = new ConfigRepository();
 
         var settings = _settingsRepo.Load();
-        var backupSvc = new BackupService(_fileService, new Logger(settings.LogFormat), _stateRepo);
+        var backupSvc = BuildBackupService(settings);
 
         _t = new TranslationService(settings.Language);
         _settingsVm = new SettingsViewModel(_settingsRepo, _t);
@@ -46,7 +46,6 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void OnLanguageChanged(string lang)
     {
-        // Recrée le TranslationService avec la nouvelle langue
         _t = new TranslationService(lang);
         _jobListVm.UpdateTranslations(_t);
         _settingsVm.UpdateTranslations(_t);
@@ -55,11 +54,26 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void OnSettingsSaved()
     {
-        // Recrée le Logger et BackupService avec le nouveau format de log
         var settings = _settingsRepo.Load();
-        var newLogger = new Logger(settings.LogFormat);
-        var newBackup = new BackupService(_fileService, newLogger, _stateRepo);
+        var newBackup = BuildBackupService(settings);
         _jobListVm.UpdateBackupService(newBackup);
+    }
+
+    /// <summary>
+    /// Crée un BackupService avec Logger + DockerLogService selon les settings.
+    /// </summary>
+    private IBackupService BuildBackupService(EasySave.Core.AppSettings settings)
+    {
+        var logger = new Logger(settings.LogFormat);
+
+        DockerLogService? dockerLog = null;
+        if (settings.LogDestination is "Docker" or "Both"
+            && !string.IsNullOrWhiteSpace(settings.DockerLogUrl))
+        {
+            dockerLog = new DockerLogService(settings.DockerLogUrl, settings.LogFormat);
+        }
+
+        return new BackupService(_fileService, logger, _stateRepo, dockerLog);
     }
 
     private void ApplyLanguage()
