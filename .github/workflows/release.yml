@@ -200,4 +200,4 @@ jobs:
             ./artifacts/EasySave-Windows-x64/EasySave-Windows-x64.exe
             ./artifacts/EasySave-Linux-x64/EasySave-Linux-x64
             ./artifacts/EasySave-macOS-x64/EasySave-macOS-x64
-            ./LogServer/docker-compose.yml
+            EasySave/LogServer/docker-compose.yml
