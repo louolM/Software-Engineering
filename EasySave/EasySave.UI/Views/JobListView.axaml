@@ -19,11 +19,11 @@
 			<Button Content="{Binding BtnOpenLogs}"    Command="{Binding OpenLogsCommand}"
 					Background="#45475a" Foreground="#cdd6f4" Padding="12,6" CornerRadius="6"/>
 			<!-- Contrôles globaux Pause / Resume / Stop -->
-			<Button Content="⏸ Pause All"  Command="{Binding PauseAllCommand}"
-					Background="#f9e2af" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
-			<Button Content="▶ Resume All" Command="{Binding ResumeAllCommand}"
+			<Button Content="{Binding BtnPauseAll}"  Command="{Binding PauseAllCommand}"
+        			Background="#f9e2af" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
+			<Button Content="{Binding BtnResumeAll}" Command="{Binding ResumeAllCommand}"
 					Background="#a6e3a1" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
-			<Button Content="⏹ Stop All"   Command="{Binding StopAllCommand}"
+			<Button Content="{Binding BtnStopAll}"   Command="{Binding StopAllCommand}"
 					Background="#f38ba8" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
 		</StackPanel>
 

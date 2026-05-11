@@ -8,6 +8,10 @@ public class Logger
     private readonly string _logDirectory;
     private readonly string _format;
 
+    // ── Verrou statique partagé entre tous les threads ────────────────────
+    // Empêche les corruptions quand plusieurs jobs écrivent en parallèle
+    private static readonly SemaphoreSlim _writeLock = new(1, 1);
+
     public Logger(string format = "JSON", string logDirectory = "logs")
     {
         _format = format.ToUpper() == "XML" ? "XML" : "JSON";
@@ -19,10 +23,18 @@ public class Logger
         if (!Directory.Exists(_logDirectory))
             Directory.CreateDirectory(_logDirectory);
 
-        if (_format == "XML")
-            WriteXml(entry);
-        else
-            WriteJson(entry);
+        _writeLock.Wait();
+        try
+        {
+            if (_format == "XML")
+                WriteXml(entry);
+            else
+                WriteJson(entry);
+        }
+        finally
+        {
+            _writeLock.Release();
+        }
     }
 
     private void WriteJson(LogEntry entry)
@@ -34,10 +46,16 @@ public class Logger
         List<LogEntry> logs = new();
         if (File.Exists(fullPath))
         {
-            try { logs = JsonSerializer.Deserialize<List<LogEntry>>(File.ReadAllText(fullPath)) ?? new(); }
+            try
+            {
+                logs = JsonSerializer.Deserialize<List<LogEntry>>(
+                    File.ReadAllText(fullPath)) ?? new();
+            }
             catch (JsonException)
             {
-                File.Move(fullPath, fullPath.Replace(".json", $"_corrupted_{DateTime.Now:HHmmss}.json"));
+                File.Move(fullPath,
+                    fullPath.Replace(".json",
+                        $"_corrupted_{DateTime.Now:HHmmss}.json"));
                 logs = new();
             }
         }
@@ -50,7 +68,8 @@ public class Logger
     {
         var fileName = $"{DateTime.Now:yyyy-MM-dd}.xml";
         var fullPath = Path.Combine(_logDirectory, fileName);
-        var serializer = new XmlSerializer(typeof(List<LogEntry>), new XmlRootAttribute("Logs"));
+        var serializer = new XmlSerializer(typeof(List<LogEntry>),
+                             new XmlRootAttribute("Logs"));
 
         List<LogEntry> logs = new();
         if (File.Exists(fullPath))

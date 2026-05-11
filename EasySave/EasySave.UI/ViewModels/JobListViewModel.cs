@@ -37,6 +37,9 @@ public partial class JobListViewModel : ViewModelBase
     [ObservableProperty] private string _btnRunSelected = string.Empty;
     [ObservableProperty] private string _btnRunAll = string.Empty;
     [ObservableProperty] private string _btnDelete = string.Empty;
+    [ObservableProperty] private string _btnPauseAll = string.Empty;  // ← AJOUT
+    [ObservableProperty] private string _btnResumeAll = string.Empty;  // ← AJOUT
+    [ObservableProperty] private string _btnStopAll = string.Empty;  // ← AJOUT
     [ObservableProperty] private string _formTitle = string.Empty;
     [ObservableProperty] private string _lblName = string.Empty;
     [ObservableProperty] private string _lblSource = string.Empty;
@@ -57,11 +60,7 @@ public partial class JobListViewModel : ViewModelBase
     [ObservableProperty] private string _formTargetError = string.Empty;
 
     private bool _isEditing = false;
-
-    // Contrôleurs par job ID
     private readonly Dictionary<int, JobController> _controllers = new();
-
-    // Watcher logiciel métier
     private BusinessSoftwareWatcher? _watcher;
 
     public JobListViewModel(IConfigRepository configRepo, IBackupService backupService,
@@ -75,7 +74,6 @@ public partial class JobListViewModel : ViewModelBase
         Refresh();
     }
 
-    // ── Synchronise SelectedProgressItem → SelectedJob ───────────────────
     partial void OnSelectedProgressItemChanged(JobProgressItem? value)
     {
         if (value == null) { SelectedJob = null; return; }
@@ -92,6 +90,9 @@ public partial class JobListViewModel : ViewModelBase
         BtnRunSelected = _t.T("jobs.runSelected");
         BtnRunAll = _t.T("jobs.runAll");
         BtnDelete = _t.T("jobs.delete");
+        BtnPauseAll = _t.T("jobs.pauseAll");   // ← AJOUT
+        BtnResumeAll = _t.T("jobs.resumeAll");  // ← AJOUT
+        BtnStopAll = _t.T("jobs.stopAll");    // ← AJOUT
         FormTitle = _t.T(_isEditing ? "form.title.edit" : "form.title.create");
         LblName = _t.T("form.name");
         LblSource = _t.T("form.source");
@@ -179,7 +180,6 @@ public partial class JobListViewModel : ViewModelBase
     private void SaveJob()
     {
         if (!ValidateForm()) return;
-
         var src = CleanPath(FormSource);
         var tgt = CleanPath(FormTarget);
         var jobs = _configRepo.Load();
@@ -200,14 +200,7 @@ public partial class JobListViewModel : ViewModelBase
         else
         {
             var id = jobs.Count == 0 ? 1 : jobs.Max(j => j.Id) + 1;
-            jobs.Add(new BackupJob
-            {
-                Id = id,
-                Name = FormName,
-                SourcePath = src,
-                TargetPath = tgt,
-                Type = FormIsDifferential ? BackupType.Differential : BackupType.Full
-            });
+            jobs.Add(new BackupJob { Id = id, Name = FormName, SourcePath = src, TargetPath = tgt, Type = FormIsDifferential ? BackupType.Differential : BackupType.Full });
         }
 
         _configRepo.Save(jobs);
@@ -229,6 +222,14 @@ public partial class JobListViewModel : ViewModelBase
     {
         if (SelectedJob == null) { SetError(_t.T("jobs.selectFirst")); return; }
         var settings = _settingsRepo.Load();
+
+        // ← PATCH 1 : vérifier business software AVANT de démarrer
+        if (IsBusinessSoftwareActive(settings.BusinessSoftware))
+        {
+            SetError(string.Format(_t.T("jobs.blockedBusiness"), settings.BusinessSoftware));
+            return;
+        }
+
         StartWatcher(settings);
         await StartJob(SelectedJob, settings);
         StopWatcher();
@@ -239,13 +240,26 @@ public partial class JobListViewModel : ViewModelBase
     {
         if (Jobs.Count == 0) { SetError(_t.T("jobs.noJobs")); return; }
         var settings = _settingsRepo.Load();
-        StartWatcher(settings);
 
+        // ← PATCH 1 : vérifier business software AVANT de démarrer
+        if (IsBusinessSoftwareActive(settings.BusinessSoftware))
+        {
+            SetError(string.Format(_t.T("jobs.blockedBusiness"), settings.BusinessSoftware));
+            return;
+        }
+
+        StartWatcher(settings);
         var tasks = Jobs.Select(job => StartJob(job, settings)).ToList();
         await Task.WhenAll(tasks);
-
         StopWatcher();
         await SetSuccessAutoHide(string.Format(_t.T("jobs.allDone"), Jobs.Count));
+    }
+
+    private static bool IsBusinessSoftwareActive(string processName)
+    {
+        if (string.IsNullOrWhiteSpace(processName)) return false;
+        var name = processName.Replace(".exe", "", StringComparison.OrdinalIgnoreCase).Trim();
+        return Process.GetProcessesByName(name).Length > 0;
     }
 
     private async Task StartJob(BackupJob job, AppSettings settings)
@@ -273,31 +287,35 @@ public partial class JobListViewModel : ViewModelBase
             });
         });
 
-        await _backupService.RunBackupAsync(job, settings, controller, progress);
+        await Task.Run(() => _backupService.RunBackupAsync(job, settings, controller, progress));
 
         prog.Percent = controller.IsStopped ? prog.Percent : 100;
-        prog.ProgressText = controller.IsStopped ? "Stopped" : "100%";
+        prog.ProgressText = controller.IsStopped ? _t.T("jobs.stopped") : "100%";
         prog.Status = controller.IsStopped ? "STOPPED" : "DONE";
 
         if (!controller.IsStopped)
             await SetSuccessAutoHide(string.Format(_t.T("jobs.backupDone"), job.Name));
+
+        // ← PATCH 3 : reset progress après 5 secondes
+        await Task.Delay(5000);
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            prog.Percent = 0;
+            prog.ProgressText = "0%";
+            prog.Status = "IDLE";
+        });
     }
 
-    // ── Watcher logiciel métier ───────────────────────────────────────────
+    // ── Watcher ───────────────────────────────────────────────────────────
     private void StartWatcher(AppSettings settings)
     {
         if (string.IsNullOrWhiteSpace(settings.BusinessSoftware)) return;
         _watcher = new BusinessSoftwareWatcher(
-            settings.BusinessSoftware,
-            _controllers.Values.ToList());
+            settings.BusinessSoftware, _controllers.Values.ToList());
         _watcher.Start();
     }
 
-    private void StopWatcher()
-    {
-        _watcher?.Stop();
-        _watcher = null;
-    }
+    private void StopWatcher() { _watcher?.Stop(); _watcher = null; }
 
     // ── Pause / Resume / Stop par job ─────────────────────────────────────
     [RelayCommand]
@@ -306,8 +324,8 @@ public partial class JobListViewModel : ViewModelBase
         if (_controllers.TryGetValue(jobId, out var ctrl) && !ctrl.IsPaused)
         {
             ctrl.Pause();
-            var prog = GetProgress(jobId);
-            if (prog != null) prog.Status = "PAUSED";
+            var p = GetProgress(jobId);
+            if (p != null) p.Status = "PAUSED";
         }
     }
 
@@ -317,8 +335,8 @@ public partial class JobListViewModel : ViewModelBase
         if (_controllers.TryGetValue(jobId, out var ctrl) && ctrl.IsPaused)
         {
             ctrl.Resume();
-            var prog = GetProgress(jobId);
-            if (prog != null) prog.Status = "ACTIVE";
+            var p = GetProgress(jobId);
+            if (p != null) p.Status = "ACTIVE";
         }
     }
 
@@ -328,8 +346,8 @@ public partial class JobListViewModel : ViewModelBase
         if (_controllers.TryGetValue(jobId, out var ctrl))
         {
             ctrl.Stop();
-            var prog = GetProgress(jobId);
-            if (prog != null) prog.Status = "STOPPED";
+            var p = GetProgress(jobId);
+            if (p != null) p.Status = "STOPPED";
         }
     }
 
