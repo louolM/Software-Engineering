@@ -108,7 +108,13 @@ public partial class JobListViewModel : ViewModelBase
     {
         Jobs = new ObservableCollection<BackupJob>(_configRepo.Load());
         JobProgress = new ObservableCollection<JobProgressItem>(
-            Jobs.Select(j => new JobProgressItem(j.Id, j.Name ?? "")));
+        Jobs.Select(j => new JobProgressItem(
+        j.Id,
+        j.Name ?? "",
+        j.Type.ToString(),
+        j.SourcePath ?? "",
+        j.TargetPath ?? ""
+        )));
         StatusMessage = string.Empty;
         StatusIsError = false;
     }
