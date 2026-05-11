@@ -5,3 +5,6 @@
 /.vs
 **/obj/
 **/bin/
+EasySave/.vs/ProjectEvaluation/easysave.projects.v10.bin
+*.bin
+/EasySave/.vs
