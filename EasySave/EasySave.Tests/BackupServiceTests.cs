@@ -286,16 +286,15 @@ public class BackupServiceTests : IDisposable
     [Fact]
     public void RunBackup_StateAndLog_UseUNCPaths()
     {
-        // Real temporary directory for actual file I/O
         var realSrcDir = CreateTempDir("source");
-        var file = Write(realSrcDir, "a.txt", "x");
+        var realFile = Write(realSrcDir, "a.txt", "x");
 
-        // Fake UNC paths that will be passed to the BackupService
         const string uncSource = @"\\server\share\source";
         const string uncTarget = @"\\server\share\target";
 
+        // Return the REAL file path, but the service receives UNC job paths
         _fileService.Setup(f => f.GetAllFiles(uncSource))
-            .Returns(new[] { file });
+            .Returns(new[] { realFile });
 
         _fileService.Setup(f => f.CopyFile(It.IsAny<string>(), It.IsAny<string>()));
 
@@ -303,7 +302,6 @@ public class BackupServiceTests : IDisposable
         _stateRepo.Setup(r => r.Save(It.IsAny<List<BackupState>>()))
             .Callback<List<BackupState>>(states =>
             {
-                // Capture the state that contains CurrentSourceFile (usually the progress state)
                 captured = states.FirstOrDefault(s => 
                     !string.IsNullOrEmpty(s.CurrentSourceFile));
             });
@@ -313,6 +311,9 @@ public class BackupServiceTests : IDisposable
         Assert.NotNull(captured);
         Assert.NotNull(captured.CurrentSourceFile);
         Assert.StartsWith(@"\\", captured.CurrentSourceFile, StringComparison.Ordinal);
-        Assert.Contains("a.txt", captured.CurrentSourceFile, StringComparison.Ordinal);
+    
+        // This is the important one for UNC testing
+        Assert.Contains(@"\\server\share\source", captured.CurrentSourceFile, 
+            StringComparison.OrdinalIgnoreCase);
     }
 }
