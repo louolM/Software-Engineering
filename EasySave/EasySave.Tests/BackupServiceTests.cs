@@ -304,7 +304,7 @@ public class BackupServiceTests : IDisposable
 
         _sut.RunBackup(MakeJob(sourcePath: srcDir, targetPath: tgtDir), MakeSettings());
 
-        Assert.NotNull(captured);
+        Assert.NotNull(captured?.CurrentSourceFile);
         Assert.StartsWith(@"\\", captured!.CurrentSourceFile);
     }
 }
