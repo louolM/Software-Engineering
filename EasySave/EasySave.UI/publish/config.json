@@ -1,0 +1,23 @@
+[
+  {
+    "Id": 1,
+    "Name": "Job1test",
+    "SourcePath": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource",
+    "TargetPath": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget",
+    "Type": 0
+  },
+  {
+    "Id": 2,
+    "Name": "job1testdecrypt",
+    "SourcePath": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget\\",
+    "TargetPath": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource\\",
+    "Type": 0
+  },
+  {
+    "Id": 3,
+    "Name": "Job-Decrypt-TargetTOTarget2",
+    "SourcePath": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget",
+    "TargetPath": "C:\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget2",
+    "Type": 1
+  }
+]
