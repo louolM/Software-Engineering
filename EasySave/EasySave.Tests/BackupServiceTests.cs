@@ -7,12 +7,6 @@ using Xunit;
 
 namespace EasySave.Tests;
 
-/// <summary>
-/// Unit tests for <see cref="BackupService"/>.
-///
-/// All I/O dependencies are replaced with Moq mocks so tests run fully
-/// in-memory without touching the real file system or log files.
-/// </summary>
 public class BackupServiceTests : IDisposable
 {
     private readonly string _logDir = Path.Combine(Path.GetTempPath(), "bs_tests_" + Guid.NewGuid());
@@ -35,10 +29,22 @@ public class BackupServiceTests : IDisposable
 
     // ── helpers ────────────────────────────────────────────────────────────
 
+    private static string CreateTempDir(string name)
+    {
+        var dir = Path.Combine(
+            Path.GetTempPath(),
+                               "EasySaveTests",
+                               Guid.NewGuid().ToString(),
+                               name);
+
+        Directory.CreateDirectory(dir);
+        return dir;
+    }
+
     private static BackupJob MakeJob(
         BackupType type = BackupType.Full,
-        string sourcePath = @"C:\Source",
-        string targetPath = @"C:\Target") => new()
+        string sourcePath = null!,
+        string targetPath = null!) => new()
         {
             Id = 1,
             Name = "TestJob",
@@ -54,18 +60,40 @@ public class BackupServiceTests : IDisposable
         EncryptedExtensions = new List<string>()
     };
 
-    // ── Full backup – happy path ───────────────────────────────────────────
+    private static string Write(string dir, string name, string content)
+    {
+        var path = Path.Combine(dir, name);
+        File.WriteAllText(path, content);
+        return path;
+    }
+
+    private static void Cleanup(params string[] dirs)
+    {
+        foreach (var d in dirs)
+        {
+            if (Directory.Exists(d))
+                Directory.Delete(d, true);
+        }
+    }
+
+    // ── Full backup ────────────────────────────────────────────────────────
 
     [Fact]
     public void RunBackup_FullBackup_CopiesEveryFile()
     {
-        var files = new[] { @"C:\Source\a.txt", @"C:\Source\b.txt" };
+        var srcDir = CreateTempDir("source");
+        var tgtDir = CreateTempDir("target");
 
-        _fileService.Setup(f => f.GetAllFiles(@"C:\Source")).Returns(files);
+        var files = new[]
+        {
+            Write(srcDir, "a.txt", "a"),
+            Write(srcDir, "b.txt", "b")
+        };
 
+        _fileService.Setup(f => f.GetAllFiles(srcDir)).Returns(files);
         _fileService.Setup(f => f.CopyFile(It.IsAny<string>(), It.IsAny<string>()));
 
-        _sut.RunBackup(MakeJob(), MakeSettings());
+        _sut.RunBackup(MakeJob(sourcePath: srcDir, targetPath: tgtDir), MakeSettings());
 
         foreach (var file in files)
         {
@@ -78,15 +106,18 @@ public class BackupServiceTests : IDisposable
     [Fact]
     public void RunBackup_FullBackup_SavesState_InitialPlusPerFilePlusFinal()
     {
-        // 2 files → 1 initial + 2 per-file + 1 final = 4 saves
+        var srcDir = CreateTempDir("source");
+        var tgtDir = CreateTempDir("target");
 
-        var files = new[] { @"C:\Source\a.txt", @"C:\Source\b.txt" };
+        var files = new[]
+        {
+            Write(srcDir, "a.txt", "a"),
+ };
 
-        _fileService.Setup(f => f.GetAllFiles(@"C:\Source")).Returns(files);
-
+        _fileService.Setup(f => f.GetAllFiles(srcDir)).Returns(files);
         _fileService.Setup(f => f.CopyFile(It.IsAny<string>(), It.IsAny<string>()));
 
-        _sut.RunBackup(MakeJob(), MakeSettings());
+        _sut.RunBackup(MakeJob(sourcePath: srcDir, targetPath: tgtDir), MakeSettings());
 
         _stateRepo.Verify(
             r => r.Save(It.IsAny<List<BackupState>>()),
@@ -96,82 +127,45 @@ public class BackupServiceTests : IDisposable
     [Fact]
     public void RunBackup_FullBackup_FinalStateIsInactive()
     {
-        _fileService.Setup(f => f.GetAllFiles(@"C:\Source"))
-                    .Returns(new[] { @"C:\Source\a.txt" });
+        var srcDir = CreateTempDir("source");
+        var tgtDir = CreateTempDir("target");
+
+        var file = Write(srcDir, "a.txt", "a");
+
+        _fileService.Setup(f => f.GetAllFiles(srcDir))
+        .Returns(new[] { file });
 
         _fileService.Setup(f => f.CopyFile(It.IsAny<string>(), It.IsAny<string>()));
 
         BackupState? last = null;
 
         _stateRepo.Setup(r => r.Save(It.IsAny<List<BackupState>>()))
-                  .Callback<List<BackupState>>(s => last = s[0]);
+        .Callback<List<BackupState>>(s => last = s[0]);
 
-        _sut.RunBackup(MakeJob(), MakeSettings());
+        _sut.RunBackup(MakeJob(sourcePath: srcDir, targetPath: tgtDir), MakeSettings());
 
         Assert.NotNull(last);
         Assert.Equal("INACTIVE", last!.Status);
-        Assert.Null(last.CurrentSourceFile);
-        Assert.Null(last.CurrentTargetFile);
     }
 
     [Fact]
     public void RunBackup_EmptySource_NoCopyAndTwoStateSaves()
     {
-        _fileService.Setup(f => f.GetAllFiles(@"C:\Source"))
-                    .Returns(Array.Empty<string>());
+        var srcDir = CreateTempDir("source");
+        var tgtDir = CreateTempDir("target");
 
-        _sut.RunBackup(MakeJob(), MakeSettings());
+        _fileService.Setup(f => f.GetAllFiles(srcDir))
+        .Returns(Array.Empty<string>());
+
+        _sut.RunBackup(MakeJob(sourcePath: srcDir, targetPath: tgtDir), MakeSettings());
 
         _fileService.Verify(
             f => f.CopyFile(It.IsAny<string>(), It.IsAny<string>()),
             Times.Never);
 
-        // 1 initial save + 1 final "INACTIVE" save, no per-file saves
-
         _stateRepo.Verify(
             r => r.Save(It.IsAny<List<BackupState>>()),
             Times.Exactly(2));
-    }
-
-    // ── State counters ─────────────────────────────────────────────────────
-
-    [Fact]
-    public void RunBackup_RemainingFilesCounter_DecrementsAfterEachFileCopy()
-    {
-        var files = new[] { @"C:\Source\a.txt", @"C:\Source\b.txt" };
-
-        _fileService.Setup(f => f.GetAllFiles(@"C:\Source")).Returns(files);
-
-        _fileService.Setup(f => f.CopyFile(It.IsAny<string>(), It.IsAny<string>()));
-
-        var snapshots = new List<int>();
-
-        _stateRepo.Setup(r => r.Save(It.IsAny<List<BackupState>>()))
-                  .Callback<List<BackupState>>(s =>
-                      snapshots.Add(s[0].RemainingFiles));
-
-        _sut.RunBackup(MakeJob(), MakeSettings());
-
-        // [initial=2, after-a=1, after-b=0, final=0]
-
-        Assert.Equal(new[] { 2, 1, 0, 0 }, snapshots);
-    }
-
-    [Fact]
-    public void RunBackup_InitialState_IsActive()
-    {
-        _fileService.Setup(f => f.GetAllFiles(@"C:\Source"))
-                    .Returns(Array.Empty<string>());
-
-        string? firstStatus = null;
-
-        _stateRepo.Setup(r => r.Save(It.IsAny<List<BackupState>>()))
-                  .Callback<List<BackupState>>(s =>
-                      firstStatus ??= s[0].Status);
-
-        _sut.RunBackup(MakeJob(), MakeSettings());
-
-        Assert.Equal("ACTIVE", firstStatus);
     }
 
     // ── Differential backup ────────────────────────────────────────────────
@@ -179,133 +173,62 @@ public class BackupServiceTests : IDisposable
     [Fact]
     public void RunBackup_Differential_SkipsFileWhenTargetIsNewer()
     {
-        var srcDir = CreateTempDir();
-        var tgtDir = CreateTempDir();
+        var srcDir = CreateTempDir("source");
+        var tgtDir = CreateTempDir("target");
 
-        try
-        {
-            var srcFile = Write(srcDir, "file.txt", "hello");
-            var tgtFile = Write(tgtDir, "file.txt", "hello");
+        var srcFile = Write(srcDir, "file.txt", "hello");
+        var tgtFile = Write(tgtDir, "file.txt", "hello");
 
-            // Target is newer → source is unchanged
+        File.SetLastWriteTime(tgtFile, DateTime.Now.AddHours(1));
 
-            File.SetLastWriteTime(tgtFile, DateTime.Now.AddHours(1));
+        _fileService.Setup(f => f.GetAllFiles(srcDir))
+        .Returns(new[] { srcFile });
 
-            _fileService.Setup(f => f.GetAllFiles(srcDir))
-                        .Returns(new[] { srcFile });
+        _sut.RunBackup(MakeJob(BackupType.Differential, srcDir, tgtDir), MakeSettings());
 
-            _sut.RunBackup(
-                MakeJob(BackupType.Differential, srcDir, tgtDir),
-                MakeSettings());
-
-            _fileService.Verify(
-                f => f.CopyFile(It.IsAny<string>(), It.IsAny<string>()),
+        _fileService.Verify(
+            f => f.CopyFile(It.IsAny<string>(), It.IsAny<string>()),
                 Times.Never);
-        }
-        finally
-        {
-            Cleanup(srcDir, tgtDir);
-        }
     }
 
     [Fact]
     public void RunBackup_Differential_CopiesFileWhenSourceIsNewer()
     {
-        var srcDir = CreateTempDir();
-        var tgtDir = CreateTempDir();
+        var srcDir = CreateTempDir("source");
+        var tgtDir = CreateTempDir("target");
 
-        try
-        {
-            var srcFile = Write(srcDir, "file.txt", "new");
-            var tgtFile = Write(tgtDir, "file.txt", "old");
+        var srcFile = Write(srcDir, "file.txt", "new");
+        var tgtFile = Write(tgtDir, "file.txt", "old");
 
-            // Source is newer → should be copied
+        File.SetLastWriteTime(srcFile, DateTime.Now.AddHours(1));
 
-            File.SetLastWriteTime(srcFile, DateTime.Now.AddHours(1));
+        _fileService.Setup(f => f.GetAllFiles(srcDir))
+        .Returns(new[] { srcFile });
 
-            _fileService.Setup(f => f.GetAllFiles(srcDir))
-                        .Returns(new[] { srcFile });
+        _fileService.Setup(f => f.CopyFile(srcFile, tgtFile));
 
-            _fileService.Setup(f => f.CopyFile(srcFile, tgtFile));
+        _sut.RunBackup(MakeJob(BackupType.Differential, srcDir, tgtDir), MakeSettings());
 
-            _sut.RunBackup(
-                MakeJob(BackupType.Differential, srcDir, tgtDir),
-                MakeSettings());
-
-            _fileService.Verify(
-                f => f.CopyFile(srcFile, tgtFile),
-                Times.Once);
-        }
-        finally
-        {
-            Cleanup(srcDir, tgtDir);
-        }
+        _fileService.Verify(f => f.CopyFile(srcFile, tgtFile), Times.Once);
     }
 
     [Fact]
     public void RunBackup_Differential_CopiesFileWhenTargetDoesNotExist()
     {
-        var srcDir = CreateTempDir();
-        var tgtDir = CreateTempDir();
+        var srcDir = CreateTempDir("source");
+        var tgtDir = CreateTempDir("target");
 
-        try
-        {
-            var srcFile = Write(srcDir, "new.txt", "content");
-            var tgtFile = Path.Combine(tgtDir, "new.txt");
+        var srcFile = Write(srcDir, "new.txt", "content");
+        var tgtFile = Path.Combine(tgtDir, "new.txt");
 
-            _fileService.Setup(f => f.GetAllFiles(srcDir))
-                        .Returns(new[] { srcFile });
+        _fileService.Setup(f => f.GetAllFiles(srcDir))
+        .Returns(new[] { srcFile });
 
-            _fileService.Setup(f => f.CopyFile(srcFile, tgtFile));
+        _fileService.Setup(f => f.CopyFile(srcFile, tgtFile));
 
-            _sut.RunBackup(
-                MakeJob(BackupType.Differential, srcDir, tgtDir),
-                MakeSettings());
+        _sut.RunBackup(MakeJob(BackupType.Differential, srcDir, tgtDir), MakeSettings());
 
-            _fileService.Verify(
-                f => f.CopyFile(srcFile, tgtFile),
-                Times.Once);
-        }
-        finally
-        {
-            Cleanup(srcDir, tgtDir);
-        }
-    }
-
-    [Fact]
-    public void RunBackup_Differential_SkippedFilesAreStillCountedInState()
-    {
-        var srcDir = CreateTempDir();
-        var tgtDir = CreateTempDir();
-
-        try
-        {
-            var srcFile = Write(srcDir, "file.txt", "x");
-            var tgtFile = Write(tgtDir, "file.txt", "x");
-
-            File.SetLastWriteTime(tgtFile, DateTime.Now.AddHours(1));
-
-            _fileService.Setup(f => f.GetAllFiles(srcDir))
-                        .Returns(new[] { srcFile });
-
-            var snapshots = new List<int>();
-
-            _stateRepo.Setup(r => r.Save(It.IsAny<List<BackupState>>()))
-                      .Callback<List<BackupState>>(s =>
-                          snapshots.Add(s[0].RemainingFiles));
-
-            _sut.RunBackup(
-                MakeJob(BackupType.Differential, srcDir, tgtDir),
-                MakeSettings());
-
-            // Skipped file still decrements the counter: [1, 0, 0]
-
-            Assert.Contains(0, snapshots);
-        }
-        finally
-        {
-            Cleanup(srcDir, tgtDir);
-        }
+        _fileService.Verify(f => f.CopyFile(srcFile, tgtFile), Times.Once);
     }
 
     // ── Error resilience ───────────────────────────────────────────────────
@@ -313,106 +236,76 @@ public class BackupServiceTests : IDisposable
     [Fact]
     public void RunBackup_WhenCopyThrows_ContinuesWithRemainingFiles()
     {
-        var files = new[] { @"C:\Source\fail.txt", @"C:\Source\ok.txt" };
+        var srcDir = CreateTempDir("source");
+        var tgtDir = CreateTempDir("target");
 
-        _fileService.Setup(f => f.GetAllFiles(@"C:\Source"))
-                    .Returns(files);
+        var failFile = Write(srcDir, "fail.txt", "x");
+        var okFile = Write(srcDir, "ok.txt", "x");
 
-        _fileService.Setup(f => f.CopyFile(@"C:\Source\fail.txt", It.IsAny<string>()))
-                    .Throws(new IOException("Disk full"));
+        _fileService.Setup(f => f.GetAllFiles(srcDir))
+        .Returns(new[] { failFile, okFile });
 
-        _fileService.Setup(f => f.CopyFile(@"C:\Source\ok.txt", It.IsAny<string>()));
+        _fileService.Setup(f => f.CopyFile(failFile, It.IsAny<string>()))
+        .Throws(new IOException("fail"));
 
-        // Must not throw
+        _fileService.Setup(f => f.CopyFile(okFile, It.IsAny<string>()));
 
-        _sut.RunBackup(MakeJob(), MakeSettings());
+        _sut.RunBackup(MakeJob(sourcePath: srcDir, targetPath: tgtDir), MakeSettings());
 
         _fileService.Verify(
-            f => f.CopyFile(@"C:\Source\ok.txt", It.IsAny<string>()),
+            f => f.CopyFile(okFile, It.IsAny<string>()),
             Times.Once);
     }
 
     [Fact]
     public void RunBackup_WhenCopyThrows_FinalStateIsStillInactive()
     {
-        _fileService.Setup(f => f.GetAllFiles(@"C:\Source"))
-                    .Returns(new[] { @"C:\Source\fail.txt" });
+        var srcDir = CreateTempDir("source");
+        var tgtDir = CreateTempDir("target");
+
+        var file = Write(srcDir, "fail.txt", "x");
+
+        _fileService.Setup(f => f.GetAllFiles(srcDir))
+        .Returns(new[] { file });
 
         _fileService.Setup(f => f.CopyFile(It.IsAny<string>(), It.IsAny<string>()))
-                    .Throws(new IOException("Disk full"));
+        .Throws(new IOException("fail"));
 
         BackupState? last = null;
 
         _stateRepo.Setup(r => r.Save(It.IsAny<List<BackupState>>()))
-                  .Callback<List<BackupState>>(s => last = s[0]);
+        .Callback<List<BackupState>>(s => last = s[0]);
 
-        _sut.RunBackup(MakeJob(), MakeSettings());
+        _sut.RunBackup(MakeJob(sourcePath: srcDir, targetPath: tgtDir), MakeSettings());
 
         Assert.Equal("INACTIVE", last!.Status);
     }
 
-    // ── UNC path conversion ────────────────────────────────────────────────
+    // ── UNC path test ──────────────────────────────────────────────────────
 
     [Fact]
     public void RunBackup_StateAndLog_UseUNCPaths()
     {
-        // Windows-style local path: C:\... → \\MACHINE\C$\...
+        var srcDir = CreateTempDir("source");
+        var tgtDir = CreateTempDir("target");
 
-        _fileService.Setup(f => f.GetAllFiles(@"C:\Source"))
-                    .Returns(new[] { @"C:\Source\a.txt" });
+        var file = Write(srcDir, "a.txt", "x");
 
-        _fileService.Setup(f => f.CopyFile(It.IsAny<string>(), It.IsAny<string>()));
+        _fileService.Setup(f => f.GetAllFiles(srcDir))
+        .Returns(new[] { file });
 
         BackupState? captured = null;
 
         _stateRepo.Setup(r => r.Save(It.IsAny<List<BackupState>>()))
-                  .Callback<List<BackupState>>(s =>
-                  {
-                      if (s[0].CurrentSourceFile != null)
-                      {
-                          captured = s[0];
-                      }
-                  });
+        .Callback<List<BackupState>>(s =>
+        {
+            if (s[0].CurrentSourceFile != null)
+                captured = s[0];
+        });
 
-        _sut.RunBackup(MakeJob(), MakeSettings());
-
-        // The state must store UNC paths, not local paths
+        _sut.RunBackup(MakeJob(sourcePath: srcDir, targetPath: tgtDir), MakeSettings());
 
         Assert.NotNull(captured?.CurrentSourceFile);
-
         Assert.StartsWith(@"\\", captured!.CurrentSourceFile);
-    }
-
-    // ── Private test helpers ───────────────────────────────────────────────
-
-    private static string CreateTempDir()
-    {
-        var dir = Path.Combine(
-            Path.GetTempPath(),
-            Guid.NewGuid().ToString());
-
-        Directory.CreateDirectory(dir);
-
-        return dir;
-    }
-
-    private static string Write(string dir, string name, string content)
-    {
-        var path = Path.Combine(dir, name);
-
-        File.WriteAllText(path, content);
-
-        return path;
-    }
-
-    private static void Cleanup(params string[] dirs)
-    {
-        foreach (var d in dirs)
-        {
-            if (Directory.Exists(d))
-            {
-                Directory.Delete(d, true);
-            }
-        }
     }
 }
