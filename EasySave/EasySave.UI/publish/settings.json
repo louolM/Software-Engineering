@@ -1,0 +1,10 @@
+{
+  "BusinessSoftware": "CalculatorApp.exe",
+  "EncryptedExtensions": [
+    ".txt",
+    ".png"
+  ],
+  "EncryptionKey": "defaultkey",
+  "LogFormat": "JSON",
+  "Language": "FR"
+}
