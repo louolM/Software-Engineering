@@ -15,7 +15,48 @@ permissions:
   contents: write
 
 jobs:
+  # ──────────────────────────────────────────────────────────────────────────
+  # Job 1 – Unit tests (blocks build + release if any test fails)
+  # ──────────────────────────────────────────────────────────────────────────
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore EasySave/EasySave.slnx
+
+      - name: Run unit tests
+        run: |
+          dotnet test EasySave/EasySave.Tests/EasySave.Tests.csproj \
+            --configuration Release \
+            --no-restore \
+            --logger "trx;LogFileName=test-results.trx" \
+            --collect:"XPlat Code Coverage"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()   # upload even on failure so the report is always available
+        with:
+          name: test-results
+          path: '**/TestResults/**'
+          retention-days: 7
+  
+  # ──────────────────────────────────────────────────────────────────────────
+  # Job 2 – Build & publish (only runs when all tests pass)
+  # ──────────────────────────────────────────────────────────────────────────
   build:
+    name: Build (${{ matrix.runtime }})
+    needs: test
+    
     strategy:
       matrix:
         include:
@@ -31,9 +72,9 @@ jobs:
             runtime: osx-x64
             artifact_name: EasySave-macOS-x64
             renamed: EasySave-macOS-x64
-
+    
     runs-on: ${{ matrix.os }}
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -95,11 +136,14 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: ./publish/${{ matrix.renamed }}
           retention-days: 1
-
+  
+  # ──────────────────────────────────────────────────────────────────────────
+  # Job 3 – GitHub Release (only runs when all 3 builds pass)
+  # ──────────────────────────────────────────────────────────────────────────
   release:
     needs: build
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
