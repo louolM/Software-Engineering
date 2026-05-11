@@ -10,83 +10,75 @@ public class BackupService : IBackupService
     private readonly IFileService _fileService;
     private readonly Logger _logger;
     private readonly IStateRepository _stateRepo;
+    private readonly DockerLogService? _dockerLog;
 
-    public BackupService(IFileService fileService, Logger logger, IStateRepository stateRepo)
+    private static readonly SemaphoreSlim _largeCopySlot = new(1, 1);
+    private static readonly SemaphoreSlim _cryptoSlot = new(1, 1);
+
+    public BackupService(IFileService fileService, Logger logger,
+                         IStateRepository stateRepo,
+                         DockerLogService? dockerLog = null)
     {
         _fileService = fileService;
         _logger = logger;
         _stateRepo = stateRepo;
+        _dockerLog = dockerLog;
     }
 
-    public void RunBackup(BackupJob job, AppSettings settings, IProgress<double>? progress = null)    {
-        // ── Vérification logiciel métier AVANT de démarrer ──────────────────
-        if (IsBusinessSoftwareRunning(settings.BusinessSoftware))
-        {
-            _logger.Write(new LogEntry
-            {
-                Timestamp = DateTime.Now,
-                BackupName = job.Name,
-                SourcePath = "",
-                TargetPath = "",
-                FileSize = 0,
-                TransferTime = 0,
-                EncryptionTime = 0
-            });
-            return; // On ne démarre pas le job
-        }
-
+    public async Task RunBackupAsync(BackupJob job, AppSettings settings,
+                                     JobController controller,
+                                     IProgress<double>? progress = null)
+    {
         var sourcePath = job.SourcePath!;
         var targetPath = job.TargetPath!;
 
-        var files = _fileService.GetAllFiles(sourcePath);
-        var totalSize = files.Sum(f => new FileInfo(f).Length);
+        var allFiles = _fileService.GetAllFiles(sourcePath).ToList();
+        var totalSize = allFiles.Sum(f => new FileInfo(f).Length);
 
         var state = new BackupState
         {
             Name = job.Name,
             Status = "ACTIVE",
             LastActionTime = DateTime.Now,
-            TotalFiles = files.Count(),
-            RemainingFiles = files.Count(),
+            TotalFiles = allFiles.Count,
+            RemainingFiles = allFiles.Count,
             TotalSize = totalSize,
             RemainingSize = totalSize
         };
 
         _stateRepo.Save(new List<BackupState> { state });
 
-        foreach (var file in files)
+        var priorityExts = settings.PriorityExtensions
+            .Select(e => e.ToLower()).ToHashSet();
+
+        var orderedFiles = priorityExts.Count > 0
+            ? allFiles.OrderByDescending(f =>
+                priorityExts.Contains(Path.GetExtension(f).ToLower())).ToList()
+            : allFiles;
+
+        foreach (var file in orderedFiles)
         {
-            // ── Vérification logiciel métier PENDANT le backup ────────────────
-            // On finit le fichier en cours puis on s'arrête
-            if (IsBusinessSoftwareRunning(settings.BusinessSoftware))
-            {
-                _logger.Write(new LogEntry
-                {
-                    Timestamp = DateTime.Now,
-                    BackupName = job.Name,
-                    SourcePath = ToUNC(file),
-                    TargetPath = "",
-                    FileSize = 0,
-                    TransferTime = 0,
-                    EncryptionTime = 0
-                });
-                break; // Arrêt après le fichier actuel
-            }
+            try { await controller.WaitIfPausedAsync(controller.Token); }
+            catch (OperationCanceledException) { break; }
+
+            if (controller.IsStopped) break;
 
             var relativePath = Path.GetRelativePath(sourcePath, file);
             var targetFile = Path.Combine(targetPath, relativePath);
             var fileSize = new FileInfo(file).Length;
+            var ext = Path.GetExtension(file).ToLower();
 
-            // Differential : skip si fichier identique
+            // Differential
             if (job.Type == BackupType.Differential && File.Exists(targetFile))
             {
-                var sourceInfo = new FileInfo(file);
-                var targetInfo = new FileInfo(targetFile);
-                if (sourceInfo.LastWriteTime <= targetInfo.LastWriteTime)
+                var srcInfo = new FileInfo(file);
+                var tgtInfo = new FileInfo(targetFile);
+                if (srcInfo.LastWriteTime <= tgtInfo.LastWriteTime)
                 {
                     state.RemainingFiles--;
                     state.RemainingSize -= fileSize;
                     _stateRepo.Save(new List<BackupState> { state });
+                    progress?.Report(state.Progression);
                     continue;
                 }
             }
@@ -97,18 +89,28 @@ public class BackupService : IBackupService
                 state.CurrentTargetFile = ToUNC(targetFile);
                 state.LastActionTime = DateTime.Now;
 
-                // ── Copie ──────────────────────────────────────────────────
-                var start = DateTime.Now;
-                _fileService.CopyFile(file, targetFile);
-                var transferDuration = (long)(DateTime.Now - start).TotalMilliseconds;
+                var maxSize = settings.MaxParallelFileSize * 1024;
+                bool isLarge = maxSize > 0 && fileSize > maxSize;
 
-                // ── Chiffrement CryptoSoft ─────────────────────────────────
+                if (isLarge) await _largeCopySlot.WaitAsync(controller.Token);
+                long transferDuration;
+                try
+                {
+                    var start = DateTime.Now;
+                    await Task.Run(() => _fileService.CopyFile(file, targetFile), controller.Token);
+                    transferDuration = (long)(DateTime.Now - start).TotalMilliseconds;
+                }
+                finally { if (isLarge) _largeCopySlot.Release(); }
+
                 long encryptionTime = 0;
-                var ext = Path.GetExtension(file).ToLower();
                 if (settings.EncryptedExtensions.Contains(ext))
-                    encryptionTime = RunCryptoSoft(targetFile, settings.EncryptionKey);
+                {
+                    await _cryptoSlot.WaitAsync(controller.Token);
+                    try { encryptionTime = await Task.Run(() => RunCryptoSoft(targetFile, settings.EncryptionKey)); }
+                    finally { _cryptoSlot.Release(); }
+                }
 
-                _logger.Write(new LogEntry
+                WriteLog(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     BackupName = job.Name,
@@ -117,11 +119,12 @@ public class BackupService : IBackupService
                     FileSize = fileSize,
                     TransferTime = transferDuration,
                     EncryptionTime = encryptionTime
-                });
+                }, settings);
             }
+            catch (OperationCanceledException) { break; }
             catch
             {
-                _logger.Write(new LogEntry
+                WriteLog(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     BackupName = job.Name,
@@ -130,7 +133,7 @@ public class BackupService : IBackupService
                     FileSize = 0,
                     TransferTime = -1,
                     EncryptionTime = 0
-                });
+                }, settings);
             }
 
             state.RemainingFiles--;
@@ -139,14 +142,23 @@ public class BackupService : IBackupService
             progress?.Report(state.Progression);
         }
 
-        state.Status = "INACTIVE";
+        state.Status = controller.IsStopped ? "STOPPED" : "INACTIVE";
         state.LastActionTime = DateTime.Now;
         state.CurrentSourceFile = null;
         state.CurrentTargetFile = null;
         _stateRepo.Save(new List<BackupState> { state });
     }
 
-    // ── Appel CryptoSoft externe ───────────────────────────────────────────
+    // ── Écriture log : Local / Docker / Both ─────────────────────────────
+    private void WriteLog(LogEntry entry, AppSettings settings)
+    {
+        if (settings.LogDestination is "Local" or "Both")
+            _logger.Write(entry);
+
+        if (settings.LogDestination is "Docker" or "Both")
+            _dockerLog?.Send(entry);
+    }
+
     private static long RunCryptoSoft(string filePath, string key)
     {
         try
@@ -162,23 +174,11 @@ public class BackupService : IBackupService
                     RedirectStandardOutput = true
                 }
             };
-
             process.Start();
             process.WaitForExit();
-            return process.ExitCode; // >0 = ms, <0 = erreur
+            return process.ExitCode;
         }
-        catch
-        {
-            return -99; // CryptoSoft introuvable ou crash
-        }
-    }
-
-    // ── Détection logiciel métier ──────────────────────────────────────────
-    private static bool IsBusinessSoftwareRunning(string processName)
-    {
-        if (string.IsNullOrWhiteSpace(processName)) return false;
-        var name = processName.Replace(".exe", "", StringComparison.OrdinalIgnoreCase);
-        return Process.GetProcessesByName(name).Length > 0;
+        catch { return -99; }
     }
 
     private static string ToUNC(string path)

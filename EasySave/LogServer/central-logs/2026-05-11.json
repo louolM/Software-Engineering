@@ -1,0 +1,47 @@
+[
+  {
+    "Timestamp": "2026-05-11T10:49:36.851236+00:00",
+    "BackupName": "test1",
+    "SourcePath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource\\test.txt",
+    "TargetPath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget\\test.txt",
+    "FileSize": 16,
+    "TransferTime": 2,
+    "EncryptionTime": 0
+  },
+  {
+    "Timestamp": "2026-05-11T10:59:35.5489877+00:00",
+    "BackupName": "test1",
+    "SourcePath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource\\test.txt",
+    "TargetPath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget\\test.txt",
+    "FileSize": 16,
+    "TransferTime": 4,
+    "EncryptionTime": 0
+  },
+  {
+    "Timestamp": "2026-05-11T10:59:49.6162281+00:00",
+    "BackupName": "test1",
+    "SourcePath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource\\test.txt",
+    "TargetPath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget\\test.txt",
+    "FileSize": 16,
+    "TransferTime": 2,
+    "EncryptionTime": 0
+  },
+  {
+    "Timestamp": "2026-05-11T11:00:10.5955042+00:00",
+    "BackupName": "test1",
+    "SourcePath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource\\test.txt",
+    "TargetPath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget\\test.txt",
+    "FileSize": 16,
+    "TransferTime": 1,
+    "EncryptionTime": 7
+  },
+  {
+    "Timestamp": "2026-05-11T11:00:42.7210684+00:00",
+    "BackupName": "test1",
+    "SourcePath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource\\test.txt",
+    "TargetPath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget\\test.txt",
+    "FileSize": 16,
+    "TransferTime": 3,
+    "EncryptionTime": 7
+  }
+]

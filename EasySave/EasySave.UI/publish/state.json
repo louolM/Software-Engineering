@@ -1,0 +1,14 @@
+[
+  {
+    "Name": "job1testdecrypt",
+    "LastActionTime": "2026-05-07T12:20:25.389213+02:00",
+    "Status": "INACTIVE",
+    "TotalFiles": 1,
+    "RemainingFiles": 0,
+    "TotalSize": 8,
+    "RemainingSize": 0,
+    "CurrentSourceFile": null,
+    "CurrentTargetFile": null,
+    "Progression": 100
+  }
+]

@@ -16,8 +16,9 @@ public partial class SettingsViewModel : ViewModelBase
     private CancellationTokenSource? _hideMsgCts;
 
     public event Action<string>? LanguageChanged;
-    public event Action? SettingsSaved;   // ← AJOUT : notifie que les settings ont changé
+    public event Action? SettingsSaved;
 
+    // ── Valeurs des champs ────────────────────────────────────────────────
     [ObservableProperty] private string _businessSoftware = string.Empty;
     [ObservableProperty] private string _encryptionKey = string.Empty;
     [ObservableProperty] private string _encryptedExtensions = string.Empty;
@@ -25,7 +26,14 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _languageFr = false;
     [ObservableProperty] private string _statusMessage = string.Empty;
 
-    // Libellés
+    // ── v3.0 — nouveaux champs ────────────────────────────────────────────
+    [ObservableProperty] private string _priorityExtensions = string.Empty; // ex: ".pdf .docx"
+    [ObservableProperty] private string _maxParallelFileSize = "1024";       // en KB
+    [ObservableProperty] private bool _logToLocal = true;
+    [ObservableProperty] private bool _logToDocker = false;
+    [ObservableProperty] private string _dockerLogUrl = string.Empty;
+
+    // ── Libellés traduits ─────────────────────────────────────────────────
     [ObservableProperty] private string _titleText = string.Empty;
     [ObservableProperty] private string _languageSectionTitle = string.Empty;
     [ObservableProperty] private string _businessSectionTitle = string.Empty;
@@ -35,11 +43,21 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string _encryptKeyLabel = string.Empty;
     [ObservableProperty] private string _logSectionTitle = string.Empty;
     [ObservableProperty] private string _saveButtonText = string.Empty;
+    [ObservableProperty] private string _prioritySectionTitle = string.Empty;
+    [ObservableProperty] private string _priorityDescription = string.Empty;
+    [ObservableProperty] private string _maxSizeLabel = string.Empty;
+    [ObservableProperty] private string _logDestSectionTitle = string.Empty;
 
-    // Erreurs
+    // ── Erreurs de validation ─────────────────────────────────────────────
     [ObservableProperty] private string _encryptedExtensionsError = string.Empty;
     [ObservableProperty] private string _encryptionKeyError = string.Empty;
     [ObservableProperty] private string _businessSoftwareError = string.Empty;
+    [ObservableProperty] private string _maxSizeError = string.Empty;
+    [ObservableProperty] private string _dockerUrlError = string.Empty;
+
+    [ObservableProperty] private string _logLocalText = string.Empty;
+    [ObservableProperty] private string _logDockerText = string.Empty;
+    [ObservableProperty] private string _dockerUrlLabel = string.Empty;
 
     public SettingsViewModel(ISettingsRepository settingsRepo, TranslationService t)
     {
@@ -61,6 +79,13 @@ public partial class SettingsViewModel : ViewModelBase
         EncryptKeyLabel = _t.T("settings.encrypt.keyLabel");
         LogSectionTitle = _t.T("settings.log.title");
         SaveButtonText = _t.T("settings.save");
+        PrioritySectionTitle = _t.T("settings.priority.title");
+        PriorityDescription = _t.T("settings.priority.desc");
+        MaxSizeLabel = _t.T("settings.maxSize.label");
+        LogDestSectionTitle = _t.T("settings.logDest.title");
+        LogLocalText = _t.T("settings.logDest.local");
+        LogDockerText = _t.T("settings.logDest.docker");
+        DockerUrlLabel = _t.T("settings.dockerUrl");
     }
 
     private void LoadSettings()
@@ -71,14 +96,20 @@ public partial class SettingsViewModel : ViewModelBase
         EncryptedExtensions = string.Join(" ", s.EncryptedExtensions);
         LogFormatXml = s.LogFormat == "XML";
         LanguageFr = s.Language == "FR";
+        PriorityExtensions = string.Join(" ", s.PriorityExtensions);
+        MaxParallelFileSize = s.MaxParallelFileSize.ToString();
+        LogToLocal = s.LogDestination is "Local" or "Both";
+        LogToDocker = s.LogDestination is "Docker" or "Both";
+        DockerLogUrl = s.DockerLogUrl;
     }
 
     private bool Validate()
     {
         var valid = true;
+
+        // Extensions chiffrées
         var exts = EncryptedExtensions.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var bad = exts.Where(e => !e.StartsWith('.')).ToList();
-
         if (bad.Count > 0)
         { EncryptedExtensionsError = string.Format(_t.T("err.invalidExtensions"), string.Join(", ", bad)); valid = false; }
         else EncryptedExtensionsError = string.Empty;
@@ -86,6 +117,16 @@ public partial class SettingsViewModel : ViewModelBase
         if (exts.Length > 0 && string.IsNullOrWhiteSpace(EncryptionKey))
         { EncryptionKeyError = _t.T("err.keyRequired"); valid = false; }
         else EncryptionKeyError = string.Empty;
+
+        // Taille max
+        if (!long.TryParse(MaxParallelFileSize, out var size) || size < 0)
+        { MaxSizeError = _t.T("err.maxSizeInvalid"); valid = false; }
+        else MaxSizeError = string.Empty;
+
+        // URL Docker
+        if (LogToDocker && string.IsNullOrWhiteSpace(DockerLogUrl))
+        { DockerUrlError = _t.T("err.dockerUrlRequired"); valid = false; }
+        else DockerUrlError = string.Empty;
 
         BusinessSoftwareError = string.Empty;
         return valid;
@@ -96,10 +137,22 @@ public partial class SettingsViewModel : ViewModelBase
     {
         if (!Validate()) return;
 
-        var extensions = EncryptedExtensions
+        var encryptExts = EncryptedExtensions
             .Split(' ', StringSplitOptions.RemoveEmptyEntries)
             .Select(e => e.StartsWith('.') ? e.ToLower() : $".{e.ToLower()}")
             .ToList();
+
+        var priorityExts = PriorityExtensions
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(e => e.StartsWith('.') ? e.ToLower() : $".{e.ToLower()}")
+            .ToList();
+
+        var logDest = (LogToLocal, LogToDocker) switch
+        {
+            (true, true) => "Both",
+            (false, true) => "Docker",
+            _ => "Local"
+        };
 
         var lang = LanguageFr ? "FR" : "EN";
 
@@ -107,13 +160,17 @@ public partial class SettingsViewModel : ViewModelBase
         {
             BusinessSoftware = BusinessSoftware.Trim(),
             EncryptionKey = EncryptionKey.Trim(),
-            EncryptedExtensions = extensions,
+            EncryptedExtensions = encryptExts,
             LogFormat = LogFormatXml ? "XML" : "JSON",
-            Language = lang
+            Language = lang,
+            PriorityExtensions = priorityExts,
+            MaxParallelFileSize = long.Parse(MaxParallelFileSize),
+            LogDestination = logDest,
+            DockerLogUrl = DockerLogUrl.Trim()
         });
 
-        LanguageChanged?.Invoke(lang); // notifie le changement de langue
-        SettingsSaved?.Invoke();       // ← AJOUT : notifie que le format de log a peut-être changé
+        LanguageChanged?.Invoke(lang);
+        SettingsSaved?.Invoke();
 
         StatusMessage = _t.T("settings.saved");
 
