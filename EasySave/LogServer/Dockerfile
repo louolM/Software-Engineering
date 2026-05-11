@@ -5,12 +5,12 @@ EXPOSE 5000
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY ["EasySave.LogServer/EasySave.LogServer.csproj", "EasySave.LogServer/"]
+COPY ["LogServer/LogServer.csproj", "LogServer/"]
 COPY ["EasyLog/EasyLog.csproj", "EasyLog/"]
-RUN dotnet restore "EasySave.LogServer/EasySave.LogServer.csproj"
+RUN dotnet restore "LogServer/LogServer.csproj"
 
 COPY . .
-WORKDIR "/src/EasySave.LogServer"
+WORKDIR "/src/LogServer"
 RUN dotnet build -c Release -o /app/build
 
 FROM build AS publish
@@ -25,4 +25,4 @@ RUN mkdir -p /app/central-logs
 
 ENV ASPNETCORE_URLS=http://+:5000
 
-ENTRYPOINT ["dotnet", "EasySave.LogServer.dll"]
+ENTRYPOINT ["dotnet", "LogServer.dll"]
