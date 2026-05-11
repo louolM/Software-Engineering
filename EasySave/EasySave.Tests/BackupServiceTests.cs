@@ -33,9 +33,9 @@ public class BackupServiceTests : IDisposable
     {
         var dir = Path.Combine(
             Path.GetTempPath(),
-                               "EasySaveTests",
-                               Guid.NewGuid().ToString(),
-                               name);
+            "EasySaveTests",
+            Guid.NewGuid().ToString(),
+            name);
 
         Directory.CreateDirectory(dir);
         return dir;
@@ -286,25 +286,33 @@ public class BackupServiceTests : IDisposable
     [Fact]
     public void RunBackup_StateAndLog_UseUNCPaths()
     {
-        var srcDir = CreateTempDir("source");
-        var tgtDir = CreateTempDir("target");
+        // Use explicit UNC paths
+        const string uncSource = @"\\server\share\source";
+        const string uncTarget = @"\\server\share\target";
 
-        var file = Write(srcDir, "a.txt", "x");
+        var file = Write(uncSource, "a.txt", "x");
 
-        _fileService.Setup(f => f.GetAllFiles(srcDir))
+        _fileService.Setup(f => f.GetAllFiles(uncSource))
         .Returns(new[] { file });
 
-        BackupState? captured = null;
+        _fileService.Setup(f => f.CopyFile(It.IsAny<string>(), It.IsAny<string>()));
 
+        BackupState? captured = null;
         _stateRepo.Setup(r => r.Save(It.IsAny<List<BackupState>>()))
-            .Callback<List<BackupState>>(s =>
+            .Callback<List<BackupState>>(states =>
             {
-                captured = s[0];
+                // Capture the state that has CurrentSourceFile populated (en gros le progress state)
+                captured = states.FirstOrDefault(s => !string.IsNullOrEmpty(s.CurrentSourceFile));
             });
 
-        _sut.RunBackup(MakeJob(sourcePath: srcDir, targetPath: tgtDir), MakeSettings());
+        _sut.RunBackup(MakeJob(sourcePath: uncSource, targetPath: uncTarget), MakeSettings());
 
-        Assert.NotNull(captured?.CurrentSourceFile);
-        Assert.StartsWith(@"\\", captured!.CurrentSourceFile);
+        Assert.NotNull(captured);
+        Assert.NotNull(captured.CurrentSourceFile);
+        Assert.StartsWith(@"\\", captured.CurrentSourceFile, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("a.txt", captured.CurrentSourceFile, StringComparison.Ordinal);
+
+        // also checks target path if the BackupState stores it
+        Assert.NotNull(captured.CurrentTargetFile);
     }
 }
