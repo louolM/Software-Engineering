@@ -1,0 +1,48 @@
+name: Unit Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths:
+      - 'EasySave/**'
+  pull_request:
+    branches: [ main, master, develop ]
+    paths:
+      - 'EasySave/**'
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore EasySave/EasySave.slnx
+
+      - name: Run unit tests
+        run: |
+          dotnet test EasySave/EasySave.Tests/EasySave.Tests.csproj \
+            --configuration Release \
+            --no-restore \
+            --logger "trx;LogFileName=test-results.trx" \
+            --collect:"XPlat Code Coverage"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: '**/TestResults/**'
+          retention-days: 7
