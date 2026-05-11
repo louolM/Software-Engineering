@@ -4,7 +4,10 @@ using System.Text.Json;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-// ── POST /logs — reçoit une LogEntry et l'écrit dans le fichier centralisé ───
+// ── Verrou partagé pour toutes les requêtes ───────────────────────────────────
+var writeLock = new SemaphoreSlim(1, 1);
+
+// ── POST /logs ────────────────────────────────────────────────────────────────
 app.MapPost("/logs", async (HttpContext ctx) =>
 {
     try
@@ -16,12 +19,20 @@ app.MapPost("/logs", async (HttpContext ctx) =>
         if (entry == null)
             return Results.BadRequest("Invalid log entry.");
 
-        // Format demandé en query param : ?format=XML (défaut JSON)
         var format = ctx.Request.Query["format"].ToString().ToUpper();
         format = format == "XML" ? "XML" : "JSON";
 
-        var logger = new Logger(format, logDirectory: "central-logs");
-        logger.Write(entry);
+        // ── Écriture séquentielle — une seule requête à la fois ──────────
+        await writeLock.WaitAsync();
+        try
+        {
+            var logger = new Logger(format, logDirectory: "central-logs");
+            logger.Write(entry);
+        }
+        finally
+        {
+            writeLock.Release();
+        }
 
         return Results.Ok();
     }
@@ -31,7 +42,7 @@ app.MapPost("/logs", async (HttpContext ctx) =>
     }
 });
 
-// ── GET /health — vérification que le serveur tourne ─────────────────────────
+// ── GET /health ───────────────────────────────────────────────────────────────
 app.MapGet("/health", () => Results.Ok(new { status = "ok", time = DateTime.UtcNow }));
 
 app.Run();

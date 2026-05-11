@@ -38,7 +38,11 @@ public class JobController
     /// Appelé par BackupService à chaque fichier.
     /// Bloque si en pause, lance OperationCanceledException si stoppé.
     /// </summary>
-    public void WaitIfPaused() => _pauseEvent.Wait(_cts.Token);
+    public async Task WaitIfPausedAsync(CancellationToken token)
+    {
+        while (IsPaused && !token.IsCancellationRequested)
+            await Task.Delay(100, token);
+    }
 
     /// <summary>Réinitialise le contrôleur pour pouvoir relancer le job.</summary>
     public void Reset()

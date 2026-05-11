@@ -55,6 +55,10 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string _maxSizeError = string.Empty;
     [ObservableProperty] private string _dockerUrlError = string.Empty;
 
+    [ObservableProperty] private string _logLocalText = string.Empty;
+    [ObservableProperty] private string _logDockerText = string.Empty;
+    [ObservableProperty] private string _dockerUrlLabel = string.Empty;
+
     public SettingsViewModel(ISettingsRepository settingsRepo, TranslationService t)
     {
         _settingsRepo = settingsRepo;
@@ -79,6 +83,9 @@ public partial class SettingsViewModel : ViewModelBase
         PriorityDescription = _t.T("settings.priority.desc");
         MaxSizeLabel = _t.T("settings.maxSize.label");
         LogDestSectionTitle = _t.T("settings.logDest.title");
+        LogLocalText = _t.T("settings.logDest.local");
+        LogDockerText = _t.T("settings.logDest.docker");
+        DockerUrlLabel = _t.T("settings.dockerUrl");
     }
 
     private void LoadSettings()

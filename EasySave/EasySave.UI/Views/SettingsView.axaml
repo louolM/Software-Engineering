@@ -95,11 +95,11 @@
 			<Border Background="#313244" CornerRadius="8" Padding="16">
 				<StackPanel Spacing="8">
 					<TextBlock Text="{Binding LogDestSectionTitle}" Foreground="#cdd6f4" FontWeight="Bold" FontSize="14"/>
-					<CheckBox Content="Local" IsChecked="{Binding LogToLocal}" Foreground="#cdd6f4"/>
-					<CheckBox Content="Docker (centralized)" IsChecked="{Binding LogToDocker}" Foreground="#cdd6f4"/>
+					<CheckBox Content="{Binding LogLocalText}" IsChecked="{Binding LogToLocal}" Foreground="#cdd6f4"/>
+					<CheckBox Content="{Binding LogDockerText}" IsChecked="{Binding LogToDocker}" Foreground="#cdd6f4"/>
 
-					<TextBlock Text="Docker URL" Foreground="#a6adc8" FontSize="12" Margin="0,4,0,0"
-							   IsVisible="{Binding LogToDocker}"/>
+					<TextBlock Text="{Binding DockerUrlLabel}" Foreground="#a6adc8" FontSize="12" Margin="0,4,0,0"
+           					IsVisible="{Binding LogToDocker}"/>
 					<TextBox Text="{Binding DockerLogUrl}"
 							 PlaceholderText="http://localhost:5000/logs"
 							 Background="#1e1e2e" Foreground="#cdd6f4"

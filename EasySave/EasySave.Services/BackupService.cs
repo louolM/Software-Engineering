@@ -58,7 +58,7 @@ public class BackupService : IBackupService
 
         foreach (var file in orderedFiles)
         {
-            try { controller.WaitIfPaused(); }
+            try { await controller.WaitIfPausedAsync(controller.Token); }
             catch (OperationCanceledException) { break; }
 
             if (controller.IsStopped) break;

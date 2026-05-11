@@ -89,6 +89,16 @@ public class TranslationService
         ["settings.logDest.title"] = "Log Destination",
         ["err.maxSizeInvalid"] = "⚠ Must be a positive number.",
         ["err.dockerUrlRequired"] = "⚠ Docker URL is required when Docker logging is enabled.",
+
+        ["jobs.pauseAll"] = "⏸ Pause All",
+        ["jobs.resumeAll"] = "▶ Resume All",
+        ["jobs.stopAll"] = "⏹ Stop All",
+        ["jobs.stopped"] = "Stopped",
+        ["jobs.blockedBusiness"] = "⛔ Cannot start: '{0}' is running. Close it first.",
+
+        ["settings.logDest.local"] = "Local",
+        ["settings.logDest.docker"] = "Docker (centralized)",
+        ["settings.dockerUrl"] = "Docker URL",
     };
 
     // ── FRANÇAIS ─────────────────────────────────────────────────────────
@@ -159,5 +169,15 @@ public class TranslationService
         ["settings.logDest.title"] = "Destination des logs",
         ["err.maxSizeInvalid"] = "⚠ Doit être un nombre positif.",
         ["err.dockerUrlRequired"] = "⚠ L'URL Docker est requise si la journalisation Docker est activée.",
+
+        ["jobs.pauseAll"] = "⏸ Tout mettre en pause",
+        ["jobs.resumeAll"] = "▶ Tout reprendre",
+        ["jobs.stopAll"] = "⏹ Tout arrêter",
+        ["jobs.stopped"] = "Arrêté",
+        ["jobs.blockedBusiness"] = "⛔ Impossible de démarrer : '{0}' est en cours. Fermez-le d'abord.",
+
+        ["settings.logDest.local"] = "Local",
+        ["settings.logDest.docker"] = "Docker (centralisé)",
+        ["settings.dockerUrl"] = "URL Docker",
     };
 }
