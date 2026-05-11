@@ -1,12 +1,13 @@
+# LogServer/docker-compose.yml
 version: '3.8'
 
 services:
   logserver:
-    build:
-      context: ..          # racine EasySave/
-      dockerfile: LogServer/Dockerfile
+    image: ghcr.io/louolm/easysave-logserver:latest
     ports:
       - "5000:5000"
     volumes:
-      - ./central-logs:/app/central-logs   # logs persistés sur l'hôte
+      - ./central-logs:/app/central-logs
     restart: unless-stopped
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
