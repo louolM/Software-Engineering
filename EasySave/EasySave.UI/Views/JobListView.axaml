@@ -48,7 +48,7 @@
 				<!-- Lignes avec progression par job -->
 				<ListBox Grid.Row="1"
 						 ItemsSource="{Binding JobProgress}"
-						 SelectedItem="{Binding SelectedJob}"
+						 SelectedItem="{Binding SelectedProgressItem}"
 						 Background="Transparent">
 					<ListBox.ItemTemplate>
 						<DataTemplate x:DataType="vm:JobProgressItem">

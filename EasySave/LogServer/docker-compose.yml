@@ -4,7 +4,7 @@ services:
   logserver:
     build:
       context: ..          # racine EasySave/
-      dockerfile: EasySave.LogServer/Dockerfile
+      dockerfile: LogServer/Dockerfile
     ports:
       - "5000:5000"
     volumes:
