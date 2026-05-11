@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: write
+  packages: write      # needed to push Docker image to GHCR
 
 jobs:
   # ──────────────────────────────────────────────────────────────────────────
@@ -136,15 +137,51 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: ./publish/${{ matrix.renamed }}
           retention-days: 1
-  
+
   # ──────────────────────────────────────────────────────────────────────────
-  # Job 3 – GitHub Release (only runs when all 3 builds pass)
+  # Job 3 – Build & push Docker image for LogServer
+  # ──────────────────────────────────────────────────────────────────────────
+  docker:
+    name: Docker – LogServer
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract tag name
+        id: tag
+        run: echo "TAG=${{ github.event.inputs.tag || github.ref_name }}" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .                    # repo root — matches Dockerfile COPY paths
+          file: LogServer/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/easysave-logserver:${{ steps.tag.outputs.TAG }}
+            ghcr.io/${{ github.repository_owner }}/easysave-logserver:latest
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Job 4 – GitHub Release (only runs when all builds + Docker pass)
   # ──────────────────────────────────────────────────────────────────────────
   release:
-    needs: build
+    needs: [build, docker]
     runs-on: ubuntu-latest
     
     steps:
+      - name: Checkout code         # needed to include docker-compose.yml in release
+        uses: actions/checkout@v4
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -161,3 +198,4 @@ jobs:
             ./artifacts/EasySave-Windows-x64/EasySave-Windows-x64.exe
             ./artifacts/EasySave-Linux-x64/EasySave-Linux-x64
             ./artifacts/EasySave-macOS-x64/EasySave-macOS-x64
+            ./LogServer/docker-compose.yml
