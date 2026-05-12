@@ -3,7 +3,7 @@
 namespace EasySave.UI.ViewModels;
 
 /// <summary>
-/// État observable d'un job en cours — affiché en temps réel dans la liste.
+/// État observable d'un job en cours - affiché en temps réel dans la liste.
 /// </summary>
 public partial class JobProgressItem : ObservableObject
 {
