@@ -26,7 +26,7 @@ public class DockerLogService
     /// </summary>
     public void Send(LogEntry entry)
     {
-        // Fire and forget — ne bloque pas le backup
+        // Fire and forget - ne bloque pas le backup
         _ = Task.Run(async () =>
         {
             try
@@ -38,7 +38,7 @@ public class DockerLogService
             }
             catch
             {
-                // Silencieux — le backup continue même si Docker est inaccessible
+                // Silencieux - le backup continue même si Docker est inaccessible
             }
         });
     }
