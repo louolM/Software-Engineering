@@ -26,7 +26,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _languageFr = false;
     [ObservableProperty] private string _statusMessage = string.Empty;
 
-    // ── v3.0 — nouveaux champs ────────────────────────────────────────────
+    // ── v3.0 - nouveaux champs ────────────────────────────────────────────
     [ObservableProperty] private string _priorityExtensions = string.Empty; // ex: ".pdf .docx"
     [ObservableProperty] private string _maxParallelFileSize = "1024";       // en KB
     [ObservableProperty] private bool _logToLocal = true;

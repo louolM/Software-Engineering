@@ -9,7 +9,7 @@ public class AppSettings
     public string LogFormat { get; set; } = "JSON";
     public string Language { get; set; } = "EN";
 
-    // ── v3.0 — nouveaux champs ────────────────────────────────────────────
+    // ── v3.0 - nouveaux champs ────────────────────────────────────────────
 
     /// <summary>Extensions prioritaires : aucun fichier non-prioritaire
     /// ne sera copié tant qu'il reste des fichiers prioritaires en attente.
