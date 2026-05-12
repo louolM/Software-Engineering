@@ -28,13 +28,14 @@ public class TranslationService
         ["nav.jobs"] = "📋 Jobs",
         ["nav.settings"] = "⚙ Settings",
 
-        // JobList — boutons
+        // JobList - boutons
         ["jobs.new"] = "＋ New Job",
         ["jobs.runSelected"] = "▶ Run Selected",
         ["jobs.runAll"] = "▶▶ Run All",
         ["jobs.delete"] = "🗑 Delete",
+        ["jobs.modify"]= "Modify",
 
-        // JobList — formulaire
+        // JobList - formulaire
         ["form.title.create"] = "New Job",
         ["form.title.edit"] = "Edit Job",
         ["form.name"] = "Name",
@@ -45,7 +46,7 @@ public class TranslationService
         ["form.cancel"] = "Cancel",
         ["form.save"] = "Save",
 
-        // JobList — messages
+        // JobList - messages
         ["jobs.created"] = "✔ Job created.",
         ["jobs.updated"] = "✔ Job updated.",
         ["jobs.deleted"] = "✔ Job '{0}' deleted.",
@@ -56,14 +57,14 @@ public class TranslationService
         ["jobs.noJobs"] = "⚠ No jobs to run.",
         ["jobs.selectFirst"] = "⚠ Please select a job first.",
 
-        // JobList — erreurs formulaire
+        // JobList - erreurs formulaire
         ["err.nameRequired"] = "⚠ Name is required.",
         ["err.nameExists"] = "⚠ A job with this name already exists.",
         ["err.sourceRequired"] = "⚠ Source path is required.",
         ["err.sourceNotFound"] = "⚠ Directory not found: {0}",
         ["err.targetRequired"] = "⚠ Target path is required.",
 
-        // Settings — titres
+        // Settings - titres
         ["settings.title"] = "⚙ Settings",
         ["settings.language"] = "Language",
         ["settings.business.title"] = "Business Software Detection",
@@ -75,7 +76,7 @@ public class TranslationService
         ["settings.save"] = "💾 Save Settings",
         ["settings.saved"] = "✔ Settings saved.",
 
-        // Settings — erreurs
+        // Settings - erreurs
         ["err.invalidExtensions"] = "⚠ Invalid extensions (must start with '.'): {0}",
         ["err.keyRequired"] = "⚠ Encryption key required.",
 
@@ -85,7 +86,7 @@ public class TranslationService
 
         ["settings.priority.title"] = "Priority File Extensions",
         ["settings.priority.desc"] = "These extensions are processed before all others. (e.g. .pdf .docx)",
-        ["settings.maxSize.label"] = "Max parallel file size (KB) — 0 = no limit",
+        ["settings.maxSize.label"] = "Max parallel file size (KB) - 0 = no limit",
         ["settings.logDest.title"] = "Log Destination",
         ["err.maxSizeInvalid"] = "⚠ Must be a positive number.",
         ["err.dockerUrlRequired"] = "⚠ Docker URL is required when Docker logging is enabled.",
@@ -99,6 +100,7 @@ public class TranslationService
         ["settings.logDest.local"] = "Local",
         ["settings.logDest.docker"] = "Docker (centralized)",
         ["settings.dockerUrl"] = "Docker URL",
+
     };
 
     // ── FRANÇAIS ─────────────────────────────────────────────────────────
@@ -108,13 +110,14 @@ public class TranslationService
         ["nav.jobs"] = "📋 Tâche",
         ["nav.settings"] = "⚙ Paramètres",
 
-        // JobList — boutons
+        // JobList - boutons
         ["jobs.new"] = "＋ Nouveau",
         ["jobs.runSelected"] = "▶ Lancer",
         ["jobs.runAll"] = "▶▶ Tout lancer",
         ["jobs.delete"] = "🗑 Supprimer",
+        ["jobs.modify"] = "Modifier",
 
-        // JobList — formulaire
+        // JobList - formulaire
         ["form.title.create"] = "Nouvelle tâche",
         ["form.title.edit"] = "Modifier la tâche",
         ["form.name"] = "Nom",
@@ -125,7 +128,7 @@ public class TranslationService
         ["form.cancel"] = "Annuler",
         ["form.save"] = "Sauvegarder",
 
-        // JobList — messages
+        // JobList - messages
         ["jobs.created"] = "✔ tâche créée.",
         ["jobs.updated"] = "✔ Tâche modifiée.",
         ["jobs.deleted"] = "✔ Tâche '{0}' supprimée.",
@@ -136,14 +139,14 @@ public class TranslationService
         ["jobs.noJobs"] = "⚠ Aucune tâche à lancer.",
         ["jobs.selectFirst"] = "⚠ Sélectionnez une tâche d'abord.",
 
-        // JobList — erreurs formulaire
+        // JobList - erreurs formulaire
         ["err.nameRequired"] = "⚠ Le nom est requis.",
         ["err.nameExists"] = "⚠ Une tâche avec ce nom existe déjà.",
         ["err.sourceRequired"] = "⚠ Le chemin source est requis.",
         ["err.sourceNotFound"] = "⚠ Dossier introuvable : {0}",
         ["err.targetRequired"] = "⚠ Le chemin destination est requis.",
 
-        // Settings — titres
+        // Settings - titres
         ["settings.title"] = "⚙ Paramètres",
         ["settings.language"] = "Langue",
         ["settings.business.title"] = "Détection logiciel métier",
@@ -155,7 +158,7 @@ public class TranslationService
         ["settings.save"] = "💾 Sauvegarder",
         ["settings.saved"] = "✔ Paramètres sauvegardés.",
 
-        // Settings — erreurs
+        // Settings - erreurs
         ["err.invalidExtensions"] = "⚠ Extensions invalides (doivent commencer par '.'): {0}",
         ["err.keyRequired"] = "⚠ Clé de chiffrement requise.",
 
@@ -165,7 +168,7 @@ public class TranslationService
 
         ["settings.priority.title"] = "Extensions prioritaires",
         ["settings.priority.desc"] = "Ces extensions sont traitées en priorité. (ex: .pdf .docx)",
-        ["settings.maxSize.label"] = "Taille max fichier parallèle (KB) — 0 = pas de limite",
+        ["settings.maxSize.label"] = "Taille max fichier parallèle (KB) - 0 = pas de limite",
         ["settings.logDest.title"] = "Destination des logs",
         ["err.maxSizeInvalid"] = "⚠ Doit être un nombre positif.",
         ["err.dockerUrlRequired"] = "⚠ L'URL Docker est requise si la journalisation Docker est activée.",
