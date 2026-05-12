@@ -3,7 +3,7 @@
         xmlns:vm="using:EasySave.UI.ViewModels"
         x:Class="EasySave.UI.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="EasySave 2.0"
+        Title="EasySave 3.0"
         Width="900" Height="600"
         Background="#1e1e2e">
 
