@@ -22,7 +22,7 @@ app.MapPost("/logs", async (HttpContext ctx) =>
         var format = ctx.Request.Query["format"].ToString().ToUpper();
         format = format == "XML" ? "XML" : "JSON";
 
-        // ── Écriture séquentielle — une seule requête à la fois ──────────
+        // ── Écriture séquentielle - une seule requête à la fois ──────────
         await writeLock.WaitAsync();
         try
         {

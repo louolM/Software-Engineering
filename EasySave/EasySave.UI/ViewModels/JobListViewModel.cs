@@ -36,10 +36,11 @@ public partial class JobListViewModel : ViewModelBase
     [ObservableProperty] private string _btnNewJob = string.Empty;
     [ObservableProperty] private string _btnRunSelected = string.Empty;
     [ObservableProperty] private string _btnRunAll = string.Empty;
+    [ObservableProperty] private string _btnModify = string.Empty;
     [ObservableProperty] private string _btnDelete = string.Empty;
-    [ObservableProperty] private string _btnPauseAll = string.Empty;  // ← AJOUT
-    [ObservableProperty] private string _btnResumeAll = string.Empty;  // ← AJOUT
-    [ObservableProperty] private string _btnStopAll = string.Empty;  // ← AJOUT
+    [ObservableProperty] private string _btnPauseAll = string.Empty;
+    [ObservableProperty] private string _btnResumeAll = string.Empty;
+    [ObservableProperty] private string _btnStopAll = string.Empty;
     [ObservableProperty] private string _formTitle = string.Empty;
     [ObservableProperty] private string _lblName = string.Empty;
     [ObservableProperty] private string _lblSource = string.Empty;
@@ -89,10 +90,11 @@ public partial class JobListViewModel : ViewModelBase
         BtnNewJob = _t.T("jobs.new");
         BtnRunSelected = _t.T("jobs.runSelected");
         BtnRunAll = _t.T("jobs.runAll");
+        BtnModify = _t.T("jobs.modify");
         BtnDelete = _t.T("jobs.delete");
-        BtnPauseAll = _t.T("jobs.pauseAll");   // ← AJOUT
-        BtnResumeAll = _t.T("jobs.resumeAll");  // ← AJOUT
-        BtnStopAll = _t.T("jobs.stopAll");    // ← AJOUT
+        BtnPauseAll = _t.T("jobs.pauseAll");
+        BtnResumeAll = _t.T("jobs.resumeAll");
+        BtnStopAll = _t.T("jobs.stopAll");
         FormTitle = _t.T(_isEditing ? "form.title.edit" : "form.title.create");
         LblName = _t.T("form.name");
         LblSource = _t.T("form.source");
@@ -183,12 +185,38 @@ public partial class JobListViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void ModifySelected()
+    {
+        if (SelectedJob == null) { SetError(_t.T("jobs.selectFirst")); return; }
+
+        _isEditing = true;
+        FormName = SelectedJob.Name ?? string.Empty;
+        FormSource = SelectedJob.SourcePath ?? string.Empty;
+        FormTarget = SelectedJob.TargetPath ?? string.Empty;
+        FormIsDifferential = SelectedJob.Type == BackupType.Differential;
+        FormNameError = FormSourceError = FormTargetError = string.Empty;
+        FormTitle = _t.T("form.title.edit");
+        IsFormVisible = true;
+    }
+
+    [RelayCommand]
+    private void ModifyJob(int jobId)
+    {
+        var job = Jobs.FirstOrDefault(j => j.Id == jobId);
+        if (job == null) return;
+
+        SelectedJob = job;
+        ModifySelected();
+    }
+
+    [RelayCommand]
     private void SaveJob()
     {
         if (!ValidateForm()) return;
         var src = CleanPath(FormSource);
         var tgt = CleanPath(FormTarget);
         var jobs = _configRepo.Load();
+        bool wasEditing = _isEditing;
 
         if (!_isEditing && jobs.Any(j => j.Name!.Equals(FormName, StringComparison.OrdinalIgnoreCase)))
         { FormNameError = _t.T("err.nameExists"); return; }
@@ -211,7 +239,8 @@ public partial class JobListViewModel : ViewModelBase
 
         _configRepo.Save(jobs);
         IsFormVisible = false;
-        SetSuccess(_t.T(_isEditing ? "jobs.updated" : "jobs.created"));
+        _isEditing = false;
+        SetSuccess(_t.T(wasEditing ? "jobs.updated" : "jobs.created"));
         Refresh();
     }
 
@@ -219,6 +248,7 @@ public partial class JobListViewModel : ViewModelBase
     private void CancelForm()
     {
         IsFormVisible = false;
+        _isEditing = false;
         FormNameError = FormSourceError = FormTargetError = string.Empty;
     }
 
@@ -350,7 +380,7 @@ public partial class JobListViewModel : ViewModelBase
         }
     }
 
-    // ── Pause / Resume / Stop — TOUS ─────────────────────────────────────
+    // ── Pause / Resume / Stop - TOUS ─────────────────────────────────────
     [RelayCommand]
     private void PauseAll()
     {

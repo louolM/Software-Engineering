@@ -4,6 +4,12 @@
              x:Class="EasySave.UI.Views.JobListView"
              x:DataType="vm:JobListViewModel">
 
+	<UserControl.Resources>
+		<vm:StatusToPausedConverter x:Key="StatusToPausedConverter"/>
+		<vm:StatusToActiveConverter x:Key="StatusToActiveConverter"/>
+		<vm:StatusToStoppableConverter x:Key="StatusToStoppableConverter"/>
+	</UserControl.Resources>
+
 	<Grid RowDefinitions="Auto,*,Auto,Auto,Auto" Margin="16">
 
 		<!-- Barre d'actions globales -->
@@ -14,10 +20,10 @@
 					Background="#89b4fa" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
 			<Button Content="{Binding BtnRunAll}"      Command="{Binding RunAllCommand}"
 					Background="#74c7ec" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
+			<Button Content="{Binding BtnModify}"      Command="{Binding ModifySelectedCommand}"
+					Background="#cba6f7" Foreground="#1e1e2e" Padding="20,6" CornerRadius="6"/>
 			<Button Content="{Binding BtnDelete}"      Command="{Binding DeleteSelectedCommand}"
 					Background="#f38ba8" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
-			<Button Content="{Binding BtnOpenLogs}"    Command="{Binding OpenLogsCommand}"
-					Background="#45475a" Foreground="#cdd6f4" Padding="12,6" CornerRadius="6"/>
 			<!-- Contrôles globaux Pause / Resume / Stop -->
 			<Button Content="{Binding BtnPauseAll}"  Command="{Binding PauseAllCommand}"
         			Background="#f9e2af" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
@@ -25,6 +31,8 @@
 					Background="#a6e3a1" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
 			<Button Content="{Binding BtnStopAll}"   Command="{Binding StopAllCommand}"
 					Background="#f38ba8" Foreground="#1e1e2e" Padding="12,6" CornerRadius="6"/>
+			<Button Content="{Binding BtnOpenLogs}"    Command="{Binding OpenLogsCommand}"
+					Background="#45475a" Foreground="#cdd6f4" Padding="12,6" CornerRadius="6"/>
 		</StackPanel>
 
 		<!-- Liste des jobs + progression en temps réel -->
@@ -33,7 +41,7 @@
 			<Grid RowDefinitions="Auto,*">
 
 				<!-- En-tête -->
-				<Grid Grid.Row="0" ColumnDefinitions="50,180,110,2*,2*,180,90,80"
+				<Grid Grid.Row="0" ColumnDefinitions="50,180,110,2*,2*,180,90,80,50"
 					  Background="#313244">
 					<TextBlock Grid.Column="0" Text="ID" Margin="6,0" Foreground="#a6adc8" FontWeight="Bold"/>
 					<TextBlock Grid.Column="1" Text="Name" Margin="6,0"     Foreground="#a6adc8" FontWeight="Bold"/>
@@ -43,6 +51,7 @@
 					<TextBlock Grid.Column="5" Text="Progress" Margin="6,0" Foreground="#a6adc8" FontWeight="Bold"/>
 					<TextBlock Grid.Column="6" Text="Status" Margin="6,0"	Foreground="#a6adc8" FontWeight="Bold"/>
 					<TextBlock Grid.Column="7" Text="Controls" Margin="6,0" Foreground="#a6adc8" FontWeight="Bold"/>
+					<TextBlock Grid.Column="8" Text="Edit" Margin="6,0"     Foreground="#a6adc8" FontWeight="Bold"/>
 				</Grid>
 
 				<!-- Lignes avec progression par job -->
@@ -52,7 +61,7 @@
 						 Background="Transparent">
 					<ListBox.ItemTemplate>
 						<DataTemplate x:DataType="vm:JobProgressItem">
-							<Grid ColumnDefinitions="50,180,110,2*,2*,180,90,90" MinHeight="56">
+							<Grid ColumnDefinitions="50,180,110,2*,2*,180,90,90,50" MinHeight="56">
 
 								<TextBlock Grid.Column="0" Text="{Binding JobId}"   Foreground="#cdd6f4" VerticalAlignment="Center"/>
 								<TextBlock Grid.Column="1" Text="{Binding JobName}" Foreground="#cdd6f4" VerticalAlignment="Center"/>
@@ -79,16 +88,25 @@
 									<Button Content="⏸" FontSize="10" Padding="4,2" CornerRadius="4"
 											Background="#f9e2af" Foreground="#1e1e2e"
 											Command="{Binding $parent[ListBox].((vm:JobListViewModel)DataContext).PauseJobCommand}"
-											CommandParameter="{Binding JobId}"/>
+											CommandParameter="{Binding JobId}"
+											IsEnabled="{Binding Status, Converter={StaticResource StatusToActiveConverter}}"/>
 									<Button Content="▶" FontSize="10" Padding="4,2" CornerRadius="4"
 											Background="#a6e3a1" Foreground="#1e1e2e"
 											Command="{Binding $parent[ListBox].((vm:JobListViewModel)DataContext).ResumeJobCommand}"
-											CommandParameter="{Binding JobId}"/>
+											CommandParameter="{Binding JobId}"
+											IsEnabled="{Binding Status, Converter={StaticResource StatusToPausedConverter}}"/>
 									<Button Content="⏹" FontSize="10" Padding="4,2" CornerRadius="4"
 											Background="#f38ba8" Foreground="#1e1e2e"
 											Command="{Binding $parent[ListBox].((vm:JobListViewModel)DataContext).StopJobCommand}"
-											CommandParameter="{Binding JobId}"/>
+											CommandParameter="{Binding JobId}"
+											IsEnabled="{Binding Status, Converter={StaticResource StatusToStoppableConverter}}"/>
 								</StackPanel>
+
+								<!-- Bouton Edit par job -->
+								<Button Grid.Column="8" Content="✎" FontSize="12" Padding="4,2" CornerRadius="4"
+										Background="#cba6f7" Foreground="#1e1e2e"
+										Command="{Binding $parent[ListBox].((vm:JobListViewModel)DataContext).ModifyJobCommand}"
+										CommandParameter="{Binding JobId}"/>
 
 							</Grid>
 						</DataTemplate>
