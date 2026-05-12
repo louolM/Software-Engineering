@@ -1,4 +1,5 @@
-﻿using EasyLog;
+﻿using CryptoSoft;
+using EasyLog;
 using EasySave.Core;
 using EasySave.Services.Interfaces;
 using System.Diagnostics;
@@ -163,20 +164,8 @@ public class BackupService : IBackupService
     {
         try
         {
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "CryptoSoft.exe"),
-                    Arguments = $"\"{filePath}\" \"{key}\"",
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true
-                }
-            };
-            process.Start();
-            process.WaitForExit();
-            return process.ExitCode;
+            var fileManager = new FileManager(filePath, key);
+            return fileManager.TransformFile();
         }
         catch { return -99; }
     }
