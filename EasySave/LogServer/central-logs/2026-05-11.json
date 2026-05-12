@@ -4381,5 +4381,14 @@
     "FileSize": 5120,
     "TransferTime": 1,
     "EncryptionTime": 0
+  },
+  {
+    "Timestamp": "2026-05-11T12:46:26.2078592+00:00",
+    "BackupName": "Job Backup 1",
+    "SourcePath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestSource\\test.txt",
+    "TargetPath": "\\\\DESKTOP-91HULO7\\C$\\Users\\Jules\\Documents\\GitHub\\Software-Engineering\\EasySave\\TestTarget\\test.txt",
+    "FileSize": 16,
+    "TransferTime": 1,
+    "EncryptionTime": 10
   }
 ]
