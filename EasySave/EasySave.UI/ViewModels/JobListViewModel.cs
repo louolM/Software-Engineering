@@ -265,7 +265,7 @@ public partial class JobListViewModel : ViewModelBase
             SetError(string.Format(_t.T("jobs.blockedBusiness"), settings.BusinessSoftware));
             return;
         }
-
+        // Surveiller si process démarre pendant l'exécution du job
         StartWatcher(settings);
         await StartJob(SelectedJob, settings);
         StopWatcher();
@@ -275,6 +275,7 @@ public partial class JobListViewModel : ViewModelBase
     private async Task RunAll()
     {
         if (Jobs.Count == 0) { SetError(_t.T("jobs.noJobs")); return; }
+        // Charge la config des paramètres
         var settings = _settingsRepo.Load();
 
         // ← PATCH 1 : vérifier business software AVANT de démarrer
@@ -283,7 +284,7 @@ public partial class JobListViewModel : ViewModelBase
             SetError(string.Format(_t.T("jobs.blockedBusiness"), settings.BusinessSoftware));
             return;
         }
-
+        // Surveiller si process démarre pendant l'exécution des jobs
         StartWatcher(settings);
         var tasks = Jobs.Select(job => StartJob(job, settings)).ToList();
         await Task.WhenAll(tasks);
@@ -293,8 +294,11 @@ public partial class JobListViewModel : ViewModelBase
 
     private static bool IsBusinessSoftwareActive(string processName)
     {
+        // Si aucun process renseigné
         if (string.IsNullOrWhiteSpace(processName)) return false;
+        // Nettoyage du nom
         var name = processName.Replace(".exe", "", StringComparison.OrdinalIgnoreCase).Trim();
+        // Retourne True si un moins 1 process avec ce nom est actif
         return Process.GetProcessesByName(name).Length > 0;
     }
 

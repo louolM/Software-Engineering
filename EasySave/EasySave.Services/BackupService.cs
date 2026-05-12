@@ -46,7 +46,7 @@ public class BackupService : IBackupService
             TotalSize = totalSize,
             RemainingSize = totalSize
         };
-
+        // Ecrit dans le state.json
         _stateRepo.Save(new List<BackupState> { state });
 
         var priorityExts = settings.PriorityExtensions
@@ -59,9 +59,10 @@ public class BackupService : IBackupService
 
         foreach (var file in orderedFiles)
         {
+            // Attend de façon asynchrone si le job est en pause, ou quitte si le job est stoppé
             try { await controller.WaitIfPausedAsync(controller.Token); }
             catch (OperationCanceledException) { break; }
-
+            
             if (controller.IsStopped) break;
 
             var relativePath = Path.GetRelativePath(sourcePath, file);
@@ -101,6 +102,11 @@ public class BackupService : IBackupService
                     await Task.Run(() => _fileService.CopyFile(file, targetFile), controller.Token);
                     transferDuration = (long)(DateTime.Now - start).TotalMilliseconds;
                 }
+                catch (OperationCanceledException) when (isLarge)
+                {
+                    break;
+                }
+                // Execute le sémaphore qui force les gros fichiers à se copier un par un, mais sans faire échouer le job en cas d'annulation pendant l'attente
                 finally { if (isLarge) _largeCopySlot.Release(); }
 
                 long encryptionTime = 0;
@@ -108,6 +114,7 @@ public class BackupService : IBackupService
                 {
                     await _cryptoSlot.WaitAsync(controller.Token);
                     try { encryptionTime = await Task.Run(() => RunCryptoSoft(targetFile, settings.EncryptionKey)); }
+                    // Execute le sémaphore qui force les fichiers à être chiffrés un par un, mais sans faire échouer le job en cas d'annulation pendant l'attente
                     finally { _cryptoSlot.Release(); }
                 }
 
