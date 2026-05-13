@@ -1,0 +1,181 @@
+flowchart TD
+  Start((' '))
+  RT{Launch mode?}
+  IM['Graphical mode - Avalonia UI']
+  RA['Argument mode - ConsoleApp']
+  Menu{Jobs Menu}
+  CreateJob['New job']
+  DefName['Define name and directories']
+  ChooseType['Choose type: Full / Differential']
+  RunJob["Run selected job(s)"]
+  RunAllJob['Run all jobs']
+  DeleteJob['Delete a job']
+  SelectJobDel['Select job to delete']
+  Leave['Exit']
+  Settings['Open settings']
+  SettingsMenu{Settings}
+  Language['Choose language: FR / EN']
+  BusinessSoftwareDetection['Set business software']
+  CryptoSoftEncryption['CryptoSoft - Encryption']
+  Extensions['Choose extensions to encrypt']
+  Key['Set encryption key']
+  LogFileFormat['Log format: JSON / XML']
+  LogDestination['Log destination: Local / Docker / Both']
+  PriorityExtensions['Priority extensions']
+  MaxParallelSize['Max parallel transfer size in KB']
+  End((' '))
+
+  CheckBusiness1{Business software active?}
+  BlockedBusiness1['Show error: backup blocked']
+  BuildControllers1['Create a JobController']
+  StartWatcher1['Start BusinessSoftwareWatcher']
+
+  CheckBusiness2{Business software active?}
+  BlockedBusiness2['Show error: backup blocked']
+  BuildControllers2['Create one JobController per job']
+  StartWatcher2['Start BusinessSoftwareWatcher']
+
+  BackupLoop{Files remaining?}
+  PauseCheck{Job paused?}
+  WaitResume['Wait for resume - polling 100 ms']
+  StopCheck{Job stopped?}
+  AbortJob['Abort job - Status = STOPPED']
+
+  CheckDiff{Differential backup?}
+  FileUnchanged{File unchanged at target?}
+  SkipFile['Skip file']
+
+  CheckLargeFile{File > MaxParallelFileSize?}
+  AcquireLargeSlot['Acquire large-file lock - SemaphoreSlim 1']
+  CopyFile['Copy file to target directory']
+  ReleaseLargeSlot['Release large-file lock']
+
+  CheckEncrypt{Extension in encryption list?}
+  AcquireCryptoSlot['Acquire CryptoSoft lock - SemaphoreSlim 1']
+  RunCryptoSoft['Run CryptoSoft.exe on target file']
+  ReleaseCryptoSlot['Release CryptoSoft lock']
+
+  WriteLog['Write log entry - JSON or XML']
+  UpdateState['Update state.json']
+  ReportProgress['Report progress - IProgress']
+
+  JobDone['Job complete - Status = INACTIVE']
+  StopWatcher['Stop BusinessSoftwareWatcher']
+
+  PauseAllJobs['Auto-pause all active jobs']
+  ResumeAllJobs['Auto-resume all inactive jobs']
+  WatcherLoop{Business software detected?}
+
+  UserPauseResume{User action}
+  ManualPause['Pause one or all jobs']
+  ManualResume['Resume one or all jobs']
+  ManualStop['Stop one or all jobs']
+
+  %% ── Startup ────────────────────────────────────────────────────────────
+  Start --> RT
+  RT -->|Graphical UI| IM
+  RT -->|CLI arguments| RA
+  IM --> Menu
+  RA --> RunJob
+
+  %% ── Main menu ──────────────────────────────────────────────────────────
+  Menu -->|create| CreateJob
+  Menu -->|run| RunJob
+  Menu -->|runAll| RunAllJob
+  Menu -->|delete| DeleteJob
+  Menu -->|settings| Settings
+  Menu -->|leave| Leave
+
+  %% ── Job creation ───────────────────────────────────────────────────────
+  CreateJob --> DefName --> ChooseType
+  %% ── Job deletion ───────────────────────────────────────────────────────
+  DeleteJob --> SelectJobDel 
+
+  %% ── Settings ───────────────────────────────────────────────────────────
+  Settings --> SettingsMenu
+  SettingsMenu --> Language
+  SettingsMenu --> BusinessSoftwareDetection
+  SettingsMenu --> CryptoSoftEncryption
+  CryptoSoftEncryption --> Extensions
+  CryptoSoftEncryption --> Key
+  SettingsMenu --> LogFileFormat
+  SettingsMenu --> LogDestination
+  SettingsMenu --> PriorityExtensions
+  SettingsMenu --> MaxParallelSize
+
+  Language 
+  BusinessSoftwareDetection 
+  Extensions 
+  Key 
+  LogFileFormat 
+  LogDestination 
+  PriorityExtensions 
+  MaxParallelSize 
+
+  %% ── Run selected job ───────────────────────────────────────────────────
+  RunJob --> CheckBusiness1
+  CheckBusiness1 -->|yes| BlockedBusiness1 --> Menu
+  CheckBusiness1 -->|no| BuildControllers1
+  BuildControllers1 --> StartWatcher1
+  StartWatcher1 --> BackupLoop
+
+  %% ── Run all jobs in parallel ───────────────────────────────────────────
+  RunAllJob --> CheckBusiness2
+  CheckBusiness2 -->|yes| BlockedBusiness2 --> Menu
+  CheckBusiness2 -->|no| BuildControllers2
+  BuildControllers2 --> StartWatcher2
+  StartWatcher2 --> BackupLoop
+
+  %% ── BusinessSoftwareWatcher - background monitoring ────────────────────
+  StartWatcher1 -.->|Async monitoring| WatcherLoop
+  StartWatcher2 -.->|Async monitoring| WatcherLoop
+  WatcherLoop -->|Software detected| PauseAllJobs
+  WatcherLoop -->|Software closed| ResumeAllJobs
+  PauseAllJobs -.-> WatcherLoop
+  ResumeAllJobs -.-> WatcherLoop
+
+  %% ── Manual Pause / Resume / Stop ───────────────────────────────────────
+  BackupLoop -.->|UI interaction| UserPauseResume
+  UserPauseResume -->|Pause| ManualPause
+  UserPauseResume -->|Resume| ManualResume
+  UserPauseResume -->|Stop| ManualStop
+
+  %% ── Per-file backup loop ───────────────────────────────────────────────
+  BackupLoop -->|yes| PauseCheck
+  BackupLoop -->|no| JobDone
+
+  PauseCheck -->|paused| WaitResume --> PauseCheck
+  PauseCheck -->|not paused| StopCheck
+  StopCheck -->|yes| AbortJob
+  StopCheck -->|no| CheckDiff
+
+  CheckDiff -->|differential| FileUnchanged
+  CheckDiff -->|full| CheckLargeFile
+
+  FileUnchanged -->|unchanged| SkipFile --> UpdateState --> ReportProgress --> BackupLoop
+  FileUnchanged -->|modified| CheckLargeFile
+
+  CheckLargeFile -->|yes| AcquireLargeSlot --> CopyFile --> ReleaseLargeSlot --> CheckEncrypt
+  CheckLargeFile -->|no| CopyFile --> CheckEncrypt
+
+  CheckEncrypt -->|encrypted extension| AcquireCryptoSlot --> RunCryptoSoft --> ReleaseCryptoSlot --> WriteLog
+  CheckEncrypt -->|not encrypted| WriteLog
+
+  WriteLog --> UpdateState --> ReportProgress --> BackupLoop
+
+  AbortJob --> StopWatcher --> Menu
+  JobDone --> StopWatcher --> Menu
+  Leave --> End
+
+  %% ── Style classes ───────────────────────────────────────────────────────
+  classDef processNode stroke:#818cf8,fill:#eef2ff,color:#1e1b4b
+  classDef decisionNode stroke:#a78bfa,fill:#f5f3ff,color:#1e1b4b
+  classDef actionNode stroke:#2dd4bf,fill:#f0fdfa,color:#1e1b4b
+  classDef endNode stroke:#f87171,fill:#fef2f2,color:#1e1b4b
+  classDef asyncNode stroke:#f59e0b,fill:#fffbeb,color:#1e1b4b
+
+  class IM,RA,CreateJob,DefName,ChooseType,RunJob,RunAllJob,SelectJobDel,Leave,Settings,Language,BusinessSoftwareDetection,Extensions,Key,LogFileFormat,LogDestination,PriorityExtensions,MaxParallelSize,CryptoSoftEncryption processNode
+  class RT,Menu,SettingsMenu,CheckBusiness1,CheckBusiness2,BackupLoop,PauseCheck,StopCheck,CheckDiff,FileUnchanged,CheckLargeFile,CheckEncrypt,UserPauseResume decisionNode
+  class BuildControllers1,BuildControllers2,AcquireLargeSlot,CopyFile,ReleaseLargeSlot,AcquireCryptoSlot,RunCryptoSoft,ReleaseCryptoSlot,WriteLog,UpdateState,ReportProgress,JobDone,AbortJob,StopWatcher,SkipFile,WaitResume,BlockedBusiness1,BlockedBusiness2,ManualPause,ManualResume,ManualStop actionNode
+  class Start,End endNode
+  class StartWatcher1,StartWatcher2,WatcherLoop,PauseAllJobs,ResumeAllJobs asyncNode
