@@ -3,27 +3,29 @@ using System.Diagnostics;
 
 namespace EasySave.Services;
 
-/// <summary>
-/// Surveille en arrière-plan si un logiciel métier est lancé/fermé.
-/// Pause automatiquement tous les JobControllers actifs si détecté,
-/// les reprend automatiquement quand le logiciel est fermé.
-/// </summary>
+// Monitors a configured business software process in the background.
+// Automatically pauses all active JobControllers when the process starts,
+// and resumes them automatically when the process exits.
 public class BusinessSoftwareWatcher : IDisposable
 {
     private readonly string _processName;
     private readonly List<JobController> _controllers;
     private readonly CancellationTokenSource _cts = new();
+    // Tracks whether the process was running on the last check,
+    // so transitions (not-running -> running and vice-versa) are only acted on once.
     private bool _wasRunning = false;
 
     public BusinessSoftwareWatcher(string processName, List<JobController> controllers)
     {
+        // Strip ".exe" because Process.GetProcessesByName does not include it.
         _processName = processName
             .Replace(".exe", "", StringComparison.OrdinalIgnoreCase)
             .Trim();
         _controllers = controllers;
     }
 
-    /// <summary>Démarre la surveillance en arrière-plan.</summary>
+    // Starts the background polling loop.
+    // Does nothing if no process name is configured.
     public void Start()
     {
         if (string.IsNullOrWhiteSpace(_processName)) return;
@@ -36,7 +38,7 @@ public class BusinessSoftwareWatcher : IDisposable
 
                 if (isRunning && !_wasRunning)
                 {
-                    // Logiciel métier vient de démarrer → pause tous les jobs
+                    // Business software just started: pause all running jobs.
                     foreach (var ctrl in _controllers)
                         if (!ctrl.IsPaused && !ctrl.IsStopped)
                             ctrl.Pause();
@@ -45,7 +47,7 @@ public class BusinessSoftwareWatcher : IDisposable
                 }
                 else if (!isRunning && _wasRunning)
                 {
-                    // Logiciel métier vient de se fermer → reprend tous les jobs
+                    // Business software just closed: resume all paused jobs.
                     foreach (var ctrl in _controllers)
                         if (ctrl.IsPaused)
                             ctrl.Resume();
@@ -53,7 +55,7 @@ public class BusinessSoftwareWatcher : IDisposable
                     _wasRunning = false;
                 }
 
-                // Vérifie toutes les 2 secondes
+                // Polls every 2 seconds to keep CPU usage negligible.
                 await Task.Delay(2000, _cts.Token);
             }
         }, _cts.Token);
