@@ -16,9 +16,15 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        // Set the working directory to the executable's location so relative paths
+        // ("config.json", "settings.json", etc.) resolve consistently regardless of
+        // how the process was launched.
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
-        // ── Mode ligne de commande ────────────────────────────────────────
+        // Command-line mode: if job IDs are passed as arguments, run those jobs
+        // headlessly without opening the GUI, then exit.
+        // ── Mode ligne de commande ──────:set number
+        // 3dd:wq──────────────────────────────────
         if (args.Length > 0)
         {
             Console.WriteLine($"Argument reçu: '{args[0]}'");
@@ -41,6 +47,8 @@ sealed class Program
                 {
                     Console.WriteLine($"Running job: {job.Name}");
                     var controller = new JobController();
+                    // GetAwaiter().GetResult() blocks the console thread until the async
+                    // backup completes, giving sequential execution without async Main.
                     backupSvc.RunBackupAsync(job, settings, controller).GetAwaiter().GetResult();
                     Console.WriteLine($"Done: {job.Name}");
                 }
@@ -52,7 +60,7 @@ sealed class Program
             return;
         }
 
-        // ── Mode graphique ────────────────────────────────────────────────
+        // GUI mode: launch the Avalonia desktop application.
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
@@ -65,6 +73,11 @@ sealed class Program
             .WithInterFont()
             .LogToTrace();
 
+    // Parses a job ID argument into one or more integer IDs.
+    // Supports three formats:
+    //   "3"     -> a single ID
+    //   "1-3"   -> a range (1, 2, 3)
+    //   "1;3;5" -> a list of individual IDs
     private static IEnumerable<int> ParseIds(string input)
     {
         if (input.Contains('-'))
