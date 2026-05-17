@@ -3,6 +3,11 @@ using EasySave.Services.Interfaces;
 
 namespace EasySave.ConsoleApp.ViewModels;
 
+// ViewModel for the console application.
+// Handles all business logic for job management: creating, running, and deleting jobs.
+// The View reads Jobs, Message, and HasError after each call to decide what to display.
+// Message values are translation keys, not raw strings, so the View can pass them
+// through TranslationService.T() to get the correct localized text.
 public class JobViewModel
 {
     private readonly IConfigRepository _configRepo;
@@ -21,6 +26,7 @@ public class JobViewModel
         Refresh();
     }
 
+    // Reloads the job list from disk and clears any pending status message.
     public void Refresh()
     {
         Jobs = _configRepo.Load();
@@ -52,7 +58,9 @@ public class JobViewModel
             var job = Jobs.FirstOrDefault(j => j.Id == id);
             if (job != null)
             {
-                // ← RunBackupAsync appelé de façon synchrone en console
+                // RunBackupAsync is called synchronously in the console app because
+                // there is no UI thread to keep responsive. GetAwaiter().GetResult()
+                // blocks until the task completes without wrapping exceptions in AggregateException.
                 var controller = new JobController();
                 _backupService.RunBackupAsync(job, settings, controller)
                               .GetAwaiter().GetResult();
@@ -64,6 +72,8 @@ public class JobViewModel
             }
         }
 
+        // Pack all results into a pipe-separated string so the View can split and
+        // display them one by one without the ViewModel needing to know about Console.
         Message = string.Join("|", results);
         HasError = false;
     }
