@@ -2,10 +2,11 @@
 
 namespace EasySave.UI;
 
-/// <summary>
-/// Service de traduction centralisé.
-/// Toutes les chaînes UI sont ici. Pour ajouter une langue, ajouter un bloc.
-/// </summary>
+// Centralised translation service for the Avalonia UI.
+// All UI strings are defined here as key-value dictionaries.
+// To add a new language, add a new dictionary method and a matching branch in the constructor.
+// The T() method returns the key itself as a fallback when a translation is missing,
+// making missing keys visible during development without crashing.
 public class TranslationService
 {
     private readonly Dictionary<string, string> _translations;
@@ -18,6 +19,7 @@ public class TranslationService
         _translations = language == "FR" ? French() : English();
     }
 
+    // Looks up a translation by key. Returns the key unchanged if not found.
     public string T(string key) =>
         _translations.TryGetValue(key, out var val) ? val : key;
 
