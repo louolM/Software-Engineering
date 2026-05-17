@@ -1,5 +1,7 @@
 ﻿namespace EasySave.Core;
 
+// Holds all user-configurable application settings.
+// Persisted to "settings.json" by SettingsRepository and loaded at startup.
 public class AppSettings
 {
     // ── v1.0 / v2.0 ──────────────────────────────────────────────────────
@@ -11,20 +13,21 @@ public class AppSettings
 
     // ── v3.0 - nouveaux champs ────────────────────────────────────────────
 
-    /// <summary>Extensions prioritaires : aucun fichier non-prioritaire
-    /// ne sera copié tant qu'il reste des fichiers prioritaires en attente.
-    /// Ex: [".pdf", ".docx"]</summary>
+    // File extensions that must be fully transferred before any non-priority
+    // file is started. For example [".pdf", ".docx"].
+    // 0 priority extensions means all files are treated equally.
     public List<string> PriorityExtensions { get; set; } = new();
 
-    /// <summary>Taille maximale (en KB) pour transfert parallèle.
-    /// Deux fichiers dépassant cette taille ne peuvent pas être copiés
-    /// en même temps. 0 = pas de limite.</summary>
+    // Maximum file size in KB that allows parallel copying.
+    // When two files both exceed this threshold they cannot be copied at the
+    // same time; one waits for the other to finish.
+    // 0 disables the limit and allows all files to copy in parallel.
     public long MaxParallelFileSize { get; set; } = 1024;
 
-    /// <summary>Destination des logs : "Local", "Docker", "Both".</summary>
+    // Controls where log entries are written: "Local", "Docker", or "Both".
     public string LogDestination { get; set; } = "Local";
 
-    /// <summary>URL du serveur Docker pour la centralisation des logs.
-    /// Ex: "http://localhost:5000/logs"</summary>
+    // HTTP endpoint of the central log server when LogDestination includes Docker.
+    // Example: "http://localhost:5000"
     public string DockerLogUrl { get; set; } = "";
 }
