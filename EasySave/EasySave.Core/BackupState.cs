@@ -16,6 +16,8 @@ public class BackupState
     public string? CurrentSourceFile { get; set; }
     public string? CurrentTargetFile { get; set; }
 
+    // Computed progress percentage rounded to one decimal place.
+    // Returns 0 when TotalFiles is 0 to avoid a division-by-zero.
     public double Progression => TotalFiles == 0 ? 0
         : Math.Round((TotalFiles - RemainingFiles) / (double)TotalFiles * 100, 1);
 }
