@@ -3,9 +3,7 @@ using Xunit;
 
 namespace EasySave.Tests;
 
-/// <summary>
-/// Unit tests for the computed <see cref="BackupState.Progression"/> property.
-/// </summary>
+// Unit tests for the computed BackupState.Progression property.
 public class BackupStateTests
 {
     [Fact]
