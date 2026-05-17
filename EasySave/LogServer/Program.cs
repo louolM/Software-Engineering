@@ -1,13 +1,20 @@
 using EasyLog;
 using System.Text.Json;
 
+// Minimal ASP.NET Core log server that receives log entries from EasySave clients
+// and writes them to a central "central-logs" directory.
+// Exposes two endpoints: POST /logs to receive entries and GET /health for liveness checks.
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-// ── Verrou partagé pour toutes les requêtes ───────────────────────────────────
+
+// // Single semaphore shared across all incoming requests to prevent concurrent writes
+// // from corrupting the log file when multiple clients post entries simultaneously.
 var writeLock = new SemaphoreSlim(1, 1);
 
-// ── POST /logs ────────────────────────────────────────────────────────────────
+// POST /logs
+// // Deserialises the request body as a LogEntry and appends it to the daily log file.
+// // Accepts an optional "format" query parameter ("JSON" or "XML"); defaults to JSON.
 app.MapPost("/logs", async (HttpContext ctx) =>
 {
     try
@@ -22,7 +29,7 @@ app.MapPost("/logs", async (HttpContext ctx) =>
         var format = ctx.Request.Query["format"].ToString().ToUpper();
         format = format == "XML" ? "XML" : "JSON";
 
-        // ── Écriture séquentielle - une seule requête à la fois ──────────
+        // Acquire the write lock so only one request writes at a time.
         await writeLock.WaitAsync();
         try
         {
@@ -42,7 +49,9 @@ app.MapPost("/logs", async (HttpContext ctx) =>
     }
 });
 
-// ── GET /health ───────────────────────────────────────────────────────────────
+// GET /health
+// // Returns a simple JSON object with the server status and current UTC time.
+// // Used by Docker health checks or monitoring tools to confirm the server is up.
 app.MapGet("/health", () => Results.Ok(new { status = "ok", time = DateTime.UtcNow }));
 
 app.Run();
