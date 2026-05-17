@@ -4,6 +4,9 @@ using System.Text.Json;
 
 namespace EasySave.Infrastructure;
 
+// Persists and retrieves application settings using a local JSON file ("settings.json").
+// Returns a default AppSettings instance when the file does not exist yet,
+// so the rest of the application always receives a valid, non-null object.
 public class SettingsRepository : ISettingsRepository
 {
     private const string SettingsPath = "settings.json";
