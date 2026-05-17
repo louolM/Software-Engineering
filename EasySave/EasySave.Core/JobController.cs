@@ -1,50 +1,54 @@
 ﻿namespace EasySave.Core;
 
-/// <summary>
-/// Contrôleur individuel pour un job de backup.
-/// Permet de Pause / Resume / Stop un job en cours d'exécution.
-/// </summary>
+// Controls the execution flow of a single running backup job.
+// Allows the caller to pause, resume, or stop the job at any point between file copies.
 public class JobController
 {
     private CancellationTokenSource _cts = new();
+    // ManualResetEventSlim starts in the "set" state (true), meaning the job is not paused.
+    // Calling Reset() blocks threads waiting on it; Set() unblocks them.
     private ManualResetEventSlim _pauseEvent = new(true); // true = non pausé
 
+    // CancellationToken passed to async operations inside BackupService so they can
+    // observe a stop request and exit cleanly.
     public CancellationToken Token => _cts.Token;
+    // True once Stop() has been called and the cancellation has been requested.
     public bool IsPaused { get; private set; }
+    // True once Stop() has been called and the cancellation has been requested.
     public bool IsStopped => _cts.IsCancellationRequested;
 
-    /// <summary>Met le job en pause après le fichier en cours.</summary>
+    // Signals the job to pause after the current file finishes.
     public void Pause()
     {
         IsPaused = true;
         _pauseEvent.Reset();
     }
 
-    /// <summary>Reprend un job en pause.</summary>
+    // Unblocks a paused job so it continues with the next file.
     public void Resume()
     {
         IsPaused = false;
         _pauseEvent.Set();
     }
 
-    /// <summary>Arrête immédiatement le job.</summary>
+    // Requests immediate cancellation and unblocks any pause wait so the job loop can exit.
     public void Stop()
     {
         _cts.Cancel();
-        _pauseEvent.Set(); // débloque le wait si en pause
+        _pauseEvent.Set(); // unblocks WaitIfPausedAsync if the job is currently paused
     }
 
-    /// <summary>
-    /// Appelé par BackupService à chaque fichier.
-    /// Bloque si en pause, lance OperationCanceledException si stoppé.
-    /// </summary>
+    // Called by BackupService before each file transfer.
+    // Polls every 100ms while paused, and throws OperationCanceledException if the job
+    // is stopped while waiting, so the caller's catch block handles the exit.
     public async Task WaitIfPausedAsync(CancellationToken token)
     {
         while (IsPaused && !token.IsCancellationRequested)
             await Task.Delay(100, token);
     }
 
-    /// <summary>Réinitialise le contrôleur pour pouvoir relancer le job.</summary>
+    // Resets the controller to its initial state so the same job can be run again.
+    // A new CancellationTokenSource is needed because a cancelled source cannot be reused.
     public void Reset()
     {
         _cts = new CancellationTokenSource();
