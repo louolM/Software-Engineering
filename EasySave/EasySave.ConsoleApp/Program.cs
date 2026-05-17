@@ -18,10 +18,10 @@ var logFormat = Console.ReadLine()?.Trim().ToUpper() ?? "JSON";
 IFileService fileService = new FileService();
 IStateRepository stateRepo = new StateRepository();
 IConfigRepository configRepo = new ConfigRepository();
-ISettingsRepository settingsRepo = new SettingsRepository();  // ← AJOUT
+ISettingsRepository settingsRepo = new SettingsRepository(); 
 IBackupService backupSvc = new BackupService(fileService, new Logger(logFormat), stateRepo);
 
-var vm = new JobViewModel(configRepo, backupSvc, settingsRepo);  // ← MODIFIÉ
+var vm = new JobViewModel(configRepo, backupSvc, settingsRepo); 
 
 // Command-line mode: if job IDs are passed as arguments, run those jobs
 // headlessly without entering the interactive menu, then exit.
