@@ -1,68 +1,102 @@
 sequenceDiagram
+    participant Prog as Program.cs
+    participant AppXaml as App.axaml
     participant App as App.axaml.cs
-    participant MWvm as MainWindowViewModel
-    participant JLvm as JobListViewModel
-    participant BS as BackupService
-    participant FS as FileService
-    participant SR as StateRepository
+    participant MWvm as MainWindowViewModel <br/>(associates to MainWindow.axaml)
+    participant JLvm as JobListViewModel <br/>(associates to JobListView.axaml)
+    participant Svm as SettingsViewModel <br/>(associates to SettingsView.axaml)
+    participant Watcher as BusinessSoftwareWatcher
+    participant BS as BackupService<br/>(from IBackupService Interface)
+    participant FS as FileService<br/>(from IFileService Interface)
+    participant SR as StateRepository<br/>(from IStateRepository Interface)
+    participant SetR as SettingsRepository<br/>(from ISettingsRepository Interface)
     participant LG as Logger
-    participant CS as CryptoSoft
+    participant DL as DockerLogService
+    participant FM as FileManager
 
-    App->>MWvm: new MainWindowViewModel()
-    note right of MWvm: instanciate FileService, StateRepo,<br/>ConfigRepo, SettingsRepo,<br/>BackupService, Logger, JobListViewModel
+    Prog->>AppXaml: BuildAvaloniaApp().Configure<App>()
+    Prog->>App: StartWithClassicDesktopLifetime()
+    App->>AppXaml: Initialize() — AvaloniaXamlLoader.Load(this)
+    AppXaml-->>App: XAML loaded (styles, templates)
+    App->>MWvm: OnFrameworkInitializationCompleted()<br/>→ new MainWindowViewModel()
+    note right of MWvm: Instanciate: FileService, StateRepo,<br/>SettingsRepo, ConfigRepo, TranslationService,<br/> Logger, DockerLogService?, BackupService
+    MWvm->>JLvm: new JobListViewModel()
+    MWvm->>Svm: new SettingsViewModel()
+    note over JLvm: User clicks "Run Selected"/"Run All"
 
-    note over JLvm: User clicks "Run All/Selected"
+    JLvm->>SetR: settingsRepo.Load()
+    SetR-->>JLvm: return AppSettings object
 
-    JLvm->>SR: settingsRepo.Load()
-    SR-->>JLvm: AppSettings
-
-    alt Process.GetProcessesByName(businessSoftware).Length > 0
-        JLvm-->>JLvm: SetError("blocked") — return
+    alt IsBusinessSoftwareActive(string processName) return True
+        JLvm-->>JLvm: SetError("jobs blocked") 
+        note right of JLvm: Break
     end
 
-    JLvm->>BS: RunBackup(job, settings)
+    JLvm-->>JLvm: StartWatch(AppSettings setting)
 
-    BS-->>BS: IsBusinessSoftwareRunning() 
-    alt still active 
-        BS->>LG: Write(LogEntry — job blocked)
-        note right of BS: return
-    end
+    JLvm->>Watcher: new BusinessSoftwareWatcher(software, controllers)
+    JLvm->>Watcher: _watcher.Start()
+    note right of Watcher: Monitors every 2s —<br/>ctrl.Pause() if software detected<br/>ctrl.Resume() when software closed
 
-    BS->>FS: GetAllFiles(sourcePath)
-    FS-->>BS: IEnumerable<string>
+    note over JLvm,BS: Version 3.0 — Parallel execution of jobs
 
-    BS->>SR: Save([BackupState ACTIVE])
+    par foreach job (parallel tasks)
+        JLvm->>BS: RunBackupAsync(job, settings, controller)
 
-    loop foreach file in files
-        BS-->>BS: IsBusinessSoftwareRunning?
-        alt active
-            BS->>LG: Write(LogEntry interruption)
-            note right of BS: break
-        end
+        BS->>FS: GetAllFiles(sourcePath)
+        FS-->>BS: IEnumerable<string> (files directories)
+        note right of BS: Priority files sorted first<br/>(OrderByDescending on PriorityExtensions)
 
-        opt Differential && LastWriteTime source ≤ target
+        BS->>SR: Save(List<BackupState> state) for state.json
+
+        loop foreach file in files (priority order)
+            BS-->>BS: await WaitIfPausedAsync(token)<br/>(polling 100ms while IsPaused)
+            alt controller.IsStopped
+                note right of BS: break
+            end
+
+            opt Differential type && LastWriteTime(source) ≤ LastWriteTime(target)
+                BS->>SR: Save(state, remaining--)
+                note right of BS: If file up-to-date → next iteration
+            end
+
+            opt fileSize > MaxParallelFileSize (KB)
+                note right of BS: await _largeCopySlot.WaitAsync(controller.Token)<br/>(SemaphoreSlim — max 1 large file at a time)
+            end
+
+            BS->>FS: CopyFile(source, target)
+
+
+            opt ext ∈ EncryptedExtensions
+                note right of BS: await _cryptoSlot.WaitAsync()<br/>(SemaphoreSlim — CryptoSoft is single-instance)
+                BS->>BS: RunCryptoSoft(targetFile, key)
+                BS->>FM: TransformFile()
+                FM-->>BS: ExitCode (encryption duration (ms))
+
+                note right of BS: _cryptoSlot.Release()
+            end
+
+            alt success
+                BS->>LG: WriteLog(new LogEntry — TransferTime: transferDuration )
+                note right of LG: Dispatch per LogDestination setting:<br/>Local or Both → Logger.Write()<br/>Docker or Both → DockerLogService.Send()
+                opt LogDestination is "Docker" or "Both"
+                    LG->>DL: Send(LogEntry)
+                end
+            else catch
+                BS->>LG: WriteLog(new LogEntry — TransferTime: -1)
+                opt LogDestination is "Docker" or "Both"
+                    LG->>DL: Send(LogEntry)
+                end
+            end
+
             BS->>SR: Save(state, remaining--)
-            note right of BS: continue
         end
 
-        BS->>FS: CopyFile(source, target)
-        FS-->>BS: transferDuration (ms)
-
-        opt ext ∈ EncryptedExtensions
-            BS->>CS: RunCryptoSoft(targetFile, key)
-            CS-->>BS: ExitCode (>0 = ms, <0 = erreur)
-        end
-
-        alt success
-            BS->>LG: Write(LogEntry — success, size, duration)
-        else catch
-            BS->>LG: Write(LogEntry — TransferTime: -1)
-        end
-
-        BS->>SR: Save(state, remaining--)
+        BS->>SR: Save(BackupState INACTIVE or STOPPED)
+        BS-->>JLvm: Task completed
     end
 
-    BS->>SR: Save([BackupState INACTIVE])
-    BS-->>JLvm: void
-
-    JLvm-->>JLvm: SetSuccessAutoHide(...) — Task.Delay(5s)
+    JLvm->>Watcher: StopWatcher()
+    opt RunAll()|StartJob()|<br/>DeleteSelected()
+        JLvm-->>JLvm: ShowSuccessAutoHide(...) — Task.Delay(5s)
+    end

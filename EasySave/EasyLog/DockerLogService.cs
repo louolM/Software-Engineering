@@ -4,12 +4,12 @@ using System.Text.Json;
 
 namespace EasyLog;
 
-/// <summary>
-/// Envoie les logs au serveur Docker centralisé via HTTP POST.
-/// Utilisé par BackupService quand LogDestination = "Docker" ou "Both".
-/// </summary>
+// Sends log entries to the centralised Docker log server via HTTP POST.
+// Used by BackupService when LogDestination is "Docker" or "Both".
 public class DockerLogService
 {
+    // A single static HttpClient is reused across all calls to avoid socket exhaustion
+    // from creating a new instance per request.
     private static readonly HttpClient _http = new();
     private readonly string _serverUrl;
     private readonly string _format;
@@ -20,13 +20,14 @@ public class DockerLogService
         _format = format.ToUpper() == "XML" ? "XML" : "JSON";
     }
 
-    /// <summary>
-    /// Envoie une entrée de log au serveur Docker.
-    /// Fire-and-forget : les erreurs sont silencieuses pour ne pas bloquer le backup.
-    /// </summary>
+    // Sends a log entry to the server asynchronously and fire-and-forget.
+    // Errors are silently swallowed so a network failure never blocks or
+    // interrupts the backup job that triggered the call.
     public void Send(LogEntry entry)
     {
-        // Fire and forget - ne bloque pas le backup
+        // The discard assignment (_ = ...) explicitly suppresses the compiler warning
+        // about an unawaited task, "fire-and-forget" logic.
+        
         _ = Task.Run(async () =>
         {
             try
@@ -38,7 +39,7 @@ public class DockerLogService
             }
             catch
             {
-                // Silencieux - le backup continue même si Docker est inaccessible
+                // Intentionally silent: the backup continues even if the Docker server is unreachable.
             }
         });
     }

@@ -6,6 +6,12 @@ using System.Diagnostics;
 
 namespace EasySave.Services;
 
+// Executes backup jobs and coordinates file copying, encryption, state tracking, and logging.
+//
+// Two static semaphores enforce concurrency rules across all running jobs:
+//   _largeCopySlot  - ensures only one large file is copied at a time (threshold from settings)
+//   _cryptoSlot     - ensures only one file is encrypted at a time
+// Both are static so they are shared even when multiple BackupService instances exist.
 public class BackupService : IBackupService
 {
     private readonly IFileService _fileService;
@@ -13,6 +19,7 @@ public class BackupService : IBackupService
     private readonly IStateRepository _stateRepo;
     private readonly DockerLogService? _dockerLog;
 
+    // SemaphoreSlim(1, 1) creates a binary semaphore: at most one caller can hold it at a time.
     private static readonly SemaphoreSlim _largeCopySlot = new(1, 1);
     private static readonly SemaphoreSlim _cryptoSlot = new(1, 1);
 
@@ -46,12 +53,15 @@ public class BackupService : IBackupService
             TotalSize = totalSize,
             RemainingSize = totalSize
         };
-
+        // Writes initial state so monitoring tools see the job as active immediately.
         _stateRepo.Save(new List<BackupState> { state });
 
+        // Build a set of priority extensions for O(1) lookup during the sort.
         var priorityExts = settings.PriorityExtensions
             .Select(e => e.ToLower()).ToHashSet();
 
+        // Sort files so priority extensions come first. OrderByDescending on a bool puts
+        // "true" (is priority) before "false" (not priority).
         var orderedFiles = priorityExts.Count > 0
             ? allFiles.OrderByDescending(f =>
                 priorityExts.Contains(Path.GetExtension(f).ToLower())).ToList()
@@ -59,9 +69,10 @@ public class BackupService : IBackupService
 
         foreach (var file in orderedFiles)
         {
+            // Wait asynchronously if the job is paused, or exit if it has been stopped.
             try { await controller.WaitIfPausedAsync(controller.Token); }
             catch (OperationCanceledException) { break; }
-
+            
             if (controller.IsStopped) break;
 
             var relativePath = Path.GetRelativePath(sourcePath, file);
@@ -69,7 +80,8 @@ public class BackupService : IBackupService
             var fileSize = new FileInfo(file).Length;
             var ext = Path.GetExtension(file).ToLower();
 
-            // Differential
+            // Differential mode: skip files that already exist at the target
+            // and have not been modified since the last backup.
             if (job.Type == BackupType.Differential && File.Exists(targetFile))
             {
                 var srcInfo = new FileInfo(file);
@@ -93,6 +105,8 @@ public class BackupService : IBackupService
                 var maxSize = settings.MaxParallelFileSize * 1024;
                 bool isLarge = maxSize > 0 && fileSize > maxSize;
 
+                // Acquire the large-file slot before copying so that at most one
+                // oversized file is being transferred at any given time.
                 if (isLarge) await _largeCopySlot.WaitAsync(controller.Token);
                 long transferDuration;
                 try
@@ -101,16 +115,26 @@ public class BackupService : IBackupService
                     await Task.Run(() => _fileService.CopyFile(file, targetFile), controller.Token);
                     transferDuration = (long)(DateTime.Now - start).TotalMilliseconds;
                 }
+                catch (OperationCanceledException) when (isLarge)
+                {
+                    // The job was cancelled while waiting for or holding the slot.
+                    // Break out of the loop; the finally block still releases the semaphore.
+                    break;
+                }
+                // Always release the semaphore, even on cancellation, to avoid deadlocking
+                // other jobs waiting for the large-file slot.
                 finally { if (isLarge) _largeCopySlot.Release(); }
 
                 long encryptionTime = 0;
                 if (settings.EncryptedExtensions.Contains(ext))
                 {
+                    // Acquire the crypto slot so only one file is encrypted at a time.
                     await _cryptoSlot.WaitAsync(controller.Token);
                     try { encryptionTime = await Task.Run(() => RunCryptoSoft(targetFile, settings.EncryptionKey)); }
                     finally { _cryptoSlot.Release(); }
                 }
-
+                // Log a failed transfer with TransferTime = -1 to signal the error
+                // without interrupting the rest of the job.
                 WriteLog(new LogEntry
                 {
                     Timestamp = DateTime.Now,
@@ -143,6 +167,7 @@ public class BackupService : IBackupService
             progress?.Report(state.Progression);
         }
 
+        // Mark the job as STOPPED if cancelled, or INACTIVE when it finished normally.
         state.Status = controller.IsStopped ? "STOPPED" : "INACTIVE";
         state.LastActionTime = DateTime.Now;
         state.CurrentSourceFile = null;
@@ -150,7 +175,8 @@ public class BackupService : IBackupService
         _stateRepo.Save(new List<BackupState> { state });
     }
 
-    // ── Écriture log : Local / Docker / Both ─────────────────────────────
+    // Routes the log entry to the local logger, the Docker server, or both,
+    // depending on the LogDestination setting.
     private void WriteLog(LogEntry entry, AppSettings settings)
     {
         if (settings.LogDestination is "Local" or "Both")
@@ -160,6 +186,8 @@ public class BackupService : IBackupService
             _dockerLog?.Send(entry);
     }
 
+    // Runs the CryptoSoft XOR encryption on the copied file and returns the elapsed
+    // time in milliseconds. Returns -99 on failure.
     private static long RunCryptoSoft(string filePath, string key)
     {
         try
@@ -170,6 +198,8 @@ public class BackupService : IBackupService
         catch { return -99; }
     }
 
+    // Converts a local path to a UNC path (\\MachineName\C$\...) so that log entries
+    // are machine-agnostic and unambiguous when read on a different host.
     private static string ToUNC(string path)
     {
         if (path.StartsWith(@"\\")) return path;

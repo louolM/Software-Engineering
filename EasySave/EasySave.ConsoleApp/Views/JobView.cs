@@ -3,10 +3,9 @@ using EasySave.Core;
 
 namespace EasySave.ConsoleApp.Views;
 
-/// <summary>
-/// View console : ne contient AUCUNE logique métier.
-/// Elle lit les saisies, appelle le ViewModel, puis affiche l'état retourné.
-/// </summary>
+// Console view for the job management UI.
+// Contains no business logic: it reads user input, delegates to the ViewModel,
+// then displays whatever the ViewModel puts in Jobs, Message, and HasError.
 public class JobView
 {
     private readonly JobViewModel _vm;
@@ -18,7 +17,8 @@ public class JobView
         _t = t;
     }
 
-    // ── Boucle principale ──────────────────────────────────────────────────
+    // Main interactive loop. Displays the menu and dispatches to the
+    // appropriate handler until the user chooses to quit.
     public void Run()
     {
         while (true)
@@ -46,8 +46,8 @@ public class JobView
             }
         }
     }
+    // Prompts the user for job fields, calls CreateJob, and prints the result.
 
-    // ── Vue : Créer ────────────────────────────────────────────────────────
     private void ShowCreate()
     {
         Console.Write(_t.T("createName"));
@@ -68,7 +68,7 @@ public class JobView
         PrintMessage();
     }
 
-    // ── Vue : Liste ────────────────────────────────────────────────────────
+    // Prints all saved jobs in a fixed-width table format.
     private void ShowList()
     {
         _vm.Refresh();
@@ -86,7 +86,9 @@ public class JobView
             Console.WriteLine($"{j.Id,2} | {j.Name,-20} | {j.Type,-12} | {j.SourcePath} -> {j.TargetPath}");
     }
 
-    // ── Vue : Lancer ───────────────────────────────────────────────────────
+    
+    // Shows the job list, prompts for IDs, runs the selected jobs, then prints
+    // the composite result message returned by the ViewModel.
     private void ShowRun()
     {
         ShowList();
@@ -97,7 +99,8 @@ public class JobView
 
         _vm.RunJobs(ParseIds(input));
 
-        // Le ViewModel retourne un message composite "clé:valeur|clé:valeur"
+        // The ViewModel packs results as "translationKey:value" pairs separated by "|".
+        // Split them here and translate each key to display a localised line per job.
         foreach (var part in _vm.Message.Split('|', StringSplitOptions.RemoveEmptyEntries))
         {
             var segments = part.Split(':', 2);
@@ -108,7 +111,7 @@ public class JobView
         }
     }
 
-    // ── Vue : Supprimer ────────────────────────────────────────────────────
+    // Shows the job list, prompts for an ID, and deletes the selected job.
     private void ShowDelete()
     {
         ShowList();
@@ -126,13 +129,18 @@ public class JobView
         PrintMessage();
     }
 
-    // ── Helpers ────────────────────────────────────────────────────────────
+    // Translates the ViewModel's message key and prints it to the console.
     private void PrintMessage()
     {
         if (!string.IsNullOrEmpty(_vm.Message))
             Console.WriteLine(_t.T(_vm.Message));
     }
 
+    // Parses a job ID argument into one or more integer IDs.
+    // Supports three formats:
+    //   "3"     -> a single ID
+    //   "1-3"   -> a range (1, 2, 3)
+    //   "1;3;5" -> a list of individual IDs
     private static IEnumerable<int> ParseIds(string input)
     {
         if (input.Contains('-'))
