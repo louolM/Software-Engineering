@@ -209,109 +209,18 @@ EasySave/
 
 ---
 
-## Diagrams
+### Diagrams
+The use case diagram shows the different functionalities of a system from the user’s perspective and how actors interact with it.
+![Diagram](Diagrams/Pictures/UseCase.png)
 
-### Activity diagram (v3.0 updates)
+The activity diagram represents the flow of actions and decisions within a process from start to finish.
+![Diagram](Diagrams/Pictures/Activity.png)
 
-```mermaid
-flowchart TD
-  Start((' '))
-  RT{Run type?}
-  IM['Run in graphic mode']
-  RA['Run with arguments']
-  Menu{Jobs}
-  CreateJob['New job']
-  DefName['Define name and directories']
-  ChooseType['Choose job type full / differential']
-  RunJob['Run a selected job']
-  RunAllJob['Run all jobs (in parallel)']
-  PauseJob['Pause a running job']
-  ResumeJob['Resume a paused job']
-  StopJob['Stop a running job']
-  PauseAll['Pause all jobs']
-  ResumeAll['Resume all jobs']
-  StopAll['Stop all jobs']
-  RunArgs{Run with arguments?}
-  SelectJobRun['Select job']
-  FullBackup{Full backup?}
-  CopyAll['Copy/Paste all between directories']
-  CheckDiff['Check differentials between directories']
-  CopyDiff['Copy/Paste differentials between directories']
-  DeleteJob['Delete a job']
-  SelectJobDel['Select job']
-  Leave['Leave menu']
-  Settings['Open settings']
-  SettingsMenu{Settings}
-  Language['Choose language']
-  BusinessSoftwareDetection['Choose the business software Detection']
-  CryptoSoftEncryption['CryptoSoft Encryption']
-  Extensions['Choose the extensions to Encrypt']
-  Priority['Mark priority extensions']
-  Key['Choose the Encryption Key']
-  LogFileFormat['Choose the Log File Format JSON/XML']
-  LogDestination['Choose log destination: Local / Docker / Both']
-  MaxParallelSize['Set max parallel file size (KB)']
-  End((' '))
+The class diagram describes the structure of a system by showing its classes, attributes, methods, and relationships.
+![Diagram](Diagrams/Pictures/Class.png)
 
-  Start --> RT
-  RT -->|interactive| IM
-  RT -->|arguments| RA
-  IM --> Menu
-  RA --> RunJob
-
-  Menu -->|create| CreateJob
-  Menu -->|run| RunJob
-  Menu -->|runAll| RunAllJob
-  Menu -->|pause| PauseJob
-  Menu -->|resume| ResumeJob
-  Menu -->|stop| StopJob
-  Menu -->|pauseAll| PauseAll
-  Menu -->|resumeAll| ResumeAll
-  Menu -->|stopAll| StopAll
-  Menu -->|delete| DeleteJob
-  Menu -->|leave| Leave
-  Menu -->|settings| Settings
-
-  Settings --> SettingsMenu
-  SettingsMenu --> Language
-  SettingsMenu --> BusinessSoftwareDetection
-  SettingsMenu --> CryptoSoftEncryption
-  CryptoSoftEncryption --> Extensions
-  CryptoSoftEncryption --> Priority
-  CryptoSoftEncryption --> Key
-  SettingsMenu --> LogFileFormat
-  SettingsMenu --> LogDestination
-  SettingsMenu --> MaxParallelSize
-
-  Language --> Menu
-  BusinessSoftwareDetection --> Menu
-  Extensions --> Menu
-  Priority --> Menu
-  Key --> Menu
-  LogFileFormat --> Menu
-  LogDestination --> Menu
-  MaxParallelSize --> Menu
-
-  CreateJob --> DefName --> ChooseType --> Menu
-
-  RunJob --> RunArgs
-  RunArgs -->|yes| FullBackup
-  RunArgs -->|no| SelectJobRun
-  SelectJobRun --> FullBackup
-  FullBackup -->|yes| CopyAll --> Menu
-  FullBackup -->|no| CheckDiff --> CopyDiff --> Menu
-
-  RunAllJob --> Menu
-  PauseJob --> Menu
-  ResumeJob --> Menu
-  StopJob --> Menu
-  PauseAll --> Menu
-  ResumeAll --> Menu
-  StopAll --> Menu
-
-  DeleteJob --> SelectJobDel --> Menu
-  Leave --> End
-```
+The sequence diagram illustrates how objects interact over time by showing the order of exchanged messages.
+![Diagram](Diagrams/Pictures/Sequence.png)
 
 ### Comparison: v2.0 → v3.0
 
